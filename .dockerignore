@@ -1,0 +1,75 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Ambiente local
+.env.local
+.env.*.local
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+error_log
+
+# Dependências (serão instaladas no build)
+node_modules/
+vendor/
+
+# Arquivos temporários
+.temp_ag_kit/
+_debug/
+_archived/
+
+# Uploads (serão montados como volume)
+uploads/*
+!uploads/.gitkeep
+
+# Backups
+backups/
+*.sql
+*.sql.gz
+
+# Cache
+storage/cache/*
+!storage/cache/.gitkeep
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Documentação de desenvolvimento
+docs/
+*.md
+!README.md
+
+# Testes
+tests/
+phpunit.xml
+coverage/
+
+# Arquivos de configuração local
+composer.lock
+package-lock.json
+
+# Arquivos grandes
+*.zip
+*.tar.gz
+*.rar
+
+# Chatwoot (não usado)
+chatwoot-4.10.0/
+
+# Fontes (se não forem necessárias)
+fonts/
+
+# Well-known (certificados locais)
+.well-known/

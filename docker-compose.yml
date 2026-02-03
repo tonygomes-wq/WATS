@@ -1,0 +1,150 @@
+# ============================================
+# WATS - Docker Compose
+# Para testes locais e desenvolvimento
+# ============================================
+# IMPORTANTE: No Easypanel, você NÃO usa este arquivo
+# Este é apenas para testar localmente antes do deploy
+# ============================================
+
+version: '3.8'
+
+services:
+  # ============================================
+  # APLICAÇÃO WATS
+  # ============================================
+  wats:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wats_app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      # Banco de Dados (conecta ao MySQL abaixo)
+      DB_HOST: mysql
+      DB_NAME: watsdb
+      DB_USER: wats_user
+      DB_PASS: wats_password_secure_123
+      DB_CHARSET: utf8mb4
+      
+      # Evolution API
+      EVOLUTION_API_URL: https://evolution.macip.com.br
+      EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
+      EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE}
+      
+      # Meta API
+      META_API_VERSION: v19.0
+      META_GRAPH_API_URL: https://graph.facebook.com
+      META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN}
+      
+      # Aplicação
+      APP_NAME: "MAC-IP TECNOLOGIA"
+      APP_ENV: development
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      
+      # Segurança
+      APP_KEY: ${APP_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      SESSION_LIFETIME: 480
+      
+      # Webhook
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      WEBHOOK_RATE_LIMIT: 100
+      WEBHOOK_RATE_WINDOW: 60
+      
+      # Logs
+      LOG_CHANNEL: daily
+      LOG_LEVEL: debug
+      
+      # Google AI
+      GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
+      GOOGLE_AI_MODEL: gemini-2.5-flash
+    volumes:
+      # Uploads persistentes
+      - ./uploads:/var/www/html/uploads
+      # Logs persistentes
+      - ./logs:/var/www/html/logs
+      # Storage/cache
+      - ./storage:/var/www/html/storage
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - wats_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health.php"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================
+  # MYSQL DATABASE
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: wats_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_secure_456
+      MYSQL_DATABASE: watsdb
+      MYSQL_USER: wats_user
+      MYSQL_PASSWORD: wats_password_secure_123
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      # Dados persistentes
+      - mysql_data:/var/lib/mysql
+      # Importar backup inicial (opcional)
+      - ./database/backup.sql:/docker-entrypoint-initdb.d/backup.sql:ro
+    networks:
+      - wats_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_secure_456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: 
+      - --default-authentication-plugin=mysql_native_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_connections=200
+
+  # ============================================
+  # PHPMYADMIN (Opcional - para gerenciar banco)
+  # ============================================
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: wats_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password_secure_456
+      UPLOAD_LIMIT: 100M
+    depends_on:
+      - mysql
+    networks:
+      - wats_network
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  mysql_data:
+    driver: local
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  wats_network:
+    driver: bridge
