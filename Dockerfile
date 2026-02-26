@@ -113,9 +113,16 @@ WORKDIR /var/www/html
 
 # Copiar arquivos de configuração primeiro (melhor cache)
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/crontab /etc/cron.d/wats-cron
 
 # Copiar aplicação
 COPY --chown=www-data:www-data . /var/www/html/
+
+# Configurar crontab e criar diretórios de log
+RUN chmod 0644 /etc/cron.d/wats-cron \
+    && crontab /etc/cron.d/wats-cron \
+    && mkdir -p /var/log/cron \
+    && touch /var/log/cron/cron.log
 
 # Ajustar permissões
 RUN chown -R www-data:www-data /var/www/html \
