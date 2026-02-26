@@ -1,150 +1,120 @@
-# ============================================
-# WATS - Docker Compose
-# Para testes locais e desenvolvimento
-# ============================================
-# IMPORTANTE: No Easypanel, você NÃO usa este arquivo
-# Este é apenas para testar localmente antes do deploy
-# ============================================
-
 version: '3.8'
 
 services:
-  # ============================================
-  # APLICAÇÃO WATS
-  # ============================================
-  wats:
+  wats-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wats_app
+    container_name: wats-app
     restart: unless-stopped
     ports:
       - "8080:80"
     environment:
-      # Banco de Dados (conecta ao MySQL abaixo)
-      DB_HOST: mysql
-      DB_NAME: watsdb
-      DB_USER: wats_user
-      DB_PASS: wats_password_secure_123
-      DB_CHARSET: utf8mb4
+      # Banco de Dados
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-watsdb}
+      DB_USER: ${DB_USER:-watsuser}
+      DB_PASS: ${DB_PASS:-watspass}
+      DB_CHARSET: ${DB_CHARSET:-utf8mb4}
+      
+      # Aplicação
+      APP_NAME: ${APP_NAME:-WATS}
+      APP_ENV: ${APP_ENV:-production}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_KEY: ${APP_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      SESSION_LIFETIME: ${SESSION_LIFETIME:-480}
       
       # Evolution API
-      EVOLUTION_API_URL: https://evolution.macip.com.br
+      EVOLUTION_API_URL: ${EVOLUTION_API_URL}
       EVOLUTION_API_KEY: ${EVOLUTION_API_KEY}
       EVOLUTION_INSTANCE: ${EVOLUTION_INSTANCE}
       
-      # Meta API
-      META_API_VERSION: v19.0
-      META_GRAPH_API_URL: https://graph.facebook.com
+      # Meta WhatsApp
+      META_API_VERSION: ${META_API_VERSION:-v24.0}
+      META_GRAPH_API_URL: ${META_GRAPH_API_URL:-https://graph.facebook.com}
       META_WEBHOOK_VERIFY_TOKEN: ${META_WEBHOOK_VERIFY_TOKEN}
       
-      # Aplicação
-      APP_NAME: "MAC-IP TECNOLOGIA"
-      APP_ENV: development
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8080
-      
       # Segurança
-      APP_KEY: ${APP_KEY}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
-      SESSION_LIFETIME: 480
-      
-      # Webhook
       WEBHOOK_SECRET: ${WEBHOOK_SECRET}
-      WEBHOOK_RATE_LIMIT: 100
-      WEBHOOK_RATE_WINDOW: 60
+      WEBHOOK_SIGNATURE_HEADER: ${WEBHOOK_SIGNATURE_HEADER:-X-Webhook-Signature}
+      WEBHOOK_RATE_LIMIT: ${WEBHOOK_RATE_LIMIT:-100}
+      WEBHOOK_RATE_WINDOW: ${WEBHOOK_RATE_WINDOW:-60}
+      ENCRYPT_TOKENS: ${ENCRYPT_TOKENS:-true}
       
-      # Logs
-      LOG_CHANNEL: daily
-      LOG_LEVEL: debug
+      # Limites
+      MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-10}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-30}
+      LOG_LEVEL: ${LOG_LEVEL:-error}
+      CACHE_DRIVER: ${CACHE_DRIVER:-file}
       
       # Google AI
       GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
-      GOOGLE_AI_MODEL: gemini-2.5-flash
+      GOOGLE_AI_MODEL: ${GOOGLE_AI_MODEL:-gemini-2.5-flash}
+      GOOGLE_AI_ENDPOINT: ${GOOGLE_AI_ENDPOINT:-https://generativelanguage.googleapis.com/v1beta/models}
+      
+      # VoIP
+      VOIP_ENABLED: ${VOIP_ENABLED:-true}
+      VOIP_PROVIDER: ${VOIP_PROVIDER:-freeswitch}
+      VOIP_SERVER_HOST: ${VOIP_SERVER_HOST}
+      VOIP_WSS_PORT: ${VOIP_WSS_PORT:-8083}
+      VOIP_SIP_DOMAIN: ${VOIP_SIP_DOMAIN}
+      VOIP_ESL_PORT: ${VOIP_ESL_PORT:-8021}
+      VOIP_ESL_PASSWORD: ${VOIP_ESL_PASSWORD:-ClueCon}
+      VOIP_STUN_SERVER: ${VOIP_STUN_SERVER:-stun:stun.l.google.com:19302}
+    
     volumes:
-      # Uploads persistentes
-      - ./uploads:/var/www/html/uploads
-      # Logs persistentes
-      - ./logs:/var/www/html/logs
-      # Storage/cache
-      - ./storage:/var/www/html/storage
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - wats-uploads:/var/www/html/uploads
+      - wats-backups:/var/www/html/backups
+      - wats-storage:/var/www/html/storage
+    
     networks:
-      - wats_network
+      - wats-network
+    
+    depends_on:
+      - mysql
+    
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health.php"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
-  # ============================================
-  # MYSQL DATABASE
-  # ============================================
   mysql:
     image: mysql:8.0
-    container_name: wats_mysql
+    container_name: wats-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root_password_secure_456
-      MYSQL_DATABASE: watsdb
-      MYSQL_USER: wats_user
-      MYSQL_PASSWORD: wats_password_secure_123
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${DB_NAME:-watsdb}
+      MYSQL_USER: ${DB_USER:-watsuser}
+      MYSQL_PASSWORD: ${DB_PASS:-watspass}
     ports:
       - "3306:3306"
     volumes:
-      # Dados persistentes
-      - mysql_data:/var/lib/mysql
-      # Importar backup inicial (opcional)
-      - ./database/backup.sql:/docker-entrypoint-initdb.d/backup.sql:ro
+      - wats-mysql-data:/var/lib/mysql
     networks:
-      - wats_network
+      - wats-network
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password_secure_456"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
-    command: 
-      - --default-authentication-plugin=mysql_native_password
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --max_connections=200
 
-  # ============================================
-  # PHPMYADMIN (Opcional - para gerenciar banco)
-  # ============================================
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: wats_phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: root_password_secure_456
-      UPLOAD_LIMIT: 100M
-    depends_on:
-      - mysql
-    networks:
-      - wats_network
-
-# ============================================
-# VOLUMES
-# ============================================
 volumes:
-  mysql_data:
+  wats-uploads:
+    driver: local
+  wats-backups:
+    driver: local
+  wats-storage:
+    driver: local
+  wats-mysql-data:
     driver: local
 
-# ============================================
-# NETWORKS
-# ============================================
 networks:
-  wats_network:
+  wats-network:
     driver: bridge

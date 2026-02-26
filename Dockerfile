@@ -1,268 +1,138 @@
-# ============================================
-# WATS - Sistema Multi-Canal
-# Dockerfile para Easypanel
-# ============================================
-# Suporta: PHP 8.2 + Apache + Node.js + Cron
-# ============================================
+FROM php:8.3-apache
 
-FROM php:8.2-apache
+# Metadados da imagem
+LABEL maintainer="MAC-IP TECNOLOGIA LTDA <suporte@macip.com.br>"
+LABEL description="WATS - Sistema de Atendimento Multicanal"
+LABEL version="1.0.0"
 
-LABEL maintainer="MACIP Tecnologia <suporte@macip.com.br>"
-LABEL description="WATS - Sistema de Chat Multi-Canal (WhatsApp, Teams, Email)"
-
-# ============================================
-# VARIÁVEIS DE AMBIENTE
-# ============================================
+# Variáveis de ambiente padrão
 ENV DEBIAN_FRONTEND=noninteractive \
     APACHE_DOCUMENT_ROOT=/var/www/html \
-    TZ=America/Sao_Paulo
+    PHP_MEMORY_LIMIT=256M \
+    PHP_UPLOAD_MAX_FILESIZE=50M \
+    PHP_POST_MAX_SIZE=50M \
+    PHP_MAX_EXECUTION_TIME=300
 
-# ============================================
-# INSTALAR DEPENDÊNCIAS DO SISTEMA
-# ============================================
-RUN apt-get update && apt-get install -y \
-    # Ferramentas básicas
-    curl \
-    wget \
-    git \
-    unzip \
-    vim \
-    cron \
-    supervisor \
-    # Bibliotecas para PHP
+# Instalar dependências do sistema e extensões PHP
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libcurl4-openssl-dev \
-    # Limpeza
+    git \
+    unzip \
+    curl \
+    supervisor \
+    cron \
+    default-mysql-client \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_mysql \
+        mysqli \
+        gd \
+        zip \
+        mbstring \
+        xml \
+        opcache \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================
-# INSTALAR EXTENSÕES PHP
-# ============================================
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-    pdo \
-    pdo_mysql \
-    mysqli \
-    gd \
-    zip \
-    mbstring \
-    xml \
-    curl \
-    opcache
-
-# ============================================
-# INSTALAR COMPOSER
-# ============================================
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# ============================================
-# INSTALAR NODE.JS 20.x
-# ============================================
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install -g npm@latest
-
-# ============================================
-# CONFIGURAR TIMEZONE
-# ============================================
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
-    && echo $TZ > /etc/timezone
-
-# ============================================
-# CONFIGURAR PHP
-# ============================================
-RUN { \
-    echo 'memory_limit = 256M'; \
-    echo 'upload_max_filesize = 10M'; \
-    echo 'post_max_size = 10M'; \
-    echo 'max_execution_time = 300'; \
-    echo 'max_input_time = 300'; \
-    echo 'date.timezone = America/Sao_Paulo'; \
-    echo 'display_errors = Off'; \
-    echo 'log_errors = On'; \
-    echo 'error_log = /var/log/php_errors.log'; \
-    echo 'opcache.enable = 1'; \
-    echo 'opcache.memory_consumption = 128'; \
-    echo 'opcache.interned_strings_buffer = 8'; \
-    echo 'opcache.max_accelerated_files = 10000'; \
-    echo 'opcache.revalidate_freq = 2'; \
-} > /usr/local/etc/php/conf.d/custom.ini
-
-# ============================================
-# CONFIGURAR APACHE
-# ============================================
+# Habilitar módulos do Apache
 RUN a2enmod rewrite headers expires deflate
 
-# Configurar DocumentRoot
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# Configurar OPcache para produção
+RUN { \
+    echo 'opcache.enable=1'; \
+    echo 'opcache.memory_consumption=256'; \
+    echo 'opcache.interned_strings_buffer=16'; \
+    echo 'opcache.max_accelerated_files=20000'; \
+    echo 'opcache.revalidate_freq=2'; \
+    echo 'opcache.fast_shutdown=1'; \
+    echo 'opcache.enable_cli=0'; \
+    } > /usr/local/etc/php/conf.d/opcache.ini
 
-# Criar arquivo de configuração do Apache
+# Configurar PHP
+RUN { \
+    echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}"; \
+    echo "post_max_size = ${PHP_POST_MAX_SIZE}"; \
+    echo "max_execution_time = ${PHP_MAX_EXECUTION_TIME}"; \
+    echo "memory_limit = ${PHP_MEMORY_LIMIT}"; \
+    echo "date.timezone = America/Sao_Paulo"; \
+    echo "display_errors = Off"; \
+    echo "log_errors = On"; \
+    echo "error_log = /var/log/php_errors.log"; \
+    } > /usr/local/etc/php/conf.d/custom.ini
+
+# Configurar Apache VirtualHost otimizado
 RUN { \
     echo '<VirtualHost *:80>'; \
     echo '    ServerAdmin suporte@macip.com.br'; \
     echo '    DocumentRoot /var/www/html'; \
-    echo ''; \
     echo '    <Directory /var/www/html>'; \
     echo '        Options -Indexes +FollowSymLinks'; \
     echo '        AllowOverride All'; \
     echo '        Require all granted'; \
+    echo '        # Security headers'; \
+    echo '        Header always set X-Content-Type-Options "nosniff"'; \
+    echo '        Header always set X-Frame-Options "SAMEORIGIN"'; \
+    echo '        Header always set X-XSS-Protection "1; mode=block"'; \
     echo '    </Directory>'; \
-    echo ''; \
-    echo '    # Logs'; \
-    echo '    ErrorLog ${APACHE_LOG_DIR}/error.log'; \
-    echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined'; \
-    echo ''; \
-    echo '    # Security Headers'; \
-    echo '    Header always set X-Content-Type-Options "nosniff"'; \
-    echo '    Header always set X-Frame-Options "SAMEORIGIN"'; \
-    echo '    Header always set X-XSS-Protection "1; mode=block"'; \
-    echo ''; \
-    echo '    # Compression'; \
+    echo '    # Compressão Gzip'; \
     echo '    <IfModule mod_deflate.c>'; \
     echo '        AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json'; \
     echo '    </IfModule>'; \
+    echo '    # Cache para assets estáticos'; \
+    echo '    <IfModule mod_expires.c>'; \
+    echo '        ExpiresActive On'; \
+    echo '        ExpiresByType image/jpg "access plus 1 year"'; \
+    echo '        ExpiresByType image/jpeg "access plus 1 year"'; \
+    echo '        ExpiresByType image/gif "access plus 1 year"'; \
+    echo '        ExpiresByType image/png "access plus 1 year"'; \
+    echo '        ExpiresByType text/css "access plus 1 month"'; \
+    echo '        ExpiresByType application/javascript "access plus 1 month"'; \
+    echo '    </IfModule>'; \
+    echo '    ErrorLog ${APACHE_LOG_DIR}/error.log'; \
+    echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined'; \
     echo '</VirtualHost>'; \
-} > /etc/apache2/sites-available/000-default.conf
+    } > /etc/apache2/sites-available/000-default.conf
 
-# ============================================
-# CRIAR DIRETÓRIOS NECESSÁRIOS
-# ============================================
+# Criar diretórios necessários
 RUN mkdir -p \
-    /var/www/html/uploads \
-    /var/www/html/logs \
     /var/www/html/storage/cache \
+    /var/www/html/storage/logs \
+    /var/www/html/storage/temp \
+    /var/www/html/uploads \
+    /var/www/html/backups \
     /var/log/supervisor
 
-# ============================================
-# COPIAR CÓDIGO DA APLICAÇÃO
-# ============================================
+# Definir diretório de trabalho
 WORKDIR /var/www/html
 
-# Copiar arquivos de dependências primeiro (cache layer)
-COPY composer.json composer.lock* ./
-COPY package.json package-lock.json ./
+# Copiar arquivos de configuração primeiro (melhor cache)
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Instalar dependências PHP
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction || true
+# Copiar aplicação
+COPY --chown=www-data:www-data . /var/www/html/
 
-# Instalar dependências Node.js
-RUN npm ci --production --silent || npm install --production --silent
-
-# Copiar resto do código
-COPY . .
-
-# ============================================
-# CONFIGURAR CRON JOBS
-# ============================================
-RUN { \
-    echo '# WATS Cron Jobs'; \
-    echo '# Sincronizar mensagens do Teams (a cada 5 minutos)'; \
-    echo '*/5 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/sync_teams_messages.php >> /var/www/html/logs/cron_teams.log 2>&1'; \
-    echo ''; \
-    echo '# Buscar emails (a cada 10 minutos)'; \
-    echo '*/10 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/fetch_emails.php >> /var/www/html/logs/cron_emails.log 2>&1'; \
-    echo ''; \
-    echo '# Processar dispatches agendados (a cada 5 minutos)'; \
-    echo '*/5 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/process_scheduled_dispatches.php >> /var/www/html/logs/cron_dispatches.log 2>&1'; \
-    echo ''; \
-    echo '# Calcular analytics (a cada hora)'; \
-    echo '0 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/calculate_analytics.php >> /var/www/html/logs/cron_analytics.log 2>&1'; \
-    echo ''; \
-    echo '# Calcular analytics de tempo (a cada hora)'; \
-    echo '0 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/calculate_time_analytics.php >> /var/www/html/logs/cron_time_analytics.log 2>&1'; \
-    echo ''; \
-    echo '# Backup do banco (diariamente às 2h)'; \
-    echo '0 2 * * * www-data cd /var/www/html && /usr/local/bin/php cron/backup_database.php >> /var/www/html/logs/cron_backup.log 2>&1'; \
-    echo ''; \
-    echo '# Limpeza de dados antigos (diariamente às 3h)'; \
-    echo '0 3 * * * www-data cd /var/www/html && /usr/local/bin/php cron/cleanup_old_data.php >> /var/www/html/logs/cron_cleanup.log 2>&1'; \
-    echo ''; \
-    echo '# Desabilitar usuários expirados (diariamente às 4h)'; \
-    echo '0 4 * * * www-data cd /var/www/html && /usr/local/bin/php cron/disable_expired_users.php >> /var/www/html/logs/cron_expired.log 2>&1'; \
-    echo ''; \
-    echo '# Monitorar storage (a cada 6 horas)'; \
-    echo '0 */6 * * * www-data cd /var/www/html && /usr/local/bin/php cron/monitor_storage.php >> /var/www/html/logs/cron_storage.log 2>&1'; \
-    echo ''; \
-    echo '# Processar sentimentos (a cada hora)'; \
-    echo '0 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/process_sentiment.php >> /var/www/html/logs/cron_sentiment.log 2>&1'; \
-    echo ''; \
-    echo '# Enviar resumos (diariamente às 8h)'; \
-    echo '0 8 * * * www-data cd /var/www/html && /usr/local/bin/php cron/send_summaries.php >> /var/www/html/logs/cron_summaries.log 2>&1'; \
-    echo ''; \
-    echo '# Automação Kanban (a cada 15 minutos)'; \
-    echo '*/15 * * * * www-data cd /var/www/html && /usr/local/bin/php cron/kanban_automation.php >> /var/www/html/logs/cron_kanban.log 2>&1'; \
-    echo ''; \
-    echo '# Linha em branco necessária no final'; \
-    echo ''; \
-} > /etc/cron.d/wats-cron
-
-RUN chmod 0644 /etc/cron.d/wats-cron \
-    && crontab /etc/cron.d/wats-cron
-
-# ============================================
-# CONFIGURAR SUPERVISOR
-# ============================================
-RUN { \
-    echo '[supervisord]'; \
-    echo 'nodaemon=true'; \
-    echo 'logfile=/var/log/supervisor/supervisord.log'; \
-    echo 'pidfile=/var/run/supervisord.pid'; \
-    echo 'childlogdir=/var/log/supervisor'; \
-    echo ''; \
-    echo '[program:apache2]'; \
-    echo 'command=/usr/sbin/apache2ctl -D FOREGROUND'; \
-    echo 'autostart=true'; \
-    echo 'autorestart=true'; \
-    echo 'stdout_logfile=/dev/stdout'; \
-    echo 'stdout_logfile_maxbytes=0'; \
-    echo 'stderr_logfile=/dev/stderr'; \
-    echo 'stderr_logfile_maxbytes=0'; \
-    echo ''; \
-    echo '[program:cron]'; \
-    echo 'command=/usr/sbin/cron -f'; \
-    echo 'autostart=true'; \
-    echo 'autorestart=true'; \
-    echo 'stdout_logfile=/var/www/html/logs/cron_supervisor.log'; \
-    echo 'stderr_logfile=/var/www/html/logs/cron_supervisor_error.log'; \
-    echo ''; \
-    echo '[program:websocket]'; \
-    echo 'command=/usr/bin/node /var/www/html/websocket_client.js'; \
-    echo 'directory=/var/www/html'; \
-    echo 'autostart=true'; \
-    echo 'autorestart=true'; \
-    echo 'stdout_logfile=/var/www/html/logs/websocket.log'; \
-    echo 'stderr_logfile=/var/www/html/logs/websocket_error.log'; \
-    echo 'user=www-data'; \
-} > /etc/supervisor/conf.d/wats.conf
-
-# ============================================
-# PERMISSÕES
-# ============================================
+# Ajustar permissões
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/uploads \
-    && chmod -R 775 /var/www/html/logs \
-    && chmod -R 775 /var/www/html/storage
+    && chmod -R 775 /var/www/html/backups
 
-# ============================================
-# HEALTH CHECK
-# ============================================
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost/health.php || exit 1
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
 
-# ============================================
-# EXPOR PORTA
-# ============================================
+# Expor porta
 EXPOSE 80
 
-# ============================================
-# INICIAR SUPERVISOR
-# ============================================
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+# Volumes recomendados (documentação)
+VOLUME ["/var/www/html/uploads", "/var/www/html/backups", "/var/www/html/storage"]
+
+# Iniciar Supervisor (gerencia Apache + Cron)
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

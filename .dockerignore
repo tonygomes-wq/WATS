@@ -3,73 +3,87 @@
 .gitignore
 .gitattributes
 
-# Ambiente local
-.env.local
-.env.*.local
-
-# IDEs
+# IDE
 .vscode
 .idea
+.cursor
+.agent
+.claude
+.kiro
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
-logs/
-error_log
-
-# Dependências (serão instaladas no build)
-node_modules/
-vendor/
-
-# Arquivos temporários
-.temp_ag_kit/
-_debug/
-_archived/
-
-# Uploads (serão montados como volume)
-uploads/*
-!uploads/.gitkeep
-
-# Backups
-backups/
-*.sql
-*.sql.gz
-
-# Cache
-storage/cache/*
-!storage/cache/.gitkeep
-
-# Sistema operacional
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Documentação de desenvolvimento
-docs/
+# Documentation
 *.md
 !README.md
 
-# Testes
-tests/
-phpunit.xml
-coverage/
+# Logs
+logs/
+*.log
+error_log
 
-# Arquivos de configuração local
-composer.lock
-package-lock.json
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
 
-# Arquivos grandes
+# Backups
+backups/
 *.zip
 *.tar.gz
-*.rar
+*.sql
+backup-*.zip
 
-# Chatwoot (não usado)
-chatwoot-4.10.0/
+# Node modules (se houver)
+node_modules/
+npm-debug.log
+yarn-error.log
 
-# Fontes (se não forem necessárias)
-fonts/
+# PHP
+vendor/
+composer.lock
+.phpunit.result.cache
 
-# Well-known (certificados locais)
-.well-known/
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads (serão montados como volumes)
+uploads/*
+!uploads/.gitkeep
+
+# Storage (será montado como volume)
+storage/cache/*
+storage/logs/*
+storage/temp/*
+!storage/.gitkeep
+!storage/cache/.gitkeep
+!storage/logs/.gitkeep
+!storage/temp/.gitkeep
+
+# Tests
+tests/
+phpunit.xml
+.phpunit.cache
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Docker
+docker-compose.yml
+docker-compose.*.yml
+
+# Scripts de deploy
+deploy-*.sh
+*.bat
+
+# Arquivos temporários do Windows
+*.lnk
+desktop.ini
+
+# Arquivos de quota
+.ftpquota
