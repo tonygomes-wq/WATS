@@ -40,6 +40,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Habilitar módulos do Apache
 RUN a2enmod rewrite headers expires deflate
 
@@ -114,6 +117,12 @@ WORKDIR /var/www/html
 # Copiar arquivos de configuração primeiro (melhor cache)
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/crontab /etc/cron.d/wats-cron
+
+# Copiar composer.json e composer.lock primeiro (melhor cache)
+COPY composer.json composer.lock* /var/www/html/
+
+# Instalar dependências do Composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Copiar aplicação
 COPY --chown=www-data:www-data . /var/www/html/
