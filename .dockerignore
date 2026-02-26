@@ -42,8 +42,7 @@ npm-debug.log
 yarn-error.log
 
 # PHP
-vendor/
-composer.lock
+# vendor/ será instalado durante o build via composer install
 .phpunit.result.cache
 
 # Environment
