@@ -1,0 +1,545 @@
+/**
+ * Flow Builder - Estilos do Editor Visual
+ * Sistema tipo Typebot para criação de chatbots
+ */
+
+/* Reset e base */
+* {
+    box-sizing: border-box;
+}
+
+/* Modo escuro */
+:root[data-theme="dark"] body {
+    background-color: #111827;
+}
+
+:root[data-theme="dark"] header {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+:root[data-theme="dark"] aside {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Status badge */
+.flow-status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-left: 0.75rem;
+}
+
+.flow-status-badge.draft {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.flow-status-badge.published {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.flow-status-badge.paused {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+/* Templates de nós na sidebar - Estilo Typebot */
+.node-template-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.node-template-mini:hover {
+    background: #f0fdf4;
+    border-color: #10B981;
+    transform: scale(1.02);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.node-template-mini:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.node-template-mini i {
+    font-size: 0.875rem;
+}
+
+:root[data-theme="dark"] .node-template-mini {
+    background: #374151;
+    border-color: #4b5563;
+    color: #e5e7eb;
+}
+
+:root[data-theme="dark"] .node-template-mini:hover {
+    background: #064e3b;
+    border-color: #10B981;
+}
+
+/* Tags de variáveis */
+.variable-tag {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-family: monospace;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.variable-tag:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+:root[data-theme="dark"] .variable-tag {
+    background: #1e3a5f;
+    color: #93c5fd;
+}
+
+:root[data-theme="dark"] .variable-tag:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+/* Templates antigos (compatibilidade) */
+.node-template {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.node-template:hover {
+    background: #f0fdf4;
+    border-color: #10B981;
+    transform: translateX(4px);
+}
+
+.node-template:active {
+    cursor: grabbing;
+}
+
+:root[data-theme="dark"] .node-template {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+:root[data-theme="dark"] .node-template:hover {
+    background: #064e3b;
+    border-color: #10B981;
+}
+
+.node-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.node-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.node-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1f2937;
+}
+
+.node-desc {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+:root[data-theme="dark"] .node-name {
+    color: #f3f4f6;
+}
+
+:root[data-theme="dark"] .node-desc {
+    color: #9ca3af;
+}
+
+/* Variáveis */
+.variable-item {
+    padding: 0.5rem 0.75rem;
+    background: #f3f4f6;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.variable-item:hover {
+    background: #10B981;
+    color: white;
+}
+
+:root[data-theme="dark"] .variable-item {
+    background: #374151;
+    color: #d1d5db;
+}
+
+:root[data-theme="dark"] .variable-item:hover {
+    background: #10B981;
+    color: white;
+}
+
+/* Canvas */
+#canvas {
+    transform-origin: 0 0;
+    transition: transform 0.1s ease;
+}
+
+#nodesContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Grid de fundo */
+#canvasContainer {
+    background-image: 
+        radial-gradient(circle, #d1d5db 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+:root[data-theme="dark"] #canvasContainer {
+    background-image: 
+        radial-gradient(circle, #374151 1px, transparent 1px);
+}
+
+/* Nós do fluxo */
+.flow-node {
+    position: absolute;
+    width: 240px;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    user-select: none;
+}
+
+.flow-node:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.flow-node.selected {
+    border-color: #10B981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+:root[data-theme="dark"] .flow-node {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+:root[data-theme="dark"] .flow-node.selected {
+    border-color: #10B981;
+}
+
+/* Header do nó */
+.node-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1f2937;
+}
+
+:root[data-theme="dark"] .node-header {
+    border-color: #374151;
+    color: #f3f4f6;
+}
+
+/* Cores por tipo de nó - Bubbles (Azul) */
+.flow-node-text .node-header,
+.flow-node-image .node-header,
+.flow-node-video .node-header,
+.flow-node-embed .node-header,
+.flow-node-audio .node-header,
+.flow-node-file .node-header,
+.flow-node-message .node-header { 
+    background: #DBEAFE; color: #1E40AF; 
+}
+.flow-node-text .node-header i,
+.flow-node-image .node-header i,
+.flow-node-video .node-header i,
+.flow-node-embed .node-header i,
+.flow-node-audio .node-header i,
+.flow-node-file .node-header i,
+.flow-node-message .node-header i { 
+    color: #3B82F6; 
+}
+
+/* Cores por tipo de nó - Inputs (Laranja) */
+.flow-node-input_text .node-header,
+.flow-node-input_number .node-header,
+.flow-node-input_email .node-header,
+.flow-node-input_website .node-header,
+.flow-node-input_date .node-header,
+.flow-node-input_phone .node-header,
+.flow-node-buttons .node-header,
+.flow-node-picture_choice .node-header,
+.flow-node-rating .node-header,
+.flow-node-file_upload .node-header,
+.flow-node-input .node-header { 
+    background: #FEF3C7; color: #92400E; 
+}
+.flow-node-input_text .node-header i,
+.flow-node-input_number .node-header i,
+.flow-node-input_email .node-header i,
+.flow-node-input_website .node-header i,
+.flow-node-input_date .node-header i,
+.flow-node-input_phone .node-header i,
+.flow-node-buttons .node-header i,
+.flow-node-picture_choice .node-header i,
+.flow-node-rating .node-header i,
+.flow-node-file_upload .node-header i,
+.flow-node-input .node-header i { 
+    color: #F59E0B; 
+}
+
+/* Cores por tipo de nó - Logic (Roxo) */
+.flow-node-set_variable .node-header,
+.flow-node-condition .node-header,
+.flow-node-redirect .node-header,
+.flow-node-code .node-header,
+.flow-node-typebot .node-header,
+.flow-node-jump .node-header,
+.flow-node-wait .node-header,
+.flow-node-ab_test .node-header,
+.flow-node-delay .node-header { 
+    background: #E9D5FF; color: #6B21A8; 
+}
+.flow-node-set_variable .node-header i,
+.flow-node-condition .node-header i,
+.flow-node-redirect .node-header i,
+.flow-node-code .node-header i,
+.flow-node-typebot .node-header i,
+.flow-node-jump .node-header i,
+.flow-node-wait .node-header i,
+.flow-node-ab_test .node-header i,
+.flow-node-delay .node-header i { 
+    color: #8B5CF6; 
+}
+
+/* Cores por tipo de nó - Integrations (Cinza/Multi) */
+.flow-node-google_sheets .node-header { background: #D1FAE5; color: #065F46; }
+.flow-node-google_sheets .node-header i { color: #10B981; }
+
+.flow-node-google_analytics .node-header { background: #FEF3C7; color: #92400E; }
+.flow-node-google_analytics .node-header i { color: #F59E0B; }
+
+.flow-node-webhook .node-header,
+.flow-node-api .node-header { background: #F3F4F6; color: #374151; }
+.flow-node-webhook .node-header i,
+.flow-node-api .node-header i { color: #6B7280; }
+
+.flow-node-email_send .node-header { background: #DBEAFE; color: #1E40AF; }
+.flow-node-email_send .node-header i { color: #3B82F6; }
+
+.flow-node-zapier .node-header { background: #FFEDD5; color: #9A3412; }
+.flow-node-zapier .node-header i { color: #F97316; }
+
+.flow-node-make .node-header { background: #E9D5FF; color: #6B21A8; }
+.flow-node-make .node-header i { color: #8B5CF6; }
+
+.flow-node-pabbly .node-header { background: #DBEAFE; color: #1E40AF; }
+.flow-node-pabbly .node-header i { color: #3B82F6; }
+
+.flow-node-chatwoot .node-header { background: #FEE2E2; color: #991B1B; }
+.flow-node-chatwoot .node-header i { color: #EF4444; }
+
+/* Cores por tipo de nó - WhatsApp (Verde) */
+.flow-node-whatsapp_list .node-header,
+.flow-node-whatsapp_buttons .node-header,
+.flow-node-transfer .node-header { 
+    background: #D1FAE5; color: #065F46; 
+}
+.flow-node-whatsapp_list .node-header i,
+.flow-node-whatsapp_buttons .node-header i,
+.flow-node-transfer .node-header i { 
+    color: #10B981; 
+}
+
+.flow-node-end_chat .node-header { background: #FEE2E2; color: #991B1B; }
+.flow-node-end_chat .node-header i { color: #EF4444; }
+
+/* Cores por tipo de nó - AI (Teal) */
+.flow-node-openai .node-header,
+.flow-node-ai_assistant .node-header { 
+    background: #CCFBF1; color: #115E59; 
+}
+.flow-node-openai .node-header i,
+.flow-node-ai_assistant .node-header i { 
+    color: #14B8A6; 
+}
+
+/* Cores por tipo de nó - Start/End */
+.flow-node-start .node-header { background: #D1FAE5; color: #065F46; }
+.flow-node-start .node-header i { color: #10B981; }
+
+.flow-node-end .node-header { background: #FEE2E2; color: #991B1B; }
+.flow-node-end .node-header i { color: #EF4444; }
+
+/* Body do nó */
+.node-body {
+    padding: 0.75rem 1rem;
+    min-height: 30px;
+}
+
+.node-body p {
+    margin: 0;
+}
+
+/* Conectores */
+.node-connectors {
+    position: relative;
+}
+
+.connector {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border: 2px solid #10B981;
+    border-radius: 50%;
+    cursor: crosshair;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.connector:hover {
+    transform: scale(1.3);
+    background: #10B981;
+}
+
+.connector-out {
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connector-out:hover {
+    transform: translateX(-50%) scale(1.3);
+}
+
+.connector-in {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connector-in:hover {
+    transform: translateX(-50%) scale(1.3);
+}
+
+/* Linhas de conexão */
+.connection-line {
+    stroke: #10B981;
+    stroke-width: 2;
+    fill: none;
+    pointer-events: none;
+}
+
+/* Animação de salvamento */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#saveIndicator span {
+    animation: pulse 1s ease-in-out;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    aside {
+        position: fixed;
+        left: -100%;
+        top: 56px;
+        bottom: 0;
+        z-index: 40;
+        transition: left 0.3s ease;
+    }
+    
+    aside.open {
+        left: 0;
+    }
+    
+    #propertiesPanel {
+        position: fixed;
+        right: -100%;
+        top: 56px;
+        bottom: 0;
+        z-index: 40;
+        transition: right 0.3s ease;
+    }
+    
+    #propertiesPanel:not(.hidden) {
+        right: 0;
+    }
+}
+
+/* Scrollbar customizada */
+aside::-webkit-scrollbar,
+#propertiesPanel::-webkit-scrollbar {
+    width: 6px;
+}
+
+aside::-webkit-scrollbar-track,
+#propertiesPanel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb,
+#propertiesPanel::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+:root[data-theme="dark"] aside::-webkit-scrollbar-thumb,
+:root[data-theme="dark"] #propertiesPanel::-webkit-scrollbar-thumb {
+    background: #4b5563;
+}
+
+/* Toast */
+#toast {
+    z-index: 100;
+}

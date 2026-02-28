@@ -1,0 +1,143 @@
+/**
+ * Channel Badges - Identificação visual de canais nas conversas
+ * Inspirado no Chatwoot
+ */
+
+/* Badge de canal no avatar */
+.chat-conversation-item .chat-conversation-avatar {
+    position: relative !important;
+}
+/**
+ * Channel Badges - Ícones de canal nos avatares
+ * Design: Borders-first, functional color, grid 4px
+ */
+
+.channel-badge {
+    position: absolute;
+    bottom: 0;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full, 50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: white;
+    border: 2px solid var(--bg-base, #ffffff);
+    z-index: 10;
+    transition: transform var(--transition-fast, 150ms);
+}
+
+.channel-badge:hover {
+    transform: scale(1.1);
+}
+
+.channel-badge i {
+    font-size: 9px;
+    line-height: 1;
+}
+
+/* Channel Colors - Brand accurate */
+.channel-badge.whatsapp {
+    background: var(--channel-whatsapp, #25d366);
+}
+
+.channel-badge.teams {
+    background: #5b5fc7 url('/assets/images/teams-icon.png') center/contain no-repeat;
+    background-size: 70%;
+}
+
+/* Esconder ícone do Font Awesome */
+.channel-badge.teams i {
+    display: none;
+}
+
+.channel-badge.telegram {
+    background: var(--channel-telegram, #0088cc);
+}
+
+.channel-badge.facebook {
+    background: var(--channel-facebook, #0084ff);
+}
+
+.channel-badge.instagram {
+    background: var(--channel-instagram, #e1306c);
+}
+
+.channel-badge.email {
+    background: var(--channel-email, #ea4335);
+}
+
+/* Dark mode - ajustar border */
+:root[data-theme="dark"] .channel-badge {
+    border-color: var(--bg-base, #0f172a);
+}
+
+/* Badge de canal como texto (alternativo) */
+.chat-conversation-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+}
+
+.chat-conversation-badge.whatsapp {
+    background: rgba(37, 211, 102, 0.1);
+    color: #25d366;
+    border: 1px solid rgba(37, 211, 102, 0.2);
+}
+
+.chat-conversation-badge.teams {
+    background: rgba(91, 95, 199, 0.1);
+    color: #5b5fc7;
+    border: 1px solid rgba(91, 95, 199, 0.2);
+}
+
+.chat-conversation-badge.telegram {
+    background: rgba(0, 136, 204, 0.1);
+    color: #0088cc;
+    border: 1px solid rgba(0, 136, 204, 0.2);
+}
+
+.chat-conversation-badge.facebook {
+    background: rgba(0, 132, 255, 0.1);
+    color: #0084ff;
+    border: 1px solid rgba(0, 132, 255, 0.2);
+}
+
+.chat-conversation-badge.instagram {
+    background: rgba(225, 48, 108, 0.1);
+    color: #e1306c;
+    border: 1px solid rgba(225, 48, 108, 0.2);
+}
+
+/* Dark mode para badges de texto */
+:root[data-theme="dark"] .chat-conversation-badge.whatsapp {
+    background: rgba(37, 211, 102, 0.2);
+    color: #6ee7b7;
+}
+
+:root[data-theme="dark"] .chat-conversation-badge.teams {
+    background: rgba(91, 95, 199, 0.2);
+    color: #a5b4fc;
+}
+
+:root[data-theme="dark"] .chat-conversation-badge.telegram {
+    background: rgba(0, 136, 204, 0.2);
+    color: #60a5fa;
+}
+
+:root[data-theme="dark"] .chat-conversation-badge.facebook {
+    background: rgba(0, 132, 255, 0.2);
+    color: #60a5fa;
+}
+
+:root[data-theme="dark"] .chat-conversation-badge.instagram {
+    background: rgba(225, 48, 108, 0.2);
+    color: #f472b6;
+}

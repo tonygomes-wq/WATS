@@ -1,0 +1,142 @@
+/* Floating Icons Background Effect */
+/* Ícones flutuantes animados para landing page */
+
+.floating-icons-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.floating-icon {
+    position: absolute;
+    opacity: 0.15;
+    font-size: 24px;
+    animation: float-up linear infinite;
+    will-change: transform, opacity;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Ícones no Hero (maior concentração) */
+.floating-icon.hero-zone {
+    opacity: 0.2;
+}
+
+/* Animação de flutuação - CORRIGIDA */
+@keyframes float-up {
+    0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.15;
+    }
+    90% {
+        opacity: 0.15;
+    }
+    100% {
+        transform: translateY(-20vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Variações de velocidade */
+.floating-icon.slow {
+    animation-duration: 30s;
+}
+
+.floating-icon.medium {
+    animation-duration: 22s;
+}
+
+.floating-icon.fast {
+    animation-duration: 16s;
+}
+
+/* Variações de tamanho */
+.floating-icon.small {
+    font-size: 18px;
+}
+
+.floating-icon.medium-size {
+    font-size: 26px;
+}
+
+.floating-icon.large {
+    font-size: 34px;
+}
+
+/* Cores dos ícones */
+.floating-icon.whatsapp {
+    color: #25D366;
+}
+
+.floating-icon.telegram {
+    color: #0088cc;
+}
+
+.floating-icon.email {
+    color: #3B82F6;
+}
+
+.floating-icon.teams {
+    color: #6264A7;
+}
+
+.floating-icon.chat {
+    color: #10B981;
+}
+
+.floating-icon.emoji {
+    color: #F59E0B;
+}
+
+/* Efeito de blur sutil */
+.floating-icon {
+    filter: blur(0.3px);
+    text-shadow: 0 0 10px currentColor;
+}
+
+/* Responsivo - reduzir quantidade em mobile */
+@media (max-width: 768px) {
+    .floating-icon:nth-child(n+12) {
+        display: none;
+    }
+    
+    .floating-icon {
+        opacity: 0.1;
+        font-size: 16px;
+    }
+    
+    .floating-icon.small {
+        font-size: 14px;
+    }
+    
+    .floating-icon.medium-size {
+        font-size: 18px;
+    }
+    
+    .floating-icon.large {
+        font-size: 22px;
+    }
+}
+
+/* Reduzir movimento para usuários com prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .floating-icon {
+        animation: none;
+        opacity: 0.05;
+    }
+}
+
+/* Garantir que não interfira com interações */
+.floating-icons-container,
+.floating-icons-container * {
+    pointer-events: none !important;
+    user-select: none !important;
+}

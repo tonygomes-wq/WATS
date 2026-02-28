@@ -1,0 +1,3326 @@
+/**
+ * Authentication Modal Redesign - Design Tokens
+ * Extends the base design system with modal-specific tokens
+ * Based on: .kiro/specs/modal-redesign/design.md
+ */
+
+/* ========================================
+   BEM NAMING CONVENTION
+   ======================================== */
+
+/**
+ * BEM (Block Element Modifier) Naming Convention
+ * 
+ * Structure: .block__element--modifier
+ * 
+ * - Block: Standalone component (e.g., modal, form, button)
+ * - Element: Part of a block (e.g., modal__header, form__input)
+ * - Modifier: Variation of a block or element (e.g., button--primary, modal--large)
+ * 
+ * NAMING RULES:
+ * 1. Use lowercase letters and hyphens for multi-word names
+ * 2. Use double underscores (__) to separate block from element
+ * 3. Use double hyphens (--) to separate element/block from modifier
+ * 4. Keep names semantic and descriptive
+ * 5. Avoid deep nesting (max 2 levels: block__element)
+ * 
+ * EXAMPLES BY MODAL TYPE:
+ * 
+ * === LOGIN MODAL ===
+ * .modal-login                          // Block: Login modal container
+ * .modal-login__header                  // Element: Modal header section
+ * .modal-login__title                   // Element: Modal title
+ * .modal-login__close                   // Element: Close button
+ * .modal-login__body                    // Element: Modal body content
+ * .modal-login__form                    // Element: Login form
+ * .modal-login__input                   // Element: Form input field
+ * .modal-login__input--email            // Modifier: Email input variant
+ * .modal-login__input--password         // Modifier: Password input variant
+ * .modal-login__input--error            // Modifier: Input error state
+ * .modal-login__input--valid            // Modifier: Input valid state
+ * .modal-login__label                   // Element: Input label
+ * .modal-login__error                   // Element: Error message
+ * .modal-login__options                 // Element: Form options container
+ * .modal-login__checkbox                // Element: Remember me checkbox
+ * .modal-login__link                    // Element: Forgot password link
+ * .modal-login__link--forgot            // Modifier: Forgot password link variant
+ * .modal-login__button                  // Element: Submit button
+ * .modal-login__button--primary         // Modifier: Primary button style
+ * .modal-login__footer                  // Element: Modal footer
+ * .modal-login__footer-text             // Element: Footer text
+ * .modal-login__footer-link             // Element: Footer link (register)
+ * 
+ * === 2FA FORM (within Login Modal) ===
+ * .modal-twofa                          // Block: 2FA form container
+ * .modal-twofa__header                  // Element: 2FA header section
+ * .modal-twofa__back                    // Element: Back button
+ * .modal-twofa__title                   // Element: 2FA title
+ * .modal-twofa__description             // Element: Instructions text
+ * .modal-twofa__form                    // Element: 2FA form
+ * .modal-twofa__input                   // Element: Verification code input
+ * .modal-twofa__input--code             // Modifier: Code input styling
+ * .modal-twofa__button                  // Element: Verify button
+ * .modal-twofa__button--verify          // Modifier: Verify button style
+ * 
+ * === REGISTRATION MODAL ===
+ * .modal-register                       // Block: Registration modal container
+ * .modal-register--large                // Modifier: Larger modal size
+ * .modal-register__header               // Element: Modal header
+ * .modal-register__title                // Element: Modal title
+ * .modal-register__close                // Element: Close button
+ * .modal-register__body                 // Element: Modal body
+ * .modal-register__form                 // Element: Registration form
+ * .modal-register__row                  // Element: Form row (2 columns)
+ * .modal-register__group                // Element: Form group
+ * .modal-register__label                // Element: Input label
+ * .modal-register__input                // Element: Form input
+ * .modal-register__input--name          // Modifier: Name input
+ * .modal-register__input--email         // Modifier: Email input
+ * .modal-register__input--phone         // Modifier: Phone input
+ * .modal-register__input--password      // Modifier: Password input
+ * .modal-register__input--error         // Modifier: Error state
+ * .modal-register__input--valid         // Modifier: Valid state
+ * .modal-register__select               // Element: Select dropdown
+ * .modal-register__select--document     // Modifier: Document type select
+ * .modal-register__password-strength    // Element: Password strength indicator
+ * .modal-register__checkbox             // Element: Terms checkbox
+ * .modal-register__checkbox-label       // Element: Checkbox label text
+ * .modal-register__button               // Element: Submit button
+ * .modal-register__button--continue     // Modifier: Continue button style
+ * .modal-register__error                // Element: Error message
+ * 
+ * === PLAN SELECTION (Registration Step 2) ===
+ * .modal-plans                          // Block: Plan selection container
+ * .modal-plans__header                  // Element: Plans header
+ * .modal-plans__back                    // Element: Back button
+ * .modal-plans__title                   // Element: Plans title
+ * .modal-plans__description             // Element: Plans description
+ * .modal-plans__cards                   // Element: Plan cards container
+ * .modal-plans__card                    // Element: Individual plan card
+ * .modal-plans__card--selected          // Modifier: Selected plan state
+ * .modal-plans__card--hover             // Modifier: Hover state
+ * .modal-plans__card-title              // Element: Plan name
+ * .modal-plans__card-price              // Element: Plan price
+ * .modal-plans__card-features           // Element: Features list
+ * .modal-plans__card-feature            // Element: Individual feature
+ * .modal-plans__card-button             // Element: Select plan button
+ * 
+ * === FORGOT PASSWORD MODAL ===
+ * .modal-forgot                         // Block: Forgot password modal
+ * .modal-forgot__header                 // Element: Modal header
+ * .modal-forgot__back                   // Element: Back to login button
+ * .modal-forgot__title                  // Element: Modal title
+ * .modal-forgot__description            // Element: Instructions text
+ * .modal-forgot__body                   // Element: Modal body
+ * .modal-forgot__form                   // Element: Email form
+ * .modal-forgot__label                  // Element: Input label
+ * .modal-forgot__input                  // Element: Email input
+ * .modal-forgot__input--email           // Modifier: Email input styling
+ * .modal-forgot__button                 // Element: Submit button
+ * .modal-forgot__button--submit         // Modifier: Submit button style
+ * .modal-forgot__success                // Element: Success message container
+ * .modal-forgot__success-icon           // Element: Success checkmark icon
+ * .modal-forgot__success-title          // Element: Success title
+ * .modal-forgot__success-text           // Element: Success message text
+ * .modal-forgot__success-button         // Element: Back to login button
+ * 
+ * === SHARED COMPONENTS ===
+ * .modal-backdrop                       // Block: Modal backdrop overlay
+ * .modal-backdrop--blur                 // Modifier: Backdrop with blur effect
+ * 
+ * .modal-container                      // Block: Base modal container
+ * .modal-container--open                // Modifier: Open state
+ * .modal-container--closing             // Modifier: Closing animation state
+ * .modal-container--large               // Modifier: Large modal size
+ * 
+ * .form-group                           // Block: Form group wrapper
+ * .form-group__label                    // Element: Form label
+ * .form-group__input                    // Element: Form input
+ * .form-group__input--focus             // Modifier: Focus state
+ * .form-group__input--error             // Modifier: Error state
+ * .form-group__input--valid             // Modifier: Valid state
+ * .form-group__input--disabled          // Modifier: Disabled state
+ * .form-group__error                    // Element: Error message
+ * .form-group__hint                     // Element: Hint text
+ * 
+ * .btn                                  // Block: Button component
+ * .btn--primary                         // Modifier: Primary button style
+ * .btn--secondary                       // Modifier: Secondary button style
+ * .btn--loading                         // Modifier: Loading state
+ * .btn--disabled                        // Modifier: Disabled state
+ * .btn--full-width                      // Modifier: Full width button
+ * .btn__icon                            // Element: Button icon
+ * .btn__text                            // Element: Button text
+ * .btn__spinner                         // Element: Loading spinner
+ * 
+ * .loading-spinner                      // Block: Loading spinner component
+ * .loading-spinner--inline              // Modifier: Inline spinner
+ * .loading-spinner--overlay             // Modifier: Full overlay spinner
+ * .loading-spinner__icon                // Element: Spinner icon
+ * .loading-spinner__text                // Element: Loading text
+ * 
+ * === STATE MODIFIERS (can be applied to any element) ===
+ * --open                                // Modal/element is open
+ * --closed                              // Modal/element is closed
+ * --active                              // Element is active
+ * --disabled                            // Element is disabled
+ * --loading                             // Element is in loading state
+ * --error                               // Element has error
+ * --valid                               // Element is valid
+ * --focus                               // Element has focus
+ * --hover                               // Element is hovered
+ * --hidden                              // Element is hidden
+ * --visible                             // Element is visible
+ * 
+ * USAGE EXAMPLES:
+ * 
+ * <!-- Login Modal -->
+ * <div class="modal-container modal-container--open">
+ *   <div class="modal-login">
+ *     <div class="modal-login__header">
+ *       <h2 class="modal-login__title">Welcome Back</h2>
+ *       <button class="modal-login__close">×</button>
+ *     </div>
+ *     <div class="modal-login__body">
+ *       <form class="modal-login__form">
+ *         <div class="form-group">
+ *           <label class="form-group__label">Email</label>
+ *           <input class="form-group__input form-group__input--focus" type="email" />
+ *         </div>
+ *         <button class="btn btn--primary btn--full-width">Sign In</button>
+ *       </form>
+ *     </div>
+ *   </div>
+ * </div>
+ * 
+ * <!-- Registration Modal with Error State -->
+ * <div class="modal-container modal-container--open modal-container--large">
+ *   <div class="modal-register modal-register--large">
+ *     <div class="modal-register__form">
+ *       <div class="form-group">
+ *         <label class="form-group__label">Email</label>
+ *         <input class="form-group__input form-group__input--error" type="email" />
+ *         <span class="form-group__error">Please enter a valid email</span>
+ *       </div>
+ *     </div>
+ *   </div>
+ * </div>
+ * 
+ * <!-- Button with Loading State -->
+ * <button class="btn btn--primary btn--loading btn--disabled">
+ *   <span class="btn__spinner"></span>
+ *   <span class="btn__text">Processing...</span>
+ * </button>
+ */
+
+:root {
+    /* ========================================
+       MODAL-SPECIFIC COLORS
+       ======================================== */
+    
+    /* Primary Brand Colors (Green Gradient) */
+    --modal-primary: #10b981;
+    --modal-primary-dark: #059669;
+    --modal-primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    
+    /* Text Colors */
+    --modal-text-primary: #111827;
+    --modal-text-secondary: #374151;
+    --modal-text-muted: #6B7280;
+    --modal-text-white: #FFFFFF;
+    
+    /* Border Colors */
+    --modal-border-default: #E5E7EB;
+    --modal-border-focus: #10b981;
+    --modal-border-error: #EF4444;
+    --modal-border-success: #10b981;
+    
+    /* Background Colors */
+    --modal-bg-white: #FFFFFF;
+    --modal-bg-subtle: #F9FAFB;
+    --modal-bg-success: #F0FDF4;
+    --modal-bg-error: #FEF2F2;
+    --modal-bg-backdrop: rgba(0, 0, 0, 0.5);
+    
+    /* State Colors */
+    --modal-error: #EF4444;
+    --modal-success: #10b981;
+    
+    /* ========================================
+       MODAL SPACING & SIZING
+       ======================================== */
+    
+    /* Modal Container */
+    --modal-max-width: 480px;
+    --modal-max-width-large: 600px;
+    --modal-max-width-mobile: 95vw;
+    --modal-padding-desktop: 32px;
+    --modal-padding-mobile: 24px;
+    
+    /* Form Spacing */
+    --modal-form-group-gap: 20px;
+    --modal-form-group-gap-mobile: 16px;
+    --modal-form-row-gap: 16px;
+    --modal-form-row-gap-mobile: 12px;
+    --modal-label-margin: 6px;
+    --modal-error-margin: 6px;
+    
+    /* Button Spacing */
+    --modal-button-padding-y: 12px;
+    --modal-button-padding-x: 24px;
+    
+    /* Input Spacing */
+    --modal-input-padding-y: 12px;
+    --modal-input-padding-x: 16px;
+    
+    /* Section Spacing */
+    --modal-section-gap: 24px;
+    --modal-footer-padding: 16px;
+    
+    /* ========================================
+       MODAL BORDER RADIUS
+       ======================================== */
+    
+    --modal-radius-container: 16px;
+    --modal-radius-container-mobile: 12px;
+    --modal-radius-input: 8px;
+    --modal-radius-button: 8px;
+    --modal-radius-card: 12px;
+    --modal-radius-icon: 50%;
+    
+    /* ========================================
+       MODAL SHADOWS
+       ======================================== */
+    
+    /* Modal Container Shadow */
+    --modal-shadow-container: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+                              0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Input Focus Shadow */
+    --modal-shadow-focus: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    
+    /* Input Error Shadow */
+    --modal-shadow-error: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    
+    /* Button Hover Shadow */
+    --modal-shadow-button-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                                 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    
+    /* Card Hover Shadow */
+    --modal-shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                               0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    /* ========================================
+       MODAL TRANSITIONS
+       ======================================== */
+    
+    /* Animation Durations */
+    --modal-transition-fast: 150ms;
+    --modal-transition-base: 200ms;
+    --modal-transition-slow: 250ms;
+    --modal-transition-modal-enter: 250ms;
+    --modal-transition-modal-exit: 200ms;
+    
+    /* Easing Functions */
+    --modal-ease-default: ease;
+    --modal-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --modal-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --modal-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --modal-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* ========================================
+       MODAL TYPOGRAPHY
+       ======================================== */
+    
+    /* Font Sizes */
+    --modal-text-heading: 24px;
+    --modal-text-heading-mobile: 22px;
+    --modal-text-subheading: 20px;
+    --modal-text-body: 16px;
+    --modal-text-label: 14px;
+    --modal-text-small: 13px;
+    --modal-text-code: 20px;
+    
+    /* Font Weights */
+    --modal-weight-normal: 400;
+    --modal-weight-medium: 500;
+    --modal-weight-semibold: 600;
+    --modal-weight-bold: 700;
+    
+    /* Line Heights */
+    --modal-leading-tight: 1.25;
+    --modal-leading-normal: 1.5;
+    --modal-leading-relaxed: 1.625;
+    
+    /* Letter Spacing */
+    --modal-tracking-normal: 0;
+    --modal-tracking-wide: 0.02em;
+    --modal-tracking-code: 4px;
+    
+    /* ========================================
+       MODAL Z-INDEX
+       ======================================== */
+    
+    --modal-z-backdrop: 1000;
+    --modal-z-container: 1001;
+    --modal-z-loading: 1002;
+    
+    /* ========================================
+       MODAL INTERACTIVE STATES
+       ======================================== */
+    
+    /* Opacity */
+    --modal-opacity-disabled: 0.6;
+    --modal-opacity-loading: 0.9;
+    
+    /* Transform Scales */
+    --modal-scale-enter-from: 0.95;
+    --modal-scale-enter-to: 1.0;
+    --modal-scale-hover: 1.02;
+    --modal-scale-active: 0.98;
+    
+    /* Backdrop Blur */
+    --modal-backdrop-blur: 4px;
+    
+    /* ========================================
+       MODAL ICON SIZES
+       ======================================== */
+    
+    --modal-icon-sm: 16px;
+    --modal-icon-md: 20px;
+    --modal-icon-lg: 32px;
+    --modal-icon-xl: 64px;
+    
+    /* ========================================
+       MODAL TOUCH TARGETS
+       ======================================== */
+    
+    --modal-touch-target-min: 44px;
+    
+    /* ========================================
+       MODAL BREAKPOINTS
+       ======================================== */
+    
+    /* Breakpoint Values */
+    --modal-breakpoint-mobile: 768px;
+    --modal-breakpoint-tablet: 1024px;
+    
+    /* Breakpoint Ranges (for reference in media queries) */
+    /* Mobile: < 768px */
+    /* Tablet: 768px - 1024px */
+    /* Desktop: > 1024px */
+}
+
+/* ========================================
+   DARK MODE OVERRIDES FOR MODALS
+   ======================================== */
+:root[data-theme="dark"] {
+    /* Modal backgrounds in dark mode */
+    --modal-bg-white: #1e293b;
+    --modal-bg-subtle: #0f172a;
+    --modal-bg-success: rgba(16, 185, 129, 0.1);
+    --modal-bg-error: rgba(239, 68, 68, 0.1);
+    
+    /* Modal text in dark mode */
+    --modal-text-primary: #f8fafc;
+    --modal-text-secondary: #cbd5e1;
+    --modal-text-muted: #94a3b8;
+    
+    /* Modal borders in dark mode */
+    --modal-border-default: #334155;
+    
+    /* Modal backdrop in dark mode */
+    --modal-bg-backdrop: rgba(0, 0, 0, 0.7);
+    
+    /* Shadows are less prominent in dark mode */
+    --modal-shadow-container: 0 20px 25px -5px rgba(0, 0, 0, 0.3),
+                              0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================
+   MODAL ANIMATION KEYFRAMES
+   ======================================== */
+
+/* Modal Entry Animation */
+@keyframes modalEnter {
+    from {
+        opacity: 0;
+        transform: scale(var(--modal-scale-enter-from)) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(var(--modal-scale-enter-to)) translateY(0);
+    }
+}
+
+/* Modal Exit Animation */
+@keyframes modalExit {
+    from {
+        opacity: 1;
+        transform: scale(var(--modal-scale-enter-to)) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(var(--modal-scale-enter-from)) translateY(-20px);
+    }
+}
+
+/* Backdrop Fade In */
+@keyframes backdropFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Backdrop Fade Out */
+@keyframes backdropFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Content Slide Left (Exit) */
+@keyframes slideLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+}
+
+/* Content Slide Right (Enter) */
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Content Slide Up (Exit) */
+@keyframes slideUp {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Content Slide Down (Enter) */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Error Message Slide Down */
+@keyframes errorSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        max-height: 100px;
+    }
+}
+
+/* Success Icon Bounce */
+@keyframes successBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Spinner Rotation */
+@keyframes spinnerRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Pulse Animation for Loading */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ========================================
+   UTILITY CLASSES FOR MODALS
+   ======================================== */
+
+/* Animation Classes */
+.modal-enter {
+    animation: modalEnter var(--modal-transition-modal-enter) var(--modal-ease-out) forwards;
+}
+
+.modal-exit {
+    animation: modalExit var(--modal-transition-modal-exit) var(--modal-ease-in) forwards;
+}
+
+.backdrop-enter {
+    animation: backdropFadeIn var(--modal-transition-base) ease-out forwards;
+}
+
+.backdrop-exit {
+    animation: backdropFadeOut var(--modal-transition-base) ease-in forwards;
+}
+
+.slide-left {
+    animation: slideLeft var(--modal-transition-base) ease-out forwards;
+}
+
+.slide-right {
+    animation: slideRight var(--modal-transition-slow) ease-out forwards;
+}
+
+.slide-up {
+    animation: slideUp var(--modal-transition-base) ease-out forwards;
+}
+
+.slide-down {
+    animation: slideDown var(--modal-transition-slow) ease-out forwards;
+}
+
+.error-appear {
+    animation: errorSlideDown var(--modal-transition-base) ease-out forwards;
+}
+
+.success-bounce {
+    animation: successBounce 400ms var(--modal-ease-bounce) forwards;
+}
+
+/* Transition Classes */
+.modal-transition-fast {
+    transition: all var(--modal-transition-fast) var(--modal-ease-default);
+}
+
+.modal-transition-base {
+    transition: all var(--modal-transition-base) var(--modal-ease-default);
+}
+
+.modal-transition-slow {
+    transition: all var(--modal-transition-slow) var(--modal-ease-default);
+}
+
+/* Transform Classes */
+.modal-hover-scale:hover {
+    transform: scale(var(--modal-scale-hover));
+}
+
+.modal-active-scale:active {
+    transform: scale(var(--modal-scale-active));
+}
+
+/* Performance Optimization */
+.modal-will-animate {
+    will-change: transform, opacity;
+}
+
+/* Accessibility - Focus Visible */
+.modal-focus-visible:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--modal-radius-input);
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+
+/* Mobile-specific utilities */
+@media (max-width: 767px) {
+    :root {
+        --modal-max-width: var(--modal-max-width-mobile);
+        --modal-padding-desktop: var(--modal-padding-mobile);
+        --modal-form-group-gap: var(--modal-form-group-gap-mobile);
+        --modal-form-row-gap: var(--modal-form-row-gap-mobile);
+        --modal-radius-container: var(--modal-radius-container-mobile);
+        --modal-text-heading: var(--modal-text-heading-mobile);
+    }
+    
+    /* Mobile-only display utilities */
+    .modal-hide-mobile {
+        display: none !important;
+    }
+    
+    .modal-show-mobile {
+        display: block !important;
+    }
+    
+    /* Mobile full-width utilities */
+    .modal-full-width-mobile {
+        width: 100% !important;
+    }
+    
+    /* Mobile stack utilities */
+    .modal-stack-mobile {
+        flex-direction: column !important;
+    }
+    
+    /* Mobile text alignment */
+    .modal-text-center-mobile {
+        text-align: center !important;
+    }
+}
+
+/* Tablet-specific utilities */
+@media (min-width: 768px) and (max-width: 1023px) {
+    :root {
+        --modal-max-width: 90vw;
+        --modal-form-row-gap: 12px;
+    }
+    
+    /* Tablet-only display utilities */
+    .modal-hide-tablet {
+        display: none !important;
+    }
+    
+    .modal-show-tablet {
+        display: block !important;
+    }
+}
+
+/* Desktop-specific utilities */
+@media (min-width: 1024px) {
+    /* Desktop-only display utilities */
+    .modal-hide-desktop {
+        display: none !important;
+    }
+    
+    .modal-show-desktop {
+        display: block !important;
+    }
+}
+
+/* ========================================
+   RESPONSIVE LAYOUT HELPERS
+   ======================================== */
+
+/* Responsive container that adapts to breakpoints */
+.modal-responsive-container {
+    width: 100%;
+    max-width: var(--modal-max-width);
+    padding: var(--modal-padding-desktop);
+}
+
+/* Responsive grid for form rows */
+.modal-responsive-grid {
+    display: grid;
+    gap: var(--modal-form-row-gap);
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .modal-responsive-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Responsive flex container */
+.modal-responsive-flex {
+    display: flex;
+    gap: var(--modal-form-row-gap);
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .modal-responsive-flex {
+        flex-direction: row;
+    }
+}
+
+/* ========================================
+   RESPONSIVE SPACING UTILITIES
+   ======================================== */
+
+/* Responsive padding classes */
+.modal-padding-responsive {
+    padding: var(--modal-padding-mobile);
+}
+
+@media (min-width: 768px) {
+    .modal-padding-responsive {
+        padding: var(--modal-padding-desktop);
+    }
+}
+
+/* Responsive margin classes */
+.modal-margin-bottom-responsive {
+    margin-bottom: var(--modal-form-group-gap-mobile);
+}
+
+@media (min-width: 768px) {
+    .modal-margin-bottom-responsive {
+        margin-bottom: var(--modal-form-group-gap);
+    }
+}
+
+/* ========================================
+   RESPONSIVE TYPOGRAPHY UTILITIES
+   ======================================== */
+
+/* Responsive heading sizes */
+.modal-heading-responsive {
+    font-size: var(--modal-text-heading-mobile);
+    font-weight: var(--modal-weight-bold);
+}
+
+@media (min-width: 768px) {
+    .modal-heading-responsive {
+        font-size: var(--modal-text-heading);
+    }
+}
+
+/* Responsive text alignment */
+.modal-text-responsive {
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .modal-text-responsive {
+        text-align: left;
+    }
+}
+
+/* ========================================
+   TOUCH TARGET UTILITIES (Mobile)
+   ======================================== */
+
+/* Ensure minimum touch target size on mobile */
+@media (max-width: 767px) {
+    .modal-touch-target {
+        min-height: var(--modal-touch-target-min);
+        min-width: var(--modal-touch-target-min);
+    }
+    
+    /* Apply to all buttons on mobile */
+    button,
+    .btn,
+    [role="button"] {
+        min-height: var(--modal-touch-target-min);
+    }
+    
+    /* Apply to all interactive elements */
+    a,
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: var(--modal-touch-target-min);
+        min-width: var(--modal-touch-target-min);
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* ========================================
+   RESPONSIVE BREAKPOINT SYSTEM DOCUMENTATION
+   ======================================== */
+
+/**
+ * BREAKPOINT SYSTEM OVERVIEW
+ * 
+ * The modal system uses a mobile-first responsive approach with three breakpoints:
+ * 
+ * 1. MOBILE: < 768px (--modal-breakpoint-mobile)
+ *    - Full-width modals with minimal margins
+ *    - Stacked form layouts
+ *    - Larger touch targets (44x44px minimum)
+ *    - Reduced padding and spacing
+ * 
+ * 2. TABLET: 768px - 1024px (--modal-breakpoint-tablet)
+ *    - Optimized modal width (90vw)
+ *    - Two-column form layouts where appropriate
+ *    - Balanced spacing
+ * 
+ * 3. DESKTOP: > 1024px
+ *    - Fixed modal widths (480px standard, 600px large)
+ *    - Multi-column layouts
+ *    - Full spacing and padding
+ * 
+ * MEDIA QUERY USAGE:
+ * 
+ * Mobile-first approach (recommended):
+ * ```css
+ * .my-element {
+ *     // Mobile styles (default)
+ *     width: 100%;
+ * }
+ * 
+ * @media (min-width: 768px) {
+ *     .my-element {
+ *         // Tablet and up
+ *         width: 50%;
+ *     }
+ * }
+ * 
+ * @media (min-width: 1024px) {
+ *     .my-element {
+ *         // Desktop and up
+ *         width: 480px;
+ *     }
+ * }
+ * ```
+ * 
+ * Tablet-only targeting:
+ * ```css
+ * @media (min-width: 768px) and (max-width: 1023px) {
+ *     .my-element {
+ *         // Tablet-specific styles
+ *     }
+ * }
+ * ```
+ * 
+ * Mobile-only targeting:
+ * ```css
+ * @media (max-width: 767px) {
+ *     .my-element {
+ *         // Mobile-specific styles
+ *     }
+ * }
+ * ```
+ * 
+ * UTILITY CLASSES:
+ * 
+ * Display Control:
+ * - .modal-hide-mobile: Hide on mobile devices
+ * - .modal-show-mobile: Show only on mobile devices
+ * - .modal-hide-tablet: Hide on tablet devices
+ * - .modal-show-tablet: Show only on tablet devices
+ * - .modal-hide-desktop: Hide on desktop devices
+ * - .modal-show-desktop: Show only on desktop devices
+ * 
+ * Layout Control:
+ * - .modal-full-width-mobile: Full width on mobile
+ * - .modal-stack-mobile: Stack flex items vertically on mobile
+ * - .modal-responsive-grid: Auto-responsive grid (1 col mobile, 2 col tablet+)
+ * - .modal-responsive-flex: Auto-responsive flex (column mobile, row tablet+)
+ * 
+ * Spacing Control:
+ * - .modal-padding-responsive: Responsive padding (24px mobile, 32px desktop)
+ * - .modal-margin-bottom-responsive: Responsive bottom margin
+ * 
+ * Typography Control:
+ * - .modal-heading-responsive: Responsive heading size
+ * - .modal-text-center-mobile: Center text on mobile only
+ * - .modal-text-responsive: Center on mobile, left-align on desktop
+ * 
+ * Touch Targets:
+ * - .modal-touch-target: Ensures 44x44px minimum on mobile
+ * - Automatically applied to buttons, links, and inputs on mobile
+ * 
+ * EXAMPLE USAGE:
+ * 
+ * Form row that stacks on mobile:
+ * ```html
+ * <div class="modal-responsive-flex">
+ *     <div class="form-group">
+ *         <label>First Name</label>
+ *         <input type="text" />
+ *     </div>
+ *     <div class="form-group">
+ *         <label>Last Name</label>
+ *         <input type="text" />
+ *     </div>
+ * </div>
+ * ```
+ * 
+ * Button that's full-width on mobile:
+ * ```html
+ * <button class="btn btn--primary modal-full-width-mobile">
+ *     Submit
+ * </button>
+ * ```
+ * 
+ * Content that only shows on desktop:
+ * ```html
+ * <div class="modal-hide-mobile modal-hide-tablet">
+ *     Desktop-only content
+ * </div>
+ * ```
+ * 
+ * BEST PRACTICES:
+ * 
+ * 1. Always test on actual mobile devices, not just browser DevTools
+ * 2. Ensure touch targets are at least 44x44px on mobile
+ * 3. Use the responsive utility classes for common patterns
+ * 4. Test with keyboard visible on mobile (iOS Safari, Chrome Android)
+ * 5. Verify animations perform well on lower-end mobile devices
+ * 6. Test in both portrait and landscape orientations
+ * 7. Consider reduced motion preferences for accessibility
+ * 
+ * PERFORMANCE CONSIDERATIONS:
+ * 
+ * - CSS variables automatically adjust at breakpoints
+ * - Use transform and opacity for animations (GPU-accelerated)
+ * - Avoid layout-triggering properties in animations
+ * - Test on devices with slower processors
+ * - Consider using will-change for elements that will animate
+ * 
+ * ACCESSIBILITY:
+ * 
+ * - All breakpoints maintain WCAG AA contrast ratios
+ * - Touch targets meet minimum size requirements
+ * - Reduced motion preferences are respected
+ * - Focus indicators remain visible at all breakpoints
+ * - Keyboard navigation works consistently across devices
+ */
+
+/* ========================================
+   MODAL CONTAINER COMPONENT
+   ======================================== */
+
+/**
+ * Modal Backdrop
+ * Provides visual separation and focus for active modal
+ * Implements backdrop blur with fallback for older browsers
+ */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-bg-backdrop);
+    z-index: var(--modal-z-backdrop);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    overflow-y: auto;
+    
+    /* Backdrop blur effect with fallback */
+    backdrop-filter: blur(var(--modal-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
+    
+    /* Fallback for browsers that don't support backdrop-filter */
+    @supports not (backdrop-filter: blur(4px)) {
+        background: rgba(0, 0, 0, 0.7);
+    }
+}
+
+/* Backdrop modifier for blur effect */
+.modal-backdrop--blur {
+    backdrop-filter: blur(var(--modal-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
+}
+
+/* Backdrop hidden state */
+.modal-backdrop--hidden {
+    display: none;
+}
+
+/**
+ * Modal Container
+ * Base structure for all modals
+ * Provides consistent sizing, spacing, and visual styling
+ */
+.modal-container {
+    position: relative;
+    width: 100%;
+    max-width: var(--modal-max-width);
+    background: var(--modal-bg-white);
+    border-radius: var(--modal-radius-container);
+    box-shadow: var(--modal-shadow-container);
+    padding: var(--modal-padding-desktop);
+    margin: auto;
+    z-index: var(--modal-z-container);
+    
+    /* Prevent clicks from closing modal */
+    pointer-events: auto;
+    
+    /* Performance optimization */
+    will-change: transform, opacity;
+    
+    /* Smooth transitions */
+    transition: all var(--modal-transition-base) var(--modal-ease-default);
+}
+
+/* Modal container large variant */
+.modal-container--large {
+    max-width: var(--modal-max-width-large);
+}
+
+/* Modal container open state */
+.modal-container--open {
+    display: block;
+    animation: modalEnter var(--modal-transition-modal-enter) var(--modal-ease-out) forwards;
+}
+
+/* Modal container closing state */
+.modal-container--closing {
+    animation: modalExit var(--modal-transition-modal-exit) var(--modal-ease-in) forwards;
+}
+
+/* Modal container hidden state */
+.modal-container--hidden {
+    display: none;
+}
+
+/**
+ * Modal Header
+ * Contains title and close button
+ */
+.modal-container__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--modal-section-gap);
+    padding-bottom: var(--space-4);
+}
+
+.modal-container__title {
+    font-size: var(--modal-text-heading);
+    font-weight: var(--modal-weight-bold);
+    color: var(--modal-text-primary);
+    line-height: var(--modal-leading-tight);
+    margin: 0;
+}
+
+.modal-container__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: var(--modal-radius-input);
+    color: var(--modal-text-muted);
+    font-size: 24px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all var(--modal-transition-fast) var(--modal-ease-default);
+    
+    /* Ensure minimum touch target */
+    min-width: var(--modal-touch-target-min);
+    min-height: var(--modal-touch-target-min);
+}
+
+.modal-container__close:hover {
+    background: var(--modal-bg-subtle);
+    color: var(--modal-text-primary);
+}
+
+.modal-container__close:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+}
+
+/**
+ * Modal Body
+ * Main content area
+ */
+.modal-container__body {
+    margin-bottom: var(--modal-section-gap);
+}
+
+/**
+ * Modal Footer
+ * Optional footer section for additional actions or links
+ */
+.modal-container__footer {
+    padding-top: var(--modal-footer-padding);
+    border-top: 1px solid var(--modal-border-default);
+    margin-top: var(--modal-section-gap);
+}
+
+/* ========================================
+   RESPONSIVE MODAL CONTAINER
+   ======================================== */
+
+/* Mobile adaptations */
+@media (max-width: 767px) {
+    .modal-backdrop {
+        padding: var(--space-2);
+    }
+    
+    .modal-container {
+        max-width: var(--modal-max-width-mobile);
+        padding: var(--modal-padding-mobile);
+        border-radius: var(--modal-radius-container-mobile);
+    }
+    
+    .modal-container__title {
+        font-size: var(--modal-text-heading-mobile);
+    }
+    
+    .modal-container__header {
+        margin-bottom: var(--space-4);
+    }
+    
+    .modal-container__body {
+        margin-bottom: var(--space-4);
+    }
+}
+
+/* Tablet adaptations */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .modal-container {
+        max-width: 90vw;
+    }
+}
+
+/* ========================================
+   MODAL ACCESSIBILITY
+   ======================================== */
+
+/* Focus trap container */
+.modal-container[aria-modal="true"] {
+    /* Focus will be trapped within this container via JavaScript */
+}
+
+/* Screen reader only text */
+.modal-container__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ========================================
+   MODAL ACCESSIBILITY ENHANCEMENTS
+   ======================================== */
+
+/**
+ * Focus Indicators
+ * Visible focus indicators for keyboard navigation
+ */
+.modal-container *:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--modal-radius-input);
+}
+
+/* Remove default focus outline for mouse users */
+.modal-container *:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/**
+ * ARIA Live Regions
+ * For screen reader announcements
+ */
+.modal-container [role="alert"],
+.modal-container [aria-live="polite"],
+.modal-container [aria-live="assertive"] {
+    /* Ensure announcements are made */
+    position: relative;
+}
+
+/**
+ * Hidden but accessible content
+ * For screen readers only
+ */
+.modal-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/**
+ * Skip to content link for keyboard users
+ */
+.modal-skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--modal-bg-white);
+    color: var(--modal-text-primary);
+    padding: var(--space-2) var(--space-4);
+    text-decoration: none;
+    border-radius: var(--modal-radius-input);
+    z-index: calc(var(--modal-z-container) + 1);
+}
+
+.modal-skip-link:focus {
+    top: var(--space-2);
+}
+
+/**
+ * High Contrast Mode Support
+ * Ensures visibility in Windows High Contrast Mode
+ */
+@media (prefers-contrast: high) {
+    .modal-container {
+        border: 2px solid currentColor;
+    }
+    
+    .modal-container__close,
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .form-group__input {
+        border: 2px solid currentColor;
+    }
+}
+
+/**
+ * Reduced Motion Support
+ * Respects user's motion preferences
+ */
+@media (prefers-reduced-motion: reduce) {
+    .modal-container,
+    .modal-backdrop,
+    .modal-container *,
+    .modal-backdrop * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/**
+ * Focus Within Styles
+ * Enhanced visual feedback when modal has focus
+ */
+.modal-container:focus-within {
+    /* Modal is active and has focus */
+}
+
+/**
+ * Disabled State Accessibility
+ * Clear visual indication of disabled elements
+ */
+.modal-container [disabled],
+.modal-container [aria-disabled="true"] {
+    opacity: var(--modal-opacity-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/**
+ * Loading State Accessibility
+ * Clear indication of loading states
+ */
+.modal-container [aria-busy="true"] {
+    position: relative;
+    pointer-events: none;
+}
+
+.modal-container [aria-busy="true"]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/**
+ * Error State Accessibility
+ * Clear visual indication of errors
+ */
+.modal-container [aria-invalid="true"] {
+    border-color: var(--modal-border-error);
+    background-color: var(--modal-bg-error);
+}
+
+.modal-container [aria-invalid="true"]:focus {
+    box-shadow: var(--modal-shadow-error);
+}
+
+/**
+ * Required Field Indicators
+ * Visual indication of required fields
+ */
+.modal-container [aria-required="true"] + label::after,
+.modal-container label[for] [aria-required="true"]::after {
+    content: '*';
+    color: var(--modal-error);
+    margin-left: 4px;
+}
+
+/**
+ * Tooltip and Help Text
+ * Accessible help text for form fields
+ */
+.modal-container [aria-describedby] {
+    /* Field has associated help text */
+}
+
+.modal-help-text {
+    font-size: var(--modal-text-small);
+    color: var(--modal-text-muted);
+    margin-top: var(--space-1);
+    display: block;
+}
+
+/**
+ * Modal Dialog Role Styles
+ * Ensures proper styling for dialog role
+ */
+[role="dialog"][aria-modal="true"] {
+    /* Modal dialog is active */
+}
+
+[role="dialog"][aria-hidden="true"] {
+    display: none !important;
+}
+
+[role="dialog"][aria-hidden="false"] {
+    display: flex !important;
+}
+
+/**
+ * Keyboard Navigation Hints
+ * Visual hints for keyboard users
+ */
+.modal-keyboard-hint {
+    font-size: var(--modal-text-small);
+    color: var(--modal-text-muted);
+    margin-top: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.modal-keyboard-hint kbd {
+    background: var(--modal-bg-subtle);
+    border: 1px solid var(--modal-border-default);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+    font-family: var(--font-mono);
+    font-size: var(--modal-text-small);
+}
+
+/**
+ * Color Contrast Utilities
+ * Ensures WCAG AA compliance
+ */
+.modal-text-contrast-high {
+    color: var(--modal-text-primary);
+}
+
+.modal-text-contrast-medium {
+    color: var(--modal-text-secondary);
+}
+
+.modal-text-contrast-low {
+    color: var(--modal-text-muted);
+}
+
+/**
+ * Touch Target Size Enforcement
+ * Ensures minimum 44x44px touch targets
+ */
+@media (max-width: 767px) {
+    .modal-container button,
+    .modal-container a,
+    .modal-container [role="button"],
+    .modal-container input[type="checkbox"],
+    .modal-container input[type="radio"] {
+        min-height: var(--modal-touch-target-min);
+        min-width: var(--modal-touch-target-min);
+    }
+}
+
+/* ========================================
+   FORM INPUT COMPONENT
+   ======================================== */
+
+/**
+ * Form Group
+ * Container for form inputs with label and error message
+ * Provides consistent spacing and layout
+ */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--modal-form-group-gap);
+    position: relative;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+/**
+ * Form Label
+ * Consistent label styling across all inputs
+ */
+.form-group__label {
+    display: block;
+    font-size: var(--modal-text-label);
+    font-weight: var(--modal-weight-medium);
+    color: var(--modal-text-secondary);
+    margin-bottom: var(--modal-label-margin);
+    line-height: var(--modal-leading-normal);
+}
+
+/**
+ * Form Input - Base Styles
+ * Default state for all input fields
+ */
+.form-group__input {
+    width: 100%;
+    padding: var(--modal-input-padding-y) var(--modal-input-padding-x);
+    font-size: var(--modal-text-body);
+    font-family: inherit;
+    line-height: var(--modal-leading-normal);
+    color: var(--modal-text-primary);
+    background-color: var(--modal-bg-white);
+    border: 1px solid var(--modal-border-default);
+    border-radius: var(--modal-radius-input);
+    outline: none;
+    transition: all var(--modal-transition-fast) var(--modal-ease-default);
+    
+    /* Ensure proper box-sizing */
+    box-sizing: border-box;
+    
+    /* Remove default appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Placeholder styling */
+.form-group__input::placeholder {
+    color: var(--modal-text-muted);
+    opacity: 0.6;
+}
+
+/**
+ * Form Input - Focus State
+ * Enhanced visual feedback when input has focus
+ */
+.form-group__input:focus,
+.form-group__input--focus {
+    border: 2px solid var(--modal-border-focus);
+    box-shadow: var(--modal-shadow-focus);
+    padding: calc(var(--modal-input-padding-y) - 1px) calc(var(--modal-input-padding-x) - 1px);
+}
+
+/**
+ * Form Input - Valid State
+ * Visual feedback for valid input
+ */
+.form-group__input--valid {
+    border-color: var(--modal-border-success);
+    background-color: var(--modal-bg-success);
+}
+
+.form-group__input--valid:focus {
+    border: 2px solid var(--modal-border-success);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    padding: calc(var(--modal-input-padding-y) - 1px) calc(var(--modal-input-padding-x) - 1px);
+}
+
+/**
+ * Form Input - Invalid/Error State
+ * Visual feedback for invalid input
+ */
+.form-group__input--error,
+.form-group__input--invalid {
+    border: 2px solid var(--modal-border-error);
+    box-shadow: var(--modal-shadow-error);
+    background-color: var(--modal-bg-error);
+    padding: calc(var(--modal-input-padding-y) - 1px) calc(var(--modal-input-padding-x) - 1px);
+}
+
+.form-group__input--error:focus,
+.form-group__input--invalid:focus {
+    border: 2px solid var(--modal-border-error);
+    box-shadow: var(--modal-shadow-error);
+}
+
+/**
+ * Form Input - Disabled State
+ * Visual feedback for disabled input
+ */
+.form-group__input:disabled,
+.form-group__input--disabled {
+    background-color: var(--modal-bg-subtle);
+    border-color: var(--modal-border-default);
+    color: var(--modal-text-muted);
+    opacity: var(--modal-opacity-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/**
+ * Form Input - Readonly State
+ * Similar to disabled but with different semantics
+ */
+.form-group__input:read-only {
+    background-color: var(--modal-bg-subtle);
+    cursor: default;
+}
+
+/**
+ * Form Input - Hover State
+ * Subtle feedback on hover (only when not disabled)
+ */
+.form-group__input:not(:disabled):not(:read-only):hover {
+    border-color: var(--modal-text-muted);
+}
+
+/**
+ * Form Error Message
+ * Error message display with slide-down animation
+ */
+.form-group__error {
+    display: block;
+    font-size: var(--modal-text-small);
+    color: var(--modal-error);
+    margin-top: var(--modal-error-margin);
+    line-height: var(--modal-leading-normal);
+    animation: errorSlideDown var(--modal-transition-base) ease-out forwards;
+}
+
+/* Hidden error state */
+.form-group__error--hidden {
+    display: none;
+}
+
+/**
+ * Form Hint Text
+ * Helper text for form inputs
+ */
+.form-group__hint {
+    display: block;
+    font-size: var(--modal-text-small);
+    color: var(--modal-text-muted);
+    margin-top: var(--modal-error-margin);
+    line-height: var(--modal-leading-normal);
+}
+
+/**
+ * Form Success Message
+ * Success feedback message
+ */
+.form-group__success {
+    display: block;
+    font-size: var(--modal-text-small);
+    color: var(--modal-success);
+    margin-top: var(--modal-error-margin);
+    line-height: var(--modal-leading-normal);
+}
+
+/**
+ * Textarea Specific Styles
+ * Extended styles for textarea elements
+ */
+.form-group__input--textarea,
+textarea.form-group__input {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/**
+ * Select Dropdown Specific Styles
+ * Enhanced styles for select elements
+ */
+.form-group__input--select,
+select.form-group__input {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 36px;
+}
+
+.form-group__input--select:focus,
+select.form-group__input:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2310b981' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+}
+
+/**
+ * Checkbox and Radio Specific Styles
+ * Custom styling for checkbox and radio inputs
+ */
+.form-group__checkbox,
+.form-group__radio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    cursor: pointer;
+}
+
+.form-group__checkbox input[type="checkbox"],
+.form-group__radio input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+    border: 2px solid var(--modal-border-default);
+    border-radius: var(--radius-sm);
+    transition: all var(--modal-transition-fast) var(--modal-ease-default);
+}
+
+.form-group__radio input[type="radio"] {
+    border-radius: 50%;
+}
+
+.form-group__checkbox input[type="checkbox"]:checked,
+.form-group__radio input[type="radio"]:checked {
+    background-color: var(--modal-primary);
+    border-color: var(--modal-primary);
+}
+
+.form-group__checkbox input[type="checkbox"]:focus,
+.form-group__radio input[type="radio"]:focus {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+}
+
+.form-group__checkbox-label,
+.form-group__radio-label {
+    font-size: var(--modal-text-body);
+    color: var(--modal-text-primary);
+    line-height: var(--modal-leading-normal);
+    cursor: pointer;
+    user-select: none;
+}
+
+/**
+ * Input Icon Support
+ * For inputs with icons (e.g., search, password visibility)
+ */
+.form-group--with-icon {
+    position: relative;
+}
+
+.form-group__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--modal-text-muted);
+    pointer-events: none;
+}
+
+.form-group__icon--left {
+    left: 12px;
+}
+
+.form-group__icon--right {
+    right: 12px;
+}
+
+.form-group--with-icon-left .form-group__input {
+    padding-left: 40px;
+}
+
+.form-group--with-icon-right .form-group__input {
+    padding-right: 40px;
+}
+
+/**
+ * Input Group
+ * For inputs with addons (prefix/suffix text or buttons)
+ */
+.form-group__input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.form-group__input-addon {
+    display: flex;
+    align-items: center;
+    padding: var(--modal-input-padding-y) var(--modal-input-padding-x);
+    background-color: var(--modal-bg-subtle);
+    border: 1px solid var(--modal-border-default);
+    font-size: var(--modal-text-body);
+    color: var(--modal-text-muted);
+    white-space: nowrap;
+}
+
+.form-group__input-addon--left {
+    border-right: none;
+    border-radius: var(--modal-radius-input) 0 0 var(--modal-radius-input);
+}
+
+.form-group__input-addon--right {
+    border-left: none;
+    border-radius: 0 var(--modal-radius-input) var(--modal-radius-input) 0;
+}
+
+.form-group__input-group .form-group__input {
+    border-radius: 0;
+}
+
+.form-group__input-group .form-group__input:first-child {
+    border-radius: var(--modal-radius-input) 0 0 var(--modal-radius-input);
+}
+
+.form-group__input-group .form-group__input:last-child {
+    border-radius: 0 var(--modal-radius-input) var(--modal-radius-input) 0;
+}
+
+/**
+ * Required Field Indicator
+ * Visual indicator for required fields
+ */
+.form-group__label--required::after {
+    content: '*';
+    color: var(--modal-error);
+    margin-left: 4px;
+}
+
+/**
+ * Form Row
+ * Container for multiple form groups in a row
+ */
+.form-row {
+    display: flex;
+    gap: var(--modal-form-row-gap);
+    margin-bottom: var(--modal-form-group-gap);
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-row .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* ========================================
+   RESPONSIVE FORM INPUT STYLES
+   ======================================== */
+
+/* Mobile adaptations */
+@media (max-width: 767px) {
+    .form-group {
+        margin-bottom: var(--modal-form-group-gap-mobile);
+    }
+    
+    .form-group__input {
+        /* Prevent zoom on iOS */
+        font-size: 16px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-row .form-group {
+        margin-bottom: var(--modal-form-group-gap-mobile);
+    }
+    
+    .form-row .form-group:last-child {
+        margin-bottom: 0;
+    }
+    
+    /* Ensure touch targets */
+    .form-group__checkbox,
+    .form-group__radio {
+        min-height: var(--modal-touch-target-min);
+    }
+    
+    .form-group__checkbox input[type="checkbox"],
+    .form-group__radio input[type="radio"] {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* Tablet adaptations */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .form-row {
+        gap: var(--modal-form-row-gap-mobile);
+    }
+}
+
+/* ========================================
+   FORM INPUT ACCESSIBILITY
+   ======================================== */
+
+/**
+ * Focus Visible Enhancement
+ * Enhanced focus indicators for keyboard navigation
+ */
+.form-group__input:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+}
+
+/**
+ * ARIA Invalid State
+ * Support for aria-invalid attribute
+ */
+.form-group__input[aria-invalid="true"] {
+    border: 2px solid var(--modal-border-error);
+    box-shadow: var(--modal-shadow-error);
+    background-color: var(--modal-bg-error);
+    padding: calc(var(--modal-input-padding-y) - 1px) calc(var(--modal-input-padding-x) - 1px);
+}
+
+/**
+ * ARIA Required State
+ * Support for aria-required attribute
+ */
+.form-group__input[aria-required="true"] {
+    /* Visual indicator handled by label */
+}
+
+/**
+ * ARIA Describedby Support
+ * Ensures proper association with help text
+ */
+.form-group__input[aria-describedby] {
+    /* Associated with help text or error message */
+}
+
+/**
+ * High Contrast Mode Support
+ */
+@media (prefers-contrast: high) {
+    .form-group__input {
+        border: 2px solid currentColor;
+    }
+    
+    .form-group__input:focus {
+        outline: 3px solid currentColor;
+        outline-offset: 2px;
+    }
+}
+
+/**
+ * Reduced Motion Support
+ */
+@media (prefers-reduced-motion: reduce) {
+    .form-group__error {
+        animation: none;
+    }
+    
+    .form-group__input {
+        transition: none;
+    }
+}
+
+/* ========================================
+   FORM INPUT DARK MODE
+   ======================================== */
+
+:root[data-theme="dark"] .form-group__input {
+    background-color: var(--modal-bg-white);
+    border-color: var(--modal-border-default);
+    color: var(--modal-text-primary);
+}
+
+:root[data-theme="dark"] .form-group__input:focus {
+    border-color: var(--modal-border-focus);
+}
+
+:root[data-theme="dark"] .form-group__input::placeholder {
+    color: var(--modal-text-muted);
+}
+
+:root[data-theme="dark"] .form-group__input:disabled {
+    background-color: var(--modal-bg-subtle);
+    color: var(--modal-text-muted);
+}
+
+:root[data-theme="dark"] .form-group__input--valid {
+    background-color: var(--modal-bg-success);
+}
+
+:root[data-theme="dark"] .form-group__input--error {
+    background-color: var(--modal-bg-error);
+}
+
+:root[data-theme="dark"] .form-group__input-addon {
+    background-color: var(--modal-bg-subtle);
+    border-color: var(--modal-border-default);
+    color: var(--modal-text-muted);
+}
+
+/* ========================================
+   BUTTON COMPONENT
+   ======================================== */
+
+/**
+ * Button Base Styles
+ * Provides foundation for all button variants
+ * Ensures consistent sizing, spacing, and behavior
+ */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    padding: var(--modal-button-padding-y) var(--modal-button-padding-x);
+    font-size: var(--modal-text-body);
+    font-weight: var(--modal-weight-semibold);
+    font-family: inherit;
+    line-height: var(--modal-leading-normal);
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    border: none;
+    border-radius: var(--modal-radius-button);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition: all var(--modal-transition-fast) var(--modal-ease-default);
+    
+    /* Ensure proper box-sizing */
+    box-sizing: border-box;
+    
+    /* Remove default button appearance */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    
+    /* Ensure minimum touch target */
+    min-height: var(--modal-touch-target-min);
+    
+    /* Prevent text selection */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    /* Prevent tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/**
+ * Primary Button
+ * Main call-to-action button with gradient background
+ * Used for primary actions like submit, sign in, continue
+ */
+.btn--primary {
+    background: var(--modal-primary-gradient);
+    color: var(--modal-text-white);
+    border: none;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn--primary:hover:not(:disabled):not(.btn--disabled) {
+    transform: scale(var(--modal-scale-hover));
+    filter: brightness(1.1);
+    box-shadow: var(--modal-shadow-button-hover);
+}
+
+.btn--primary:active:not(:disabled):not(.btn--disabled) {
+    transform: scale(var(--modal-scale-active));
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.btn--primary:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+}
+
+/**
+ * Secondary Button
+ * Alternative action button with transparent background and border
+ * Used for cancel, back, and secondary actions
+ */
+.btn--secondary {
+    background: transparent;
+    color: var(--modal-text-muted);
+    border: 1px solid var(--modal-border-default);
+}
+
+.btn--secondary:hover:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-bg-subtle);
+    border-color: var(--modal-text-muted);
+    color: var(--modal-text-secondary);
+}
+
+.btn--secondary:active:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-border-default);
+    transform: scale(var(--modal-scale-active));
+}
+
+.btn--secondary:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+}
+
+/**
+ * Button Disabled State
+ * Visual feedback for disabled buttons
+ * Prevents interaction and reduces opacity
+ */
+.btn:disabled,
+.btn--disabled {
+    opacity: var(--modal-opacity-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn:disabled:hover,
+.btn--disabled:hover {
+    transform: none;
+    filter: none;
+}
+
+/**
+ * Button Loading State
+ * Shows loading indicator and disables interaction
+ * Used during async operations
+ */
+.btn--loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.btn--loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+    margin-top: calc(var(--modal-icon-md) / -2);
+    margin-left: calc(var(--modal-icon-md) / -2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spinnerRotate 600ms linear infinite;
+}
+
+.btn--loading.btn--secondary::after {
+    border-color: rgba(107, 114, 128, 0.3);
+    border-top-color: var(--modal-text-muted);
+}
+
+/**
+ * Button Spinner Element
+ * Explicit spinner element for loading state
+ * Alternative to ::after pseudo-element
+ */
+.btn__spinner {
+    display: inline-block;
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spinnerRotate 600ms linear infinite;
+}
+
+.btn--secondary .btn__spinner {
+    border-color: rgba(107, 114, 128, 0.3);
+    border-top-color: var(--modal-text-muted);
+}
+
+/**
+ * Button Text Element
+ * Wrapper for button text content
+ * Useful for complex button layouts
+ */
+.btn__text {
+    display: inline-block;
+}
+
+/**
+ * Button Icon Element
+ * Icon within button (left or right)
+ */
+.btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+}
+
+.btn__icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/**
+ * Button Size Variants
+ */
+.btn--small {
+    padding: 8px 16px;
+    font-size: var(--modal-text-label);
+    min-height: 36px;
+}
+
+.btn--large {
+    padding: 16px 32px;
+    font-size: 18px;
+    min-height: 52px;
+}
+
+/**
+ * Button Width Variants
+ */
+.btn--full-width {
+    width: 100%;
+    display: flex;
+}
+
+.btn--auto-width {
+    width: auto;
+}
+
+/**
+ * Button Group
+ * Container for multiple buttons
+ */
+.btn-group {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+}
+
+.btn-group--vertical {
+    flex-direction: column;
+}
+
+.btn-group--stretch {
+    width: 100%;
+}
+
+.btn-group--stretch .btn {
+    flex: 1;
+}
+
+/**
+ * Button Link Variant
+ * Button styled as a link
+ */
+.btn--link {
+    background: transparent;
+    color: var(--modal-primary);
+    border: none;
+    padding: 0;
+    min-height: auto;
+    font-weight: var(--modal-weight-medium);
+    text-decoration: underline;
+}
+
+.btn--link:hover:not(:disabled) {
+    color: var(--modal-primary-dark);
+    transform: none;
+    text-decoration: none;
+}
+
+/**
+ * Button Danger Variant
+ * For destructive actions
+ */
+.btn--danger {
+    background: var(--modal-error);
+    color: var(--modal-text-white);
+    border: none;
+}
+
+.btn--danger:hover:not(:disabled):not(.btn--disabled) {
+    background: #dc2626;
+    transform: scale(var(--modal-scale-hover));
+}
+
+.btn--danger:active:not(:disabled):not(.btn--disabled) {
+    transform: scale(var(--modal-scale-active));
+}
+
+/**
+ * Button Success Variant
+ * For positive actions
+ */
+.btn--success {
+    background: var(--modal-success);
+    color: var(--modal-text-white);
+    border: none;
+}
+
+.btn--success:hover:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-primary-dark);
+    transform: scale(var(--modal-scale-hover));
+}
+
+.btn--success:active:not(:disabled):not(.btn--disabled) {
+    transform: scale(var(--modal-scale-active));
+}
+
+/**
+ * Button Ghost Variant
+ * Minimal button with no background or border
+ */
+.btn--ghost {
+    background: transparent;
+    color: var(--modal-text-secondary);
+    border: none;
+}
+
+.btn--ghost:hover:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-bg-subtle);
+    color: var(--modal-text-primary);
+}
+
+.btn--ghost:active:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-border-default);
+    transform: scale(var(--modal-scale-active));
+}
+
+/* ========================================
+   RESPONSIVE BUTTON STYLES
+   ======================================== */
+
+/* Mobile adaptations */
+@media (max-width: 767px) {
+    .btn {
+        /* Ensure minimum touch target on mobile */
+        min-height: var(--modal-touch-target-min);
+        min-width: var(--modal-touch-target-min);
+    }
+    
+    /* Full width buttons on mobile by default */
+    .btn--mobile-full {
+        width: 100%;
+        display: flex;
+    }
+    
+    /* Stack button groups on mobile */
+    .btn-group--mobile-stack {
+        flex-direction: column;
+    }
+    
+    .btn-group--mobile-stack .btn {
+        width: 100%;
+    }
+    
+    /* Adjust button padding on mobile */
+    .btn {
+        padding: var(--space-3) var(--space-4);
+    }
+    
+    .btn--small {
+        padding: var(--space-2) var(--space-3);
+    }
+    
+    .btn--large {
+        padding: var(--space-4) var(--space-6);
+    }
+}
+
+/* Tablet adaptations */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .btn-group {
+        gap: var(--space-2);
+    }
+}
+
+/* ========================================
+   BUTTON ACCESSIBILITY
+   ======================================== */
+
+/**
+ * Focus Visible Enhancement
+ * Enhanced focus indicators for keyboard navigation
+ */
+.btn:focus-visible {
+    outline: 2px solid var(--modal-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--modal-radius-button);
+}
+
+/**
+ * ARIA Disabled State
+ * Support for aria-disabled attribute
+ */
+.btn[aria-disabled="true"] {
+    opacity: var(--modal-opacity-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/**
+ * ARIA Busy State
+ * Support for aria-busy attribute (loading state)
+ */
+.btn[aria-busy="true"] {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.btn[aria-busy="true"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+    margin-top: calc(var(--modal-icon-md) / -2);
+    margin-left: calc(var(--modal-icon-md) / -2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spinnerRotate 600ms linear infinite;
+}
+
+/**
+ * ARIA Pressed State
+ * Support for toggle buttons
+ */
+.btn[aria-pressed="true"] {
+    background: var(--modal-primary);
+    color: var(--modal-text-white);
+}
+
+.btn--secondary[aria-pressed="true"] {
+    background: var(--modal-bg-subtle);
+    border-color: var(--modal-primary);
+    color: var(--modal-primary);
+}
+
+/**
+ * High Contrast Mode Support
+ */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .btn:focus {
+        outline: 3px solid currentColor;
+        outline-offset: 2px;
+    }
+}
+
+/**
+ * Reduced Motion Support
+ */
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        transition: none;
+    }
+    
+    .btn:hover,
+    .btn:active {
+        transform: none;
+    }
+    
+    .btn__spinner,
+    .btn--loading::after,
+    .btn[aria-busy="true"]::after {
+        animation: none;
+    }
+}
+
+/**
+ * Screen Reader Only Text
+ * For additional context in buttons
+ */
+.btn__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ========================================
+   BUTTON DARK MODE
+   ======================================== */
+
+:root[data-theme="dark"] .btn--primary {
+    background: var(--modal-primary-gradient);
+    color: var(--modal-text-white);
+}
+
+:root[data-theme="dark"] .btn--secondary {
+    background: transparent;
+    color: var(--modal-text-muted);
+    border-color: var(--modal-border-default);
+}
+
+:root[data-theme="dark"] .btn--secondary:hover:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-bg-subtle);
+    border-color: var(--modal-text-muted);
+    color: var(--modal-text-secondary);
+}
+
+:root[data-theme="dark"] .btn--ghost {
+    color: var(--modal-text-secondary);
+}
+
+:root[data-theme="dark"] .btn--ghost:hover:not(:disabled):not(.btn--disabled) {
+    background: var(--modal-bg-subtle);
+    color: var(--modal-text-primary);
+}
+
+:root[data-theme="dark"] .btn--link {
+    color: var(--modal-primary);
+}
+
+:root[data-theme="dark"] .btn--link:hover:not(:disabled) {
+    color: var(--modal-primary-dark);
+}
+
+/* ========================================
+   BUTTON COMPONENT USAGE EXAMPLES
+   ======================================== */
+
+/**
+ * USAGE EXAMPLES:
+ * 
+ * Primary Button:
+ * <button class="btn btn--primary">Sign In</button>
+ * 
+ * Secondary Button:
+ * <button class="btn btn--secondary">Cancel</button>
+ * 
+ * Loading State:
+ * <button class="btn btn--primary btn--loading">Processing...</button>
+ * 
+ * Disabled State:
+ * <button class="btn btn--primary" disabled>Submit</button>
+ * 
+ * Full Width Button:
+ * <button class="btn btn--primary btn--full-width">Continue</button>
+ * 
+ * Button with Icon:
+ * <button class="btn btn--primary">
+ *   <span class="btn__icon">
+ *     <svg>...</svg>
+ *   </span>
+ *   <span class="btn__text">Save</span>
+ * </button>
+ * 
+ * Button with Spinner:
+ * <button class="btn btn--primary btn--loading">
+ *   <span class="btn__spinner"></span>
+ *   <span class="btn__text">Processing...</span>
+ * </button>
+ * 
+ * Button Group:
+ * <div class="btn-group">
+ *   <button class="btn btn--secondary">Cancel</button>
+ *   <button class="btn btn--primary">Submit</button>
+ * </div>
+ * 
+ * Mobile Full Width:
+ * <button class="btn btn--primary btn--mobile-full">Continue</button>
+ * 
+ * Small Button:
+ * <button class="btn btn--primary btn--small">Save</button>
+ * 
+ * Large Button:
+ * <button class="btn btn--primary btn--large">Get Started</button>
+ * 
+ * Link Button:
+ * <button class="btn btn--link">Learn More</button>
+ * 
+ * Danger Button:
+ * <button class="btn btn--danger">Delete Account</button>
+ * 
+ * Success Button:
+ * <button class="btn btn--success">Confirm</button>
+ * 
+ * Ghost Button:
+ * <button class="btn btn--ghost">Skip</button>
+ */
+
+/* ========================================
+   LOADING INDICATOR COMPONENT
+   ======================================== */
+
+/**
+ * Loading Spinner Component
+ * Provides visual feedback during async operations
+ * 
+ * VARIANTS:
+ * - Inline: Small spinner for buttons and inline elements
+ * - Overlay: Full-screen loading overlay for modal content
+ * 
+ * USAGE:
+ * 
+ * Inline Spinner:
+ * <span class="loading-spinner loading-spinner--inline">
+ *   <span class="loading-spinner__icon"></span>
+ * </span>
+ * 
+ * Inline Spinner with Text:
+ * <div class="loading-spinner loading-spinner--inline">
+ *   <span class="loading-spinner__icon"></span>
+ *   <span class="loading-spinner__text">Loading...</span>
+ * </div>
+ * 
+ * Full-Screen Overlay:
+ * <div class="loading-spinner loading-spinner--overlay">
+ *   <div class="loading-spinner__content">
+ *     <span class="loading-spinner__icon"></span>
+ *     <span class="loading-spinner__text">Processing...</span>
+ *   </div>
+ * </div>
+ * 
+ * ACCESSIBILITY:
+ * - Uses aria-busy="true" on parent container
+ * - Uses aria-live="polite" for screen reader announcements
+ * - Includes aria-label for spinner icon
+ */
+
+/* Base Loading Spinner */
+.loading-spinner {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Loading Spinner Icon */
+.loading-spinner__icon {
+    display: inline-block;
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+    border: 3px solid rgba(16, 185, 129, 0.2);
+    border-top-color: var(--modal-primary);
+    border-radius: 50%;
+    animation: spinnerRotate 600ms linear infinite;
+}
+
+/* Loading Spinner Text */
+.loading-spinner__text {
+    font-size: var(--modal-text-label);
+    font-weight: var(--modal-weight-medium);
+    color: var(--modal-text-secondary);
+}
+
+/* ========================================
+   INLINE LOADING SPINNER
+   ======================================== */
+
+/**
+ * Inline Loading Spinner
+ * Small spinner for buttons and inline elements
+ * Size: 20px (--modal-icon-md)
+ */
+.loading-spinner--inline {
+    display: inline-flex;
+    vertical-align: middle;
+}
+
+.loading-spinner--inline .loading-spinner__icon {
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+    border-width: 2px;
+}
+
+.loading-spinner--inline .loading-spinner__text {
+    font-size: var(--modal-text-small);
+}
+
+/* Small Inline Spinner (16px) */
+.loading-spinner--inline.loading-spinner--small .loading-spinner__icon {
+    width: var(--modal-icon-sm);
+    height: var(--modal-icon-sm);
+    border-width: 2px;
+}
+
+/* Large Inline Spinner (32px) */
+.loading-spinner--inline.loading-spinner--large .loading-spinner__icon {
+    width: var(--modal-icon-lg);
+    height: var(--modal-icon-lg);
+    border-width: 3px;
+}
+
+/* ========================================
+   FULL-SCREEN LOADING OVERLAY
+   ======================================== */
+
+/**
+ * Full-Screen Loading Overlay
+ * Covers modal content during async operations
+ * Size: 40px spinner with centered layout
+ */
+.loading-spinner--overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, var(--modal-opacity-loading));
+    backdrop-filter: blur(2px);
+    z-index: var(--modal-z-loading);
+    border-radius: var(--modal-radius-container);
+}
+
+.loading-spinner--overlay .loading-spinner__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.loading-spinner--overlay .loading-spinner__icon {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+}
+
+.loading-spinner--overlay .loading-spinner__text {
+    font-size: var(--modal-text-body);
+    font-weight: var(--modal-weight-semibold);
+    color: var(--modal-text-primary);
+}
+
+/* ========================================
+   LOADING SPINNER COLOR VARIANTS
+   ======================================== */
+
+/**
+ * Color Variants
+ * Different color schemes for various contexts
+ */
+
+/* White Spinner (for dark backgrounds) */
+.loading-spinner--white .loading-spinner__icon {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: var(--modal-text-white);
+}
+
+.loading-spinner--white .loading-spinner__text {
+    color: var(--modal-text-white);
+}
+
+/* Secondary Spinner (muted colors) */
+.loading-spinner--secondary .loading-spinner__icon {
+    border-color: rgba(107, 114, 128, 0.3);
+    border-top-color: var(--modal-text-muted);
+}
+
+.loading-spinner--secondary .loading-spinner__text {
+    color: var(--modal-text-muted);
+}
+
+/* Success Spinner (green) */
+.loading-spinner--success .loading-spinner__icon {
+    border-color: rgba(16, 185, 129, 0.2);
+    border-top-color: var(--modal-success);
+}
+
+.loading-spinner--success .loading-spinner__text {
+    color: var(--modal-success);
+}
+
+/* Error Spinner (red) */
+.loading-spinner--error .loading-spinner__icon {
+    border-color: rgba(239, 68, 68, 0.2);
+    border-top-color: var(--modal-error);
+}
+
+.loading-spinner--error .loading-spinner__text {
+    color: var(--modal-error);
+}
+
+/* ========================================
+   LOADING SPINNER STATES
+   ======================================== */
+
+/**
+ * Loading Spinner States
+ * Show/hide and animation control
+ */
+
+/* Hidden State */
+.loading-spinner--hidden {
+    display: none;
+}
+
+/* Visible State with Fade In */
+.loading-spinner--visible {
+    animation: fadeIn var(--modal-transition-base) ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Paused Animation (for reduced motion) */
+.loading-spinner--paused .loading-spinner__icon {
+    animation-play-state: paused;
+}
+
+/* ========================================
+   LOADING SPINNER IN BUTTONS
+   ======================================== */
+
+/**
+ * Loading Spinner in Buttons
+ * Integration with button component
+ */
+
+/* Button with inline spinner */
+.btn .loading-spinner--inline {
+    margin-right: 8px;
+}
+
+.btn .loading-spinner--inline .loading-spinner__icon {
+    width: var(--modal-icon-md);
+    height: var(--modal-icon-md);
+}
+
+/* Primary button spinner colors */
+.btn--primary .loading-spinner__icon {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: var(--modal-text-white);
+}
+
+.btn--primary .loading-spinner__text {
+    color: var(--modal-text-white);
+}
+
+/* Secondary button spinner colors */
+.btn--secondary .loading-spinner__icon {
+    border-color: rgba(107, 114, 128, 0.3);
+    border-top-color: var(--modal-text-muted);
+}
+
+/* ========================================
+   LOADING SPINNER IN FORMS
+   ======================================== */
+
+/**
+ * Loading Spinner in Forms
+ * Integration with form inputs
+ */
+
+/* Input with inline spinner (right side) */
+.form-group--loading {
+    position: relative;
+}
+
+.form-group--loading .loading-spinner--inline {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.form-group--loading .form-group__input {
+    padding-right: 40px;
+}
+
+/* ========================================
+   LOADING SPINNER ACCESSIBILITY
+   ======================================== */
+
+/**
+ * Accessibility Enhancements
+ * ARIA attributes and screen reader support
+ */
+
+/* Container with loading state */
+[aria-busy="true"] {
+    position: relative;
+}
+
+/* Announce loading state to screen readers */
+.loading-spinner[aria-live="polite"] .loading-spinner__text {
+    /* Screen reader will announce text changes */
+}
+
+/* Hidden text for screen readers only */
+.loading-spinner__sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ========================================
+   LOADING SPINNER DARK MODE
+   ======================================== */
+
+/**
+ * Dark Mode Styles
+ * Adjusted colors for dark theme
+ */
+:root[data-theme="dark"] .loading-spinner--overlay {
+    background: rgba(30, 41, 59, var(--modal-opacity-loading));
+}
+
+:root[data-theme="dark"] .loading-spinner__text {
+    color: var(--modal-text-secondary);
+}
+
+:root[data-theme="dark"] .loading-spinner--overlay .loading-spinner__text {
+    color: var(--modal-text-primary);
+}
+
+/* ========================================
+   LOADING SPINNER RESPONSIVE
+   ======================================== */
+
+/**
+ * Responsive Adjustments
+ * Mobile-specific styles
+ */
+@media (max-width: 767px) {
+    /* Slightly smaller overlay spinner on mobile */
+    .loading-spinner--overlay .loading-spinner__icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .loading-spinner--overlay .loading-spinner__text {
+        font-size: var(--modal-text-label);
+    }
+    
+    /* Adjust gap */
+    .loading-spinner--overlay .loading-spinner__content {
+        gap: 12px;
+    }
+}
+
+/* ========================================
+   LOADING SPINNER ANIMATIONS
+   ======================================== */
+
+/**
+ * Additional Animations
+ * Smooth transitions and effects
+ */
+
+/* Fade in overlay */
+.loading-spinner--overlay.loading-spinner--entering {
+    animation: fadeIn var(--modal-transition-base) ease-out;
+}
+
+/* Fade out overlay */
+.loading-spinner--overlay.loading-spinner--exiting {
+    animation: fadeOut var(--modal-transition-base) ease-in;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Pulse animation for text */
+.loading-spinner--pulse .loading-spinner__text {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ========================================
+   LOADING SPINNER REDUCED MOTION
+   ======================================== */
+
+/**
+ * Reduced Motion Support
+ * Respect user preferences for reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+    .loading-spinner__icon {
+        animation: none;
+        /* Show static spinner instead */
+        border-top-color: var(--modal-primary);
+        border-right-color: var(--modal-primary);
+    }
+    
+    .loading-spinner--pulse .loading-spinner__text {
+        animation: none;
+    }
+}
+
+/* ========================================
+   LOADING SPINNER USAGE EXAMPLES
+   ======================================== */
+
+/**
+ * COMPLETE USAGE EXAMPLES:
+ * 
+ * 1. Inline Spinner in Button:
+ * <button class="btn btn--primary" aria-busy="true">
+ *   <span class="loading-spinner loading-spinner--inline">
+ *     <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *   </span>
+ *   <span class="btn__text">Processing...</span>
+ * </button>
+ * 
+ * 2. Full-Screen Loading Overlay:
+ * <div class="modal-container" aria-busy="true">
+ *   <div class="loading-spinner loading-spinner--overlay" role="status" aria-live="polite">
+ *     <div class="loading-spinner__content">
+ *       <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *       <span class="loading-spinner__text">Processing your request...</span>
+ *     </div>
+ *   </div>
+ *   <!-- Modal content -->
+ * </div>
+ * 
+ * 3. Inline Spinner with Text:
+ * <div class="loading-spinner loading-spinner--inline" role="status">
+ *   <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *   <span class="loading-spinner__text">Loading data...</span>
+ * </div>
+ * 
+ * 4. Form Input with Loading State:
+ * <div class="form-group form-group--loading">
+ *   <label class="form-group__label">Email</label>
+ *   <input class="form-group__input" type="email" aria-busy="true" />
+ *   <span class="loading-spinner loading-spinner--inline">
+ *     <span class="loading-spinner__icon" aria-label="Validating"></span>
+ *   </span>
+ * </div>
+ * 
+ * 5. Small Inline Spinner:
+ * <span class="loading-spinner loading-spinner--inline loading-spinner--small">
+ *   <span class="loading-spinner__icon" aria-label="Loading"></span>
+ * </span>
+ * 
+ * 6. Large Overlay with Pulse Text:
+ * <div class="loading-spinner loading-spinner--overlay loading-spinner--pulse">
+ *   <div class="loading-spinner__content">
+ *     <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *     <span class="loading-spinner__text">Please wait...</span>
+ *   </div>
+ * </div>
+ * 
+ * 7. White Spinner for Dark Backgrounds:
+ * <div class="loading-spinner loading-spinner--inline loading-spinner--white">
+ *   <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *   <span class="loading-spinner__text">Loading...</span>
+ * </div>
+ * 
+ * 8. Screen Reader Only Text:
+ * <div class="loading-spinner loading-spinner--inline" role="status" aria-live="polite">
+ *   <span class="loading-spinner__icon" aria-label="Loading"></span>
+ *   <span class="loading-spinner__sr-only">Loading content, please wait...</span>
+ * </div>
+ */
+
+
+/* ========================================
+   REGISTRATION MODAL SPECIFIC STYLES
+   ======================================== */
+
+/**
+ * Password Strength Indicator
+ * Visual feedback for password strength
+ */
+.password-strength {
+    margin-top: 8px;
+    height: 4px;
+    background: var(--modal-border-default);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength__bar {
+    height: 100%;
+    width: 0%;
+    transition: all 0.3s ease;
+    background: var(--modal-error);
+}
+
+.password-strength__bar--weak {
+    width: 33%;
+    background: var(--modal-error);
+}
+
+.password-strength__bar--medium {
+    width: 66%;
+    background: #f59e0b; /* Orange */
+}
+
+.password-strength__bar--strong {
+    width: 100%;
+    background: var(--modal-success);
+}
+
+.password-strength__text {
+    display: block;
+    margin-top: 4px;
+    font-size: var(--modal-text-small);
+    color: var(--modal-text-muted);
+}
+
+/**
+ * Plans Grid
+ * Grid layout for plan cards
+ */
+.plans-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+    .plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .plans-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/**
+ * Plan Card
+ * Individual plan card styling
+ */
+.plan-card {
+    position: relative;
+    background: var(--modal-bg-white);
+    border: 2px solid var(--modal-border-default);
+    border-radius: var(--modal-radius-card);
+    padding: var(--space-6);
+    transition: all var(--modal-transition-base) var(--modal-ease-default);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+}
+
+.plan-card:hover {
+    border-color: var(--modal-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--modal-shadow-card-hover);
+}
+
+.plan-card--selected {
+    border-color: var(--modal-primary);
+    background: var(--modal-bg-success);
+    box-shadow: var(--modal-shadow-card-hover);
+}
+
+.plan-card--popular {
+    border-color: var(--modal-primary);
+}
+
+.plan-card--popular::before {
+    content: 'Mais Popular';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--modal-primary-gradient);
+    color: var(--modal-text-white);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: var(--modal-text-small);
+    font-weight: var(--modal-weight-semibold);
+}
+
+/**
+ * Plan Card Header
+ */
+.plan-card__header {
+    text-align: center;
+    margin-bottom: var(--space-4);
+}
+
+.plan-card__name {
+    font-size: var(--modal-text-subheading);
+    font-weight: var(--modal-weight-bold);
+    color: var(--modal-text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.plan-card__price {
+    font-size: 32px;
+    font-weight: var(--modal-weight-bold);
+    color: var(--modal-primary);
+    margin-bottom: var(--space-1);
+}
+
+.plan-card__price-currency {
+    font-size: var(--modal-text-body);
+    font-weight: var(--modal-weight-normal);
+}
+
+.plan-card__price-period {
+    font-size: var(--modal-text-label);
+    color: var(--modal-text-muted);
+}
+
+/**
+ * Plan Card Features
+ */
+.plan-card__features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-6) 0;
+    flex-grow: 1;
+}
+
+.plan-card__feature {
+    display: flex;
+    align-items: start;
+    gap: var(--space-2);
+    padding: var(--space-2) 0;
+    font-size: var(--modal-text-label);
+    color: var(--modal-text-secondary);
+}
+
+.plan-card__feature::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--modal-bg-success);
+    color: var(--modal-success);
+    border-radius: 50%;
+    font-weight: var(--modal-weight-bold);
+    flex-shrink: 0;
+}
+
+.plan-card__feature--disabled {
+    color: var(--modal-text-muted);
+    text-decoration: line-through;
+}
+
+.plan-card__feature--disabled::before {
+    content: '×';
+    background: var(--modal-bg-subtle);
+    color: var(--modal-text-muted);
+}
+
+/**
+ * Plan Card Button
+ */
+.plan-card__button {
+    width: 100%;
+    margin-top: auto;
+}
+
+/**
+ * Mobile Responsive
+ */
+@media (max-width: 767px) {
+    .plans-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+    
+    .plan-card {
+        padding: var(--space-4);
+    }
+    
+    .plan-card__price {
+        font-size: 28px;
+    }
+}
+
+/**
+ * Tablet Responsive
+ */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .plans-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/**
+ * Dark Mode Support
+ */
+:root[data-theme="dark"] .plan-card {
+    background: var(--modal-bg-white);
+    border-color: var(--modal-border-default);
+}
+
+:root[data-theme="dark"] .plan-card:hover {
+    border-color: var(--modal-primary);
+}
+
+:root[data-theme="dark"] .plan-card--selected {
+    background: var(--modal-bg-success);
+}
+
+:root[data-theme="dark"] .plan-card__feature::before {
+    background: var(--modal-bg-success);
+}
+
+:root[data-theme="dark"] .plan-card__feature--disabled::before {
+    background: var(--modal-bg-subtle);
+}

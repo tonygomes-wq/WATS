@@ -1,0 +1,202 @@
+/* ============================================================================
+   CSS para Modal de Planos com Abas
+   Sistema de Permissões Granulares
+   ============================================================================ */
+
+/* Tabs Navigation */
+.plan-tab {
+    padding: 1rem 1.5rem;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: #6B7280;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border: none;
+    outline: none;
+}
+
+.plan-tab:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+}
+
+.plan-tab.active {
+    color: #3B82F6;
+    border-bottom-color: #3B82F6;
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.plan-tab i {
+    font-size: 1rem;
+}
+
+/* Tab Content */
+.plan-tab-content {
+    display: none;
+}
+
+.plan-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Feature Checkbox Items */
+.feature-checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+:root[data-theme="dark"] .feature-checkbox-item {
+    background: #374151;
+    border-color: #4B5563;
+}
+
+.feature-checkbox-item:hover {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"] .feature-checkbox-item:hover {
+    background: #4B5563;
+    border-color: #3B82F6;
+}
+
+.feature-checkbox-item input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-right: 0.75rem;
+    cursor: pointer;
+    accent-color: #3B82F6;
+}
+
+.feature-checkbox-item input[type="checkbox"]:checked ~ .feature-info {
+    color: #1F2937;
+}
+
+:root[data-theme="dark"] .feature-checkbox-item input[type="checkbox"]:checked ~ .feature-info {
+    color: #F3F4F6;
+}
+
+.feature-checkbox-item.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.feature-checkbox-item.disabled:hover {
+    transform: none;
+    border-color: #E5E7EB;
+    background: white;
+}
+
+:root[data-theme="dark"] .feature-checkbox-item.disabled:hover {
+    background: #374151;
+    border-color: #4B5563;
+}
+
+.feature-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.feature-info i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.feature-info span {
+    color: #1F2937;
+}
+
+:root[data-theme="dark"] .feature-info span {
+    color: #F3F4F6;
+}
+
+.feature-info small {
+    color: #6B7280;
+    font-size: 0.75rem;
+}
+
+:root[data-theme="dark"] .feature-info small {
+    color: #9CA3AF;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .plan-tab {
+        padding: 0.75rem 1rem;
+        font-size: 0.75rem;
+    }
+    
+    .plan-tab i {
+        font-size: 0.875rem;
+    }
+    
+    .plan-tab span {
+        display: none;
+    }
+    
+    .feature-checkbox-item {
+        padding: 0.75rem;
+    }
+    
+    .feature-info i {
+        font-size: 1.25rem;
+    }
+}
+
+/* Scrollbar Customization */
+.plan-tab-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.plan-tab-content::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 4px;
+}
+
+.plan-tab-content::-webkit-scrollbar-thumb {
+    background: #9CA3AF;
+    border-radius: 4px;
+}
+
+.plan-tab-content::-webkit-scrollbar-thumb:hover {
+    background: #6B7280;
+}
+
+:root[data-theme="dark"] .plan-tab-content::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+:root[data-theme="dark"] .plan-tab-content::-webkit-scrollbar-thumb {
+    background: #6B7280;
+}
+
+:root[data-theme="dark"] .plan-tab-content::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
+}

@@ -1,0 +1,167 @@
+/**
+ * Estilos para Fotos de Perfil do WhatsApp
+ */
+
+/* Container do avatar */
+.avatar-container {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Imagem do avatar */
+.avatar-container img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+    transition: border-color 0.2s;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.avatar-container img:hover {
+    border-color: #10b981;
+}
+
+/* Fallback com iniciais */
+.avatar-fallback {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    user-select: none;
+    transition: transform 0.2s;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.avatar-fallback:hover {
+    transform: scale(1.05);
+}
+
+/* Quando a imagem está visível, esconder fallback */
+.avatar-container img:not([style*="display: none"]) ~ .avatar-fallback {
+    display: none !important;
+}
+
+/* Modo escuro */
+:root[data-theme="dark"] .avatar-container img {
+    border-color: #374151;
+}
+
+:root[data-theme="dark"] .avatar-container img:hover {
+    border-color: #10b981;
+}
+
+/* Loading state */
+.avatar-container.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #10b981;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Avatar pequeno (para mensagens) */
+.avatar-container.avatar-sm {
+    width: 32px;
+    height: 32px;
+}
+
+.avatar-container.avatar-sm img,
+.avatar-container.avatar-sm .avatar-fallback {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+}
+
+/* Avatar grande (para perfil) */
+.avatar-container.avatar-lg {
+    width: 64px;
+    height: 64px;
+}
+
+.avatar-container.avatar-lg img,
+.avatar-container.avatar-lg .avatar-fallback {
+    width: 64px;
+    height: 64px;
+    font-size: 20px;
+}
+
+/* Avatar extra grande (para modal) */
+.avatar-container.avatar-xl {
+    width: 96px;
+    height: 96px;
+}
+
+.avatar-container.avatar-xl img,
+.avatar-container.avatar-xl .avatar-fallback {
+    width: 96px;
+    height: 96px;
+    font-size: 28px;
+}
+
+/* Status online (opcional) */
+.avatar-container.online::before {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    background-color: #10b981;
+    border: 2px solid white;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+:root[data-theme="dark"] .avatar-container.online::before {
+    border-color: #1f2937;
+}
+
+/* Grupo de avatares (para conversas em grupo) */
+.avatar-group {
+    display: flex;
+    align-items: center;
+}
+
+.avatar-group .avatar-container {
+    margin-left: -8px;
+}
+
+.avatar-group .avatar-container:first-child {
+    margin-left: 0;
+}
+
+.avatar-group .avatar-container img,
+.avatar-group .avatar-container .avatar-fallback {
+    border: 2px solid white;
+}
+
+:root[data-theme="dark"] .avatar-group .avatar-container img,
+:root[data-theme="dark"] .avatar-group .avatar-container .avatar-fallback {
+    border-color: #1f2937;
+}

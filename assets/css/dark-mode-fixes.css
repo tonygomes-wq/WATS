@@ -1,0 +1,1230 @@
+/**
+ * DARK MODE FIXES - Correções de Inconsistências
+ * Garante contraste adequado em todos os elementos
+ */
+
+/* ============================================
+   CORREÇÕES GLOBAIS - MODO ESCURO
+   ============================================ */
+
+:root[data-theme="dark"] {
+    /* Garantir que variáveis estejam definidas */
+    --bg-base: #0f172a;
+    --bg-subtle: #1e293b;
+    --bg-muted: #334155;
+    --bg-hover: #475569;
+    
+    --fg-primary: rgba(248, 250, 252, 0.95);
+    --fg-secondary: rgba(248, 250, 252, 0.75);
+    --fg-muted: rgba(248, 250, 252, 0.55);
+    --fg-faint: rgba(248, 250, 252, 0.35);
+    
+    --border: rgba(248, 250, 252, 0.12);
+    --border-subtle: rgba(248, 250, 252, 0.08);
+    --border-strong: rgba(248, 250, 252, 0.18);
+}
+
+/* ============================================
+   TEXTOS - GARANTIR CONTRASTE
+   ============================================ */
+
+:root[data-theme="dark"] body,
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] span,
+:root[data-theme="dark"] div {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] h5,
+:root[data-theme="dark"] h6 {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] label {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .text-gray-900,
+:root[data-theme="dark"] .text-gray-800,
+:root[data-theme="dark"] .text-gray-700 {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .text-gray-600,
+:root[data-theme="dark"] .text-gray-500 {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .text-gray-400 {
+    color: var(--fg-muted) !important;
+}
+
+:root[data-theme="dark"] .text-gray-300 {
+    color: var(--fg-faint) !important;
+}
+
+/* Garantir que modo claro mantenha cores originais */
+:root[data-theme="light"] body,
+:root[data-theme="light"] p,
+:root[data-theme="light"] span,
+:root[data-theme="light"] div {
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] h1,
+:root[data-theme="light"] h2,
+:root[data-theme="light"] h3,
+:root[data-theme="light"] h4,
+:root[data-theme="light"] h5,
+:root[data-theme="light"] h6 {
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] label {
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .text-gray-900 {
+    color: #111827 !important;
+}
+
+:root[data-theme="light"] .text-gray-800 {
+    color: #1f2937 !important;
+}
+
+:root[data-theme="light"] .text-gray-700 {
+    color: #374151 !important;
+}
+
+:root[data-theme="light"] .text-gray-600 {
+    color: #4b5563 !important;
+}
+
+:root[data-theme="light"] .text-gray-500 {
+    color: #6b7280 !important;
+}
+
+:root[data-theme="light"] .text-gray-400 {
+    color: #9ca3af !important;
+}
+
+:root[data-theme="light"] .text-gray-300 {
+    color: #d1d5db !important;
+}
+
+/* ============================================
+   CARDS E CONTAINERS
+   ============================================ */
+
+:root[data-theme="dark"] .bg-white {
+    background-color: var(--bg-base) !important;
+}
+
+:root[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--bg-subtle) !important;
+}
+
+:root[data-theme="dark"] .bg-gray-100 {
+    background-color: var(--bg-muted) !important;
+}
+
+:root[data-theme="dark"] .bg-gray-200 {
+    background-color: var(--bg-hover) !important;
+}
+
+/* Garantir que modo claro mantenha cores originais */
+:root[data-theme="light"] .bg-white {
+    background-color: #ffffff !important;
+}
+
+:root[data-theme="light"] .bg-gray-50 {
+    background-color: #f9fafb !important;
+}
+
+:root[data-theme="light"] .bg-gray-100 {
+    background-color: #f3f4f6 !important;
+}
+
+:root[data-theme="light"] .bg-gray-200 {
+    background-color: #e5e7eb !important;
+}
+
+:root[data-theme="light"] .bg-gray-800 {
+    background-color: #1f2937 !important;
+}
+
+:root[data-theme="light"] .bg-gray-900 {
+    background-color: #111827 !important;
+}
+
+/* ============================================
+   BORDERS
+   ============================================ */
+
+:root[data-theme="dark"] .border-gray-200,
+:root[data-theme="dark"] .border-gray-300 {
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .border-gray-100 {
+    border-color: var(--border-subtle) !important;
+}
+
+:root[data-theme="dark"] .border-gray-400 {
+    border-color: var(--border-strong) !important;
+}
+
+/* Borders - Modo Claro */
+:root[data-theme="light"] .border-gray-100 {
+    border-color: #f3f4f6 !important;
+}
+
+:root[data-theme="light"] .border-gray-200 {
+    border-color: #e5e7eb !important;
+}
+
+:root[data-theme="light"] .border-gray-300 {
+    border-color: #d1d5db !important;
+}
+
+:root[data-theme="light"] .border-gray-400 {
+    border-color: #9ca3af !important;
+}
+
+/* ============================================
+   INPUTS E FORMS
+   ============================================ */
+
+:root[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="dark"] textarea,
+:root[data-theme="dark"] select {
+    background-color: var(--bg-muted) !important;
+    color: var(--fg-primary) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+    color: var(--fg-muted) !important;
+}
+
+:root[data-theme="dark"] input:focus,
+:root[data-theme="dark"] textarea:focus,
+:root[data-theme="dark"] select:focus {
+    border-color: var(--color-primary, #10b981) !important;
+    background-color: var(--bg-muted) !important;
+}
+
+/* Garantir que modo claro mantenha cores originais */
+:root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="light"] textarea,
+:root[data-theme="light"] select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+:root[data-theme="light"] input::placeholder,
+:root[data-theme="light"] textarea::placeholder {
+    color: #9ca3af !important;
+}
+
+:root[data-theme="light"] input:focus,
+:root[data-theme="light"] textarea:focus,
+:root[data-theme="light"] select:focus {
+    border-color: #10b981 !important;
+    background-color: #ffffff !important;
+}
+
+/* ============================================
+   MODAIS - CORREÇÃO COMPLETA
+   ============================================ */
+
+:root[data-theme="dark"] .modal-content,
+:root[data-theme="dark"] .modal-container {
+    background-color: var(--bg-base) !important;
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .modal-header {
+    border-bottom-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .modal-footer {
+    border-top-color: var(--border) !important;
+}
+
+/* Modais com classe .fixed .bg-white */
+:root[data-theme="dark"] .fixed .bg-white {
+    background-color: var(--bg-base) !important;
+}
+
+:root[data-theme="dark"] .fixed .bg-white label,
+:root[data-theme="dark"] .fixed .bg-white h3,
+:root[data-theme="dark"] .fixed .bg-white h4,
+:root[data-theme="dark"] .fixed .bg-white p,
+:root[data-theme="dark"] .fixed .bg-white span {
+    color: var(--fg-primary) !important;
+}
+
+/* Modais do Kanban - CORREÇÃO ESPECÍFICA MODO ESCURO */
+:root[data-theme="dark"] .kanban-modal-content {
+    background-color: var(--bg-base) !important;
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .kanban-modal-header {
+    border-bottom-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .kanban-modal-header h3 {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .kanban-modal-footer {
+    border-top-color: var(--border) !important;
+    background-color: var(--bg-subtle) !important;
+}
+
+:root[data-theme="dark"] .kanban-modal-body {
+    background-color: var(--bg-base) !important;
+}
+
+/* Labels e textos dentro dos modais do Kanban */
+:root[data-theme="dark"] .kanban-form-group label {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .kanban-form-divider span {
+    color: var(--fg-primary) !important;
+}
+
+/* Overlay dos modais */
+:root[data-theme="dark"] .kanban-modal-overlay {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Modais genéricos com div.bg-white */
+:root[data-theme="dark"] div[id*="modal"] .bg-white,
+:root[data-theme="dark"] div[id*="Modal"] .bg-white {
+    background-color: var(--bg-base) !important;
+}
+
+/* Garantir que todos os h2, h3, h4 em modais sejam visíveis */
+:root[data-theme="dark"] .modal h2,
+:root[data-theme="dark"] .modal h3,
+:root[data-theme="dark"] .modal h4,
+:root[data-theme="dark"] [id*="modal"] h2,
+:root[data-theme="dark"] [id*="modal"] h3,
+:root[data-theme="dark"] [id*="modal"] h4,
+:root[data-theme="dark"] [id*="Modal"] h2,
+:root[data-theme="dark"] [id*="Modal"] h3,
+:root[data-theme="dark"] [id*="Modal"] h4 {
+    color: var(--fg-primary) !important;
+}
+
+/* Modais com Tailwind - rounded-lg, rounded-xl, rounded-2xl */
+:root[data-theme="dark"] .fixed .rounded-lg,
+:root[data-theme="dark"] .fixed .rounded-xl,
+:root[data-theme="dark"] .fixed .rounded-2xl {
+    background-color: var(--bg-base) !important;
+}
+
+/* Modais com max-w (Tailwind) */
+:root[data-theme="dark"] .fixed [class*="max-w-"] {
+    background-color: var(--bg-base) !important;
+    color: var(--fg-primary) !important;
+}
+
+/* Borders em modais */
+:root[data-theme="dark"] .fixed .border-b,
+:root[data-theme="dark"] .fixed .border-t {
+    border-color: var(--border) !important;
+}
+
+/* Textos secundários em modais */
+:root[data-theme="dark"] .fixed .text-gray-700,
+:root[data-theme="dark"] .fixed .text-gray-600 {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .fixed .text-gray-500,
+:root[data-theme="dark"] .fixed .text-gray-400 {
+    color: var(--fg-muted) !important;
+}
+
+/* ============================================
+   MODAIS - MODO CLARO (CORREÇÃO)
+   ============================================ */
+
+/* Garantir que modais do Kanban tenham fundo branco no modo claro */
+:root[data-theme="light"] .kanban-modal-content {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-modal-header {
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-modal-header h3 {
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-modal-footer {
+    border-top-color: rgba(0, 0, 0, 0.08) !important;
+    background-color: #f8fafc !important;
+}
+
+:root[data-theme="light"] .kanban-modal-body {
+    background-color: #ffffff !important;
+}
+
+:root[data-theme="light"] .kanban-form-group label {
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .kanban-modal-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Garantir que inputs e selects tenham fundo branco no modo claro */
+:root[data-theme="light"] .kanban-modal input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="light"] .kanban-modal textarea,
+:root[data-theme="light"] .kanban-modal select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ============================================
+   KANBAN - CORREÇÕES ESPECÍFICAS
+   ============================================ */
+
+:root[data-theme="dark"] .kanban-board {
+    background-color: var(--bg-base) !important;
+}
+
+:root[data-theme="dark"] .kanban-column {
+    background-color: var(--bg-subtle) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .kanban-column-header {
+    color: var(--fg-primary) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .kanban-card {
+    background-color: var(--bg-muted) !important;
+    border-color: var(--border) !important;
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .kanban-card:hover {
+    background-color: var(--bg-hover) !important;
+    border-color: var(--border-strong) !important;
+}
+
+:root[data-theme="dark"] .kanban-card-title {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .kanban-card-description {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .kanban-card-meta {
+    color: var(--fg-muted) !important;
+}
+
+/* Kanban - Modo Claro (Restaurar cores originais) */
+:root[data-theme="light"] .kanban-page {
+    background-color: #fafafa !important;
+}
+
+:root[data-theme="light"] .kanban-header {
+    background-color: #ffffff !important;
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-board {
+    background-color: #fafafa !important;
+}
+
+:root[data-theme="light"] .kanban-column {
+    background-color: #f3f4f6 !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-column-header {
+    color: #0f172a !important;
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+    background-color: transparent !important;
+}
+
+:root[data-theme="light"] .kanban-column-title {
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-column-count {
+    background-color: #e5e7eb !important;
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .kanban-card {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-card:hover {
+    background-color: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-card-title {
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-card-description {
+    color: #475569 !important;
+}
+
+:root[data-theme="light"] .kanban-card-meta {
+    color: #94a3b8 !important;
+}
+
+:root[data-theme="light"] .kanban-btn-primary {
+    background-color: #0066ff !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="light"] .kanban-btn-secondary {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-btn-icon {
+    background-color: transparent !important;
+    color: #6b7280 !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-btn-icon:hover {
+    background-color: #f3f4f6 !important;
+    color: #0f172a !important;
+}
+
+:root[data-theme="light"] .kanban-search input {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-filter-select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root[data-theme="light"] .kanban-board-selector select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Sobrescrever variáveis CSS do Kanban no modo claro */
+:root[data-theme="light"] {
+    --kanban-bg: #fafafa !important;
+    --kanban-surface: #ffffff !important;
+    --kanban-border: rgba(0, 0, 0, 0.08) !important;
+    --kanban-border-subtle: rgba(0, 0, 0, 0.05) !important;
+    --kanban-text: #0a0a0a !important;
+    --kanban-text-secondary: #525252 !important;
+    --kanban-text-muted: #a3a3a3 !important;
+    --kanban-accent: #0066ff !important;
+}
+
+/* Garantir que badges/contadores não fiquem pretos */
+:root[data-theme="light"] .kanban-column-count,
+:root[data-theme="light"] .badge,
+:root[data-theme="light"] .kanban-card-badge {
+    background-color: #e5e7eb !important;
+    color: #475569 !important;
+}
+
+/* ============================================
+   CHAT - CORREÇÕES ESPECÍFICAS
+   ============================================ */
+
+:root[data-theme="dark"] .chat-sidebar {
+    background-color: var(--bg-base) !important;
+    border-right-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-item {
+    border-bottom-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-item:hover {
+    background-color: var(--bg-subtle) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-item.active {
+    background-color: var(--bg-muted) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-name {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-preview {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .chat-conversation-time {
+    color: var(--fg-muted) !important;
+}
+
+:root[data-theme="dark"] .chat-message-bubble {
+    background-color: var(--bg-muted) !important;
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .chat-message-bubble.sent {
+    background-color: #065f46 !important;
+    color: white !important;
+}
+
+/* ============================================
+   TABELAS
+   ============================================ */
+
+:root[data-theme="dark"] table {
+    background-color: transparent !important;
+}
+
+:root[data-theme="dark"] thead {
+    background-color: var(--bg-subtle) !important;
+}
+
+:root[data-theme="dark"] th {
+    background-color: var(--bg-subtle) !important;
+    color: var(--fg-primary) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] td {
+    color: var(--fg-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] tr:hover {
+    background-color: var(--bg-subtle) !important;
+}
+
+/* ============================================
+   BADGES E TAGS
+   ============================================ */
+
+:root[data-theme="dark"] .badge,
+:root[data-theme="dark"] .tag {
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    color: #93c5fd !important;
+}
+
+:root[data-theme="dark"] .bg-green-100 {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+}
+
+:root[data-theme="dark"] .bg-yellow-100 {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fcd34d !important;
+}
+
+:root[data-theme="dark"] .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+:root[data-theme="dark"] .bg-purple-100 {
+    background-color: rgba(139, 92, 246, 0.2) !important;
+    color: #c4b5fd !important;
+}
+
+/* ============================================
+   BOTÕES
+   ============================================ */
+
+:root[data-theme="dark"] button:not([class*="bg-"]):not(.btn-primary):not(.btn-success) {
+    background-color: var(--bg-muted) !important;
+    color: var(--fg-primary) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] button:hover:not([class*="bg-"]):not(.btn-primary):not(.btn-success) {
+    background-color: var(--bg-hover) !important;
+}
+
+/* Botões - Modo Claro */
+:root[data-theme="light"] button:not([class*="bg-"]):not(.btn-primary):not(.btn-success):not(.kanban-btn-primary) {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+:root[data-theme="light"] button:hover:not([class*="bg-"]):not(.btn-primary):not(.btn-success):not(.kanban-btn-primary) {
+    background-color: #f3f4f6 !important;
+}
+
+/* ============================================
+   DROPDOWNS E SELECTS
+   ============================================ */
+
+:root[data-theme="dark"] .dropdown-menu,
+:root[data-theme="dark"] .select-dropdown {
+    background-color: var(--bg-muted) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item {
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .dropdown-item:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* ============================================
+   SCROLLBARS - DISCRETAS E CONSISTENTES
+   ============================================ */
+
+/* Modo Escuro - Scrollbar discreta */
+:root[data-theme="dark"] ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox - Modo Escuro */
+:root[data-theme="dark"] * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+/* Modo Claro - Scrollbar discreta */
+:root[data-theme="light"] ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox - Modo Claro */
+:root[data-theme="light"] * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+}
+
+/* ============================================
+   SCROLLBARS EM MODAIS - MAIS VISÍVEIS
+   ============================================ */
+
+/* Modais precisam de scrollbars mais visíveis para navegação */
+:root[data-theme="dark"] .modal-body::-webkit-scrollbar,
+:root[data-theme="dark"] .kanban-modal-body::-webkit-scrollbar,
+:root[data-theme="dark"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar,
+:root[data-theme="dark"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar,
+:root[data-theme="dark"] [class*="modal-body"]::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+:root[data-theme="dark"] .modal-body::-webkit-scrollbar-track,
+:root[data-theme="dark"] .kanban-modal-body::-webkit-scrollbar-track,
+:root[data-theme="dark"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-track,
+:root[data-theme="dark"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-track,
+:root[data-theme="dark"] [class*="modal-body"]::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 5px !important;
+}
+
+:root[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb,
+:root[data-theme="dark"] .kanban-modal-body::-webkit-scrollbar-thumb,
+:root[data-theme="dark"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-thumb,
+:root[data-theme="dark"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-thumb,
+:root[data-theme="dark"] [class*="modal-body"]::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 5px !important;
+    border: 2px solid transparent !important;
+    background-clip: padding-box !important;
+}
+
+:root[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb:hover,
+:root[data-theme="dark"] .kanban-modal-body::-webkit-scrollbar-thumb:hover,
+:root[data-theme="dark"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+:root[data-theme="dark"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+:root[data-theme="dark"] [class*="modal-body"]::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    background-clip: padding-box !important;
+}
+
+/* Modo Claro - Scrollbars em modais MUITO VISÍVEIS */
+:root[data-theme="light"] .modal-body::-webkit-scrollbar,
+:root[data-theme="light"] .kanban-modal-body::-webkit-scrollbar,
+:root[data-theme="light"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar,
+:root[data-theme="light"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar,
+:root[data-theme="light"] [class*="modal-body"]::-webkit-scrollbar {
+    width: 10px !important;
+}
+
+:root[data-theme="light"] .modal-body::-webkit-scrollbar-track,
+:root[data-theme="light"] .kanban-modal-body::-webkit-scrollbar-track,
+:root[data-theme="light"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-track,
+:root[data-theme="light"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-track,
+:root[data-theme="light"] [class*="modal-body"]::-webkit-scrollbar-track {
+    background: #f3f4f6 !important;
+    border-radius: 5px !important;
+}
+
+:root[data-theme="light"] .modal-body::-webkit-scrollbar-thumb,
+:root[data-theme="light"] .kanban-modal-body::-webkit-scrollbar-thumb,
+:root[data-theme="light"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-thumb,
+:root[data-theme="light"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-thumb,
+:root[data-theme="light"] [class*="modal-body"]::-webkit-scrollbar-thumb {
+    background: #cbd5e0 !important;
+    border-radius: 5px !important;
+    border: 2px solid #f3f4f6 !important;
+    background-clip: padding-box !important;
+}
+
+:root[data-theme="light"] .modal-body::-webkit-scrollbar-thumb:hover,
+:root[data-theme="light"] .kanban-modal-body::-webkit-scrollbar-thumb:hover,
+:root[data-theme="light"] [id*="modal"] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+:root[data-theme="light"] [id*="Modal"] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+:root[data-theme="light"] [class*="modal-body"]::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0 !important;
+    border: 2px solid #f3f4f6 !important;
+    background-clip: padding-box !important;
+}
+
+/* Garantir que o modal body tenha overflow configurado */
+.kanban-modal-body {
+    overflow-y: auto !important;
+    max-height: calc(90vh - 200px) !important;
+}
+
+/* ============================================
+   ALERTAS E NOTIFICAÇÕES
+   ============================================ */
+
+:root[data-theme="dark"] .alert {
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .alert-info {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-success {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-warning {
+    background-color: rgba(245, 158, 11, 0.15) !important;
+    color: #fcd34d !important;
+    border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+:root[data-theme="dark"] .alert-error,
+:root[data-theme="dark"] .alert-danger {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* ============================================
+   TOOLTIPS
+   ============================================ */
+
+:root[data-theme="dark"] .tooltip {
+    background-color: var(--bg-hover) !important;
+    color: var(--fg-primary) !important;
+    border-color: var(--border) !important;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+
+:root[data-theme="dark"] .sidebar {
+    background-color: var(--bg-base) !important;
+    border-right-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .sidebar-item {
+    color: var(--fg-secondary) !important;
+}
+
+:root[data-theme="dark"] .sidebar-item:hover {
+    background-color: var(--bg-subtle) !important;
+    color: var(--fg-primary) !important;
+}
+
+:root[data-theme="dark"] .sidebar-item.active {
+    background-color: var(--bg-muted) !important;
+    color: var(--fg-primary) !important;
+}
+
+/* ============================================
+   CORREÇÕES ESPECÍFICAS POR PÁGINA
+   ============================================ */
+
+/* Kanban - Adicionar card button */
+:root[data-theme="dark"] .add-card-btn {
+    background-color: var(--bg-muted) !important;
+    color: var(--fg-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+:root[data-theme="dark"] .add-card-btn:hover {
+    background-color: var(--bg-hover) !important;
+    color: var(--fg-primary) !important;
+}
+
+/* Dashboard - Cards de estatísticas */
+:root[data-theme="dark"] .stat-card {
+    background-color: var(--bg-subtle) !important;
+    border-color: var(--border) !important;
+}
+
+/* Profile - Cards */
+:root[data-theme="dark"] .profile-card,
+:root[data-theme="dark"] .form-card {
+    background-color: var(--bg-base) !important;
+    border-color: var(--border) !important;
+}
+
+/* ============================================
+   GARANTIR LEGIBILIDADE EM TODOS OS CASOS
+   ============================================ */
+
+:root[data-theme="dark"] * {
+    /* Garantir que nenhum texto fique invisível */
+    text-shadow: none !important;
+}
+
+:root[data-theme="dark"] a:not(.btn):not(.button) {
+    color: #60a5fa !important;
+}
+
+:root[data-theme="dark"] a:not(.btn):not(.button):hover {
+    color: #93c5fd !important;
+}
+
+
+/* ============================================
+   CHAT - FILTROS NO TOPO DA ÁREA PRINCIPAL
+   ============================================ */
+
+.chat-main-filters {
+    padding: 12px 20px;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    overflow: visible; /* Permitir que dropdown apareça */
+}
+
+:root[data-theme="light"] .chat-main-filters {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.chat-filters-bar-horizontal {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap; /* Evitar quebra de linha */
+    overflow-x: auto; /* Scroll horizontal se necessário */
+    overflow-y: visible; /* Permitir dropdown aparecer */
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 4px; /* Espaço para scroll bar */
+}
+
+/* Esconder scrollbar mas manter funcionalidade */
+.chat-filters-bar-horizontal::-webkit-scrollbar {
+    height: 4px;
+}
+
+.chat-filters-bar-horizontal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-filters-bar-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+:root[data-theme="dark"] .chat-filters-bar-horizontal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+}enter;
+}
+
+.chat-filters-bar-horizontal .chat-filter-btn,
+.chat-filters-bar-horizontal .chat-channel-filter {
+    flex: 0 1 auto;
+    min-width: auto;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.chat-filters-bar-horizontal .chat-filter-btn {
+    background: var(--bg-muted);
+    color: var(--fg-primary);
+    border: 1px solid var(--border);
+}
+
+:root[data-theme="light"] .chat-filters-bar-horizontal .chat-filter-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.chat-filters-bar-horizontal .chat-filter-btn.active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-color: #10b981;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.chat-filters-bar-horizontal .chat-channel-filter {
+    background: var(--bg-muted);
+    color: var(--fg-secondary);
+    border: 1px solid var(--border);
+}
+
+:root[data-theme="light"] .chat-filters-bar-horizontal .chat-channel-filter {
+    background: #f9fafb;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+}
+
+.chat-filters-bar-horizontal .chat-channel-filter.active {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.chat-filters-bar-horizontal .chat-channel-filter:hover,
+.chat-filters-bar-horizontal .chat-filter-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Dropdown de Canais */
+.chat-channel-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.channel-dropdown-menu {
+    position: fixed; /* Mudado de absolute para fixed */
+    /* top e left serão calculados via JavaScript */
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    min-width: 220px;
+    max-height: 400px; /* Altura máxima */
+    overflow-y: auto; /* Scroll interno se necessário */
+    z-index: 99999; /* Z-index altíssimo */
+}
+
+:root[data-theme="light"] .channel-dropdown-menu {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.channel-dropdown-menu.hidden {
+    display: none;
+}
+
+.channel-dropdown-item {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    color: var(--fg-primary);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+:root[data-theme="light"] .channel-dropdown-item {
+    color: #374151;
+}
+
+.channel-dropdown-item:hover {
+    background: var(--bg-subtle);
+}
+
+:root[data-theme="light"] .channel-dropdown-item:hover {
+    background: #f9fafb;
+}
+
+.channel-dropdown-item i:first-child {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.channel-dropdown-item span {
+    flex: 1;
+}
+
+.channel-dropdown-item .channel-check {
+    opacity: 0;
+    color: #10b981;
+    font-size: 14px;
+    transition: opacity 0.2s ease;
+}
+
+.channel-dropdown-item.active .channel-check {
+    opacity: 1;
+}
+
+.channel-dropdown-item.active {
+    background: var(--bg-subtle);
+    color: #10b981;
+}
+
+:root[data-theme="light"] .channel-dropdown-item.active {
+    background: #f0fdf4;
+    color: #10b981;
+}
+
+/* Ajustar altura da área de chat quando filtros estão no topo */
+.chat-main-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-area-container {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ============================================
+   CHAT - GARANTIR INPUT NO FINAL
+   ============================================ */
+
+/* Área principal do chat precisa ser flex column */
+.chat-main-area {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+}
+
+/* Garantir que a área de chat ocupe o espaço correto QUANDO VISÍVEL */
+/* Não forçar display aqui - deixar o JavaScript controlar */
+#chat-area {
+    flex-direction: column !important;
+    height: 100% !important;
+    flex: 1 !important;
+}
+
+/* Quando o chat-area estiver com display: flex (controlado por JS), aplicar layout correto */
+#chat-area[style*="display: flex"],
+#chat-area[style*="display:flex"] {
+    display: flex !important;
+}
+
+/* Header do contato - fixo no topo */
+.chat-contact-header {
+    flex-shrink: 0 !important;
+}
+
+/* Botões de supervisor - fixo abaixo do header */
+.chat-supervisor-actions {
+    flex-shrink: 0 !important;
+}
+
+/* Área de mensagens - ocupa espaço disponível com scroll */
+#chat-messages-container {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+}
+
+/* Input de mensagem - fixo no final, sempre visível */
+#chat-footer {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+}
+
+/* Ajustar altura quando não há conversa selecionada */
+#no-chat-selected {
+    height: 100% !important;
+    flex: 1 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

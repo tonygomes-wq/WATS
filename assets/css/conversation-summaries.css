@@ -1,0 +1,212 @@
+/**
+ * Conversation Summaries - Estilos Customizados
+ */
+
+/* Tabs */
+.tab-button {
+    transition: all 0.3s ease;
+}
+
+.tab-button.active {
+    border-bottom-width: 2px;
+}
+
+/* Animações */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Modal */
+#modal-summary,
+#modal-batch-progress {
+    backdrop-filter: blur(4px);
+}
+
+/* Checkboxes customizados */
+input[type="checkbox"]:checked {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+/* Cards de conversa */
+.conversation-card {
+    transition: all 0.2s ease;
+}
+
+.conversation-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Badges de status */
+.status-badge {
+    font-weight: 500;
+    letter-spacing: 0.025em;
+}
+
+/* Sentimento icons */
+.sentiment-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Barra de progresso */
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+/* Keywords tags */
+.keyword-tag {
+    transition: all 0.2s ease;
+}
+
+.keyword-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading states */
+.loading-spinner {
+    border: 3px solid #f3f4f6;
+    border-top: 3px solid #16a34a;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .tab-button i {
+        display: none;
+    }
+}
+
+/* Scrollbar customizado */
+#conversations-list::-webkit-scrollbar,
+#summaries-list::-webkit-scrollbar,
+#batch-progress-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#conversations-list::-webkit-scrollbar-track,
+#summaries-list::-webkit-scrollbar-track,
+#batch-progress-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#conversations-list::-webkit-scrollbar-thumb,
+#summaries-list::-webkit-scrollbar-thumb,
+#batch-progress-list::-webkit-scrollbar-thumb {
+    background: #16a34a;
+    border-radius: 4px;
+}
+
+#conversations-list::-webkit-scrollbar-thumb:hover,
+#summaries-list::-webkit-scrollbar-thumb:hover,
+#batch-progress-list::-webkit-scrollbar-thumb:hover {
+    background: #15803d;
+}
+
+/* Print styles para PDF */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    #modal-summary-content {
+        padding: 0;
+    }
+}
+
+/* Estados de hover melhorados */
+button:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+button:not(:disabled):active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Tooltips */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem 0.75rem;
+    background: #1f2937;
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 0.5rem;
+}
+
+/* Empty states */
+.empty-state {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+/* Stats cards */
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Batch progress items */
+.batch-item {
+    transition: all 0.3s ease;
+}
+
+.batch-item.completed {
+    background-color: #f0fdf4;
+}
+
+.batch-item.failed {
+    background-color: #fef2f2;
+}

@@ -1,0 +1,710 @@
+/**
+ * WATS - Visual Improvements 2026
+ * Melhorias visuais baseadas em UX Psychology e Design Principles
+ * Apenas alterações visuais - sem mudanças de funcionalidade
+ * 
+ * IMPORTANTE: Este arquivo NÃO afeta a página de chat (chat.php)
+ * Todos os estilos excluem elementos dentro de .chat-page-wrapper
+ */
+
+/* ============================================
+   CORREÇÃO DE ALTURA GLOBAL - TODAS AS PÁGINAS
+   ============================================ */
+
+/* Reset global para garantir altura completa */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+/* Container principal do sistema - ocupar 100% da altura */
+.main-content {
+    min-height: calc(100vh - 60px) !important;
+    overflow-y: auto;
+}
+
+/* Páginas com layout específico (email, kanban, etc.) */
+body:has(.email-layout) .main-content,
+body:has(.kanban-page) .main-content,
+body:has(.full-height-layout) .main-content {
+    height: calc(100vh - 60px) !important;
+    overflow: hidden !important;
+}
+
+/* Kanban específico - container deve ocupar altura total */
+.kanban-page {
+    height: calc(100vh - 60px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.kanban-container {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* ============================================
+   EXCLUSÃO DA PÁGINA DE CHAT
+   ============================================ */
+/* Todos os estilos deste arquivo são desabilitados dentro do chat */
+.chat-page-wrapper *,
+.chat-page-wrapper *::before,
+.chat-page-wrapper *::after,
+.chat-main-container *,
+.chat-main-container *::before,
+.chat-main-container *::after {
+    /* Reset de todas as melhorias visuais para o chat */
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+/* ============================================
+   1. DASHBOARD - CARDS DE MÉTRICAS MELHORADOS
+   ============================================ */
+
+/* Card featured com gradiente sutil */
+.metric-card-featured {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.05) 0%, 
+        rgba(16, 185, 129, 0.02) 100%);
+    border-left: 3px solid var(--accent-primary);
+}
+
+/* Micro-animações nos ícones */
+.metric-icon-container {
+    position: relative;
+    overflow: visible;
+}
+
+.metric-icon-container::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.metric-card:hover .metric-icon-container::after {
+    opacity: 0.1;
+    animation: pulse-icon 2s infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% { 
+        transform: scale(1); 
+        opacity: 0.1; 
+    }
+    50% { 
+        transform: scale(1.1); 
+        opacity: 0.05; 
+    }
+}
+
+/* Métricas primárias maiores */
+.metric-card-primary {
+    padding: var(--space-8);
+}
+
+.metric-card-primary .metric-value {
+    font-size: 48px;
+}
+
+/* Sparklines mais sutis */
+.sparkline-bar {
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.metric-card:hover .sparkline-bar {
+    opacity: 1;
+}
+
+/* Mini bars com hover individual */
+.mini-bar {
+    transition: all 0.2s;
+}
+
+.mini-bars:hover .mini-bar {
+    opacity: 0.5;
+}
+
+.mini-bars .mini-bar:hover {
+    opacity: 1;
+    transform: scaleY(1.1);
+}
+
+/* Progress ring com animação */
+.progress-ring-progress {
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ============================================
+   2. SIDEBAR - NAVEGAÇÃO MELHORADA
+   ============================================ */
+
+/* Sidebar com mais respiração */
+.sidebar-item {
+    padding: var(--space-3) var(--space-4);
+    margin-bottom: var(--space-2);
+    position: relative;
+}
+
+/* Indicador de página ativa mais visível */
+.sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: var(--accent-primary);
+    border-radius: 0 2px 2px 0;
+    animation: slideIn 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes slideIn {
+    from {
+        width: 0;
+        opacity: 0;
+    }
+    to {
+        width: 4px;
+        opacity: 1;
+    }
+}
+
+/* Ícones maiores e mais expressivos */
+.sidebar-item i {
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+}
+
+/* Badge de notificações */
+.sidebar-item-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    background: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   3. CHAT - DESABILITADO
+   ============================================ */
+/* 
+   IMPORTANTE: Todas as melhorias de chat foram removidas
+   para evitar conflitos com chat-modern.css
+   O chat mantém seu estilo original
+*/
+
+/* ============================================
+   4. BOTÕES - MAIS EXPRESSIVOS
+   ============================================ */
+
+/* Botão primário com gradiente sutil - EXCETO NO CHAT */
+.btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *),
+.refined-btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *) {
+    background: linear-gradient(135deg, 
+        var(--accent-primary) 0%, 
+        var(--accent-hover) 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *)::before,
+.refined-btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+    transition: left 0.5s;
+}
+
+.btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):hover::before,
+.refined-btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):hover::before {
+    left: 100%;
+}
+
+.btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):hover,
+.refined-btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):active,
+.refined-btn-primary:not(.chat-page-wrapper *):not(.chat-main-container *):active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+/* Botão secundário melhorado - EXCETO NO CHAT */
+.btn-secondary:not(.chat-page-wrapper *):not(.chat-main-container *),
+.refined-btn:not(.chat-page-wrapper *):not(.chat-main-container *) {
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.btn-secondary:not(.chat-page-wrapper *):not(.chat-main-container *):hover,
+.refined-btn:not(.chat-page-wrapper *):not(.chat-main-container *):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+
+/* Botão com loading state - EXCETO NO CHAT */
+.btn.loading:not(.chat-page-wrapper *):not(.chat-main-container *),
+.refined-btn.loading:not(.chat-page-wrapper *):not(.chat-main-container *) {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn.loading:not(.chat-page-wrapper *):not(.chat-main-container *)::after,
+.refined-btn.loading:not(.chat-page-wrapper *):not(.chat-main-container *)::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin: -8px 0 0 -8px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   5. INPUTS - MAIS REFINADOS
+   ============================================ */
+
+/* Input com foco mais suave - EXCETO NO CHAT */
+.input:not(.chat-page-wrapper *):not(.chat-main-container *):focus,
+.refined-input:not(.chat-page-wrapper *):not(.chat-main-container *):focus,
+.refined-select:not(.chat-page-wrapper *):not(.chat-main-container *):focus,
+.refined-textarea:not(.chat-page-wrapper *):not(.chat-main-container *):focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Input group com label flutuante - EXCETO NO CHAT */
+.input-group:not(.chat-page-wrapper *):not(.chat-main-container *) {
+    position: relative;
+}
+
+.input-group:not(.chat-page-wrapper *):not(.chat-main-container *) label {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    padding: 0 4px;
+}
+
+.input-group:not(.chat-page-wrapper *):not(.chat-main-container *) input:focus + label,
+.input-group:not(.chat-page-wrapper *):not(.chat-main-container *) input:not(:placeholder-shown) + label {
+    top: -8px;
+    font-size: 11px;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+/* ============================================
+   6. MODAIS - MAIS ELEGANTES
+   ============================================ */
+
+/* Modal com backdrop blur */
+.modal-overlay,
+.refined-modal-overlay {
+    backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.6);
+    animation: fadeIn 0.2s;
+}
+
+.modal,
+.refined-modal {
+    animation: slideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Modal close button melhorado */
+.modal-close,
+.refined-modal-close {
+    transition: all 0.2s;
+}
+
+.modal-close:hover,
+.refined-modal-close:hover {
+    transform: rotate(90deg);
+    background: var(--bg-body);
+}
+
+/* ============================================
+   7. SKELETON LOADING
+   ============================================ */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-muted) 0%,
+        var(--bg-hover) 50%,
+        var(--bg-muted) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   8. TOAST NOTIFICATIONS
+   ============================================ */
+
+.toast {
+    position: fixed;
+    bottom: var(--space-6);
+    right: var(--space-6);
+    padding: var(--space-4) var(--space-6);
+    background: var(--bg-card);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+    animation: toastSlideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 10000;
+}
+
+.toast.success {
+    border-left: 3px solid var(--accent-primary);
+}
+
+.toast.error {
+    border-left: 3px solid #ef4444;
+}
+
+.toast.warning {
+    border-left: 3px solid #f59e0b;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ============================================
+   9. BADGES E TAGS
+   ============================================ */
+
+.badge,
+.refined-badge {
+    transition: all 0.2s;
+}
+
+.badge:hover,
+.refined-badge:hover {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   10. TABELAS
+   ============================================ */
+
+.refined-table tbody tr {
+    transition: all 0.2s;
+}
+
+.refined-table tbody tr:hover {
+    background: var(--bg-body);
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+}
+
+/* ============================================
+   11. CARDS HOVER EFFECTS
+   ============================================ */
+
+.card,
+.refined-card,
+.metric-card {
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.card:hover,
+.refined-card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* ============================================
+   12. SCROLLBAR CUSTOMIZADO
+   ============================================ */
+
+/* Scrollbar para webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-emphasis);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
+}
+
+/* ============================================
+   13. FOCUS VISIBLE (ACESSIBILIDADE)
+   ============================================ */
+
+*:focus-visible {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline-offset: 4px;
+}
+
+/* ============================================
+   14. TRANSIÇÕES SUAVES GLOBAIS
+   ============================================ */
+
+/* EXCETO elementos do chat */
+*:not(.chat-page-wrapper):not(.chat-page-wrapper *):not(.chat-main-container):not(.chat-main-container *) {
+    transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ============================================
+   15. DARK MODE ADJUSTMENTS
+   ============================================ */
+
+:root[data-theme="dark"] .metric-card-featured {
+    background: linear-gradient(135deg, 
+        rgba(16, 185, 129, 0.08) 0%, 
+        rgba(16, 185, 129, 0.03) 100%);
+}
+
+:root[data-theme="dark"] .btn-primary,
+:root[data-theme="dark"] .refined-btn-primary {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+:root[data-theme="dark"] .btn-primary:hover,
+:root[data-theme="dark"] .refined-btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+:root[data-theme="dark"] .toast {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: rgba(241, 245, 249, 0.15);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(241, 245, 249, 0.25);
+}
+
+/* ============================================
+   16. ANIMAÇÕES DE ENTRADA PARA PÁGINAS
+   ============================================ */
+
+.page-enter {
+    animation: pageEnter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   17. MICRO-INTERAÇÕES ADICIONAIS
+   ============================================ */
+
+/* Ripple effect para botões - EXCETO NO CHAT */
+.btn:not(.chat-page-wrapper *):not(.chat-main-container *),
+.refined-btn:not(.chat-page-wrapper *):not(.chat-main-container *) {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:not(.chat-page-wrapper *):not(.chat-main-container *)::after,
+.refined-btn:not(.chat-page-wrapper *):not(.chat-main-container *)::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:not(.chat-page-wrapper *):not(.chat-main-container *):active::after,
+.refined-btn:not(.chat-page-wrapper *):not(.chat-main-container *):active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Hover lift para links - EXCETO NO CHAT */
+a:not(.btn):not(.sidebar-item):not(.chat-page-wrapper *):not(.chat-main-container *) {
+    transition: all 0.2s;
+}
+
+a:not(.btn):not(.sidebar-item):not(.chat-page-wrapper *):not(.chat-main-container *):hover {
+    transform: translateY(-1px);
+}
+
+/* ============================================
+   18. ESTADOS DE SUCESSO/ERRO
+   ============================================ */
+
+.success-state {
+    animation: successPulse 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.error-shake {
+    animation: errorShake 0.5s;
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* ============================================
+   19. RESPONSIVE IMPROVEMENTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    .metric-card-primary {
+        grid-column: span 1;
+        padding: var(--space-6);
+    }
+    
+    .metric-card-primary .metric-value {
+        font-size: 36px;
+    }
+    
+    .toast {
+        bottom: var(--space-4);
+        right: var(--space-4);
+        left: var(--space-4);
+    }
+}
+
+/* ============================================
+   20. PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Will-change para elementos animados */
+.metric-card:hover,
+.btn:hover,
+.sidebar-item:hover {
+    will-change: transform;
+}
+
+/* Reduzir animações para usuários com preferência */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
