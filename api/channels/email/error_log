@@ -1,0 +1,50 @@
+[20-Jan-2026 14:55:00 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 14:55:00 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 15:16:54 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:16:54 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 15:21:11 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:21:11 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 15:28:40 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:28:40 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 15:31:30 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:36:43 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:41:57 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:42:44 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 15:58:07 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:36:34 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:39:23 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:39:23 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 17:43:45 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:43:45 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 17:43:55 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:43:55 America/Fortaleza] PHP Fatal error:  Type of EmailChannel::$channelType must be string (as in class BaseChannel) in /home4/faceso56/wats.macip.com.br/includes/channels/EmailChannel.php on line 9
+[20-Jan-2026 17:46:56 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:46:56 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause'
+[20-Jan-2026 17:47:36 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:47:37 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause'
+[20-Jan-2026 17:49:03 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:49:04 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'contact_id' in 'field list'
+[20-Jan-2026 17:49:35 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:49:36 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'contact_id' in 'field list'
+[20-Jan-2026 17:49:41 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:49:42 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'contact_id' in 'field list'
+[20-Jan-2026 17:51:45 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:51:46 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'user_id' in 'field list'
+[20-Jan-2026 17:53:30 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:53:31 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'contact_id' in 'field list'
+[20-Jan-2026 17:54:12 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:56:36 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 17:56:36 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'contact_id' in 'where clause'
+[20-Jan-2026 17:57:52 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 18:00:24 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 18:01:12 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 18:01:14 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 18:59:53 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 19:20:13 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 19:20:13 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'channel_type' in 'where clause'
+[20-Jan-2026 19:20:17 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 19:20:17 America/Fortaleza] [Email Fetch Simple] Erro: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'channel_type' in 'where clause'
+[20-Jan-2026 19:57:10 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 20:00:36 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 20:07:13 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
+[20-Jan-2026 20:08:30 America/Fortaleza] Conexão com banco de dados estabelecida: faceso56_watsdb
