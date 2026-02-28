@@ -1,0 +1,312 @@
+/**
+ * Resource Cards Redesign - Custom CSS
+ * Modern glassmorphism effects, animated gradients, and micro-interactions
+ */
+
+/* ============================================
+   BASE CARD STYLING - Glassmorphism
+   ============================================ */
+
+.resource-card {
+    position: relative;
+    overflow: hidden;
+    background: rgba(17, 24, 39, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not (backdrop-filter: blur(10px)) {
+    .resource-card {
+        background: rgba(17, 24, 39, 0.9);
+    }
+}
+
+/* ============================================
+   ANIMATED GRADIENT BORDER
+   ============================================ */
+
+.card-border-gradient {
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(
+        135deg,
+        #10B981 0%,
+        #34D399 50%,
+        #10B981 100%
+    );
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    opacity: 0.3;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.resource-card:hover .card-border-gradient,
+.resource-card:focus-within .card-border-gradient {
+    opacity: 1;
+    animation: borderRotate 3s linear infinite;
+}
+
+@keyframes borderRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   HOVER GLOW EFFECT
+   ============================================ */
+
+.hover-glow {
+    position: absolute;
+    inset: -24px;
+    background: radial-gradient(
+        circle at center,
+        rgba(16, 185, 129, 0.15) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.resource-card:hover .hover-glow,
+.resource-card:focus-within .hover-glow {
+    opacity: 1;
+}
+
+/* ============================================
+   HOVER STATE EFFECTS
+   ============================================ */
+
+.resource-card:hover,
+.resource-card:focus-within {
+    transform: scale(1.02);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+/* ============================================
+   ICON CONTAINER EFFECTS
+   ============================================ */
+
+.icon-container {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.resource-card:hover .icon-container,
+.resource-card:focus-within .icon-container {
+    transform: scale(1.1) rotate(3deg);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+}
+
+/* Category-specific icon glows */
+.resource-card.card-multimedia .icon-container {
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+}
+
+.resource-card.card-multimedia:hover .icon-container,
+.resource-card.card-multimedia:focus-within .icon-container {
+    box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+}
+
+.resource-card.card-scheduling .icon-container {
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+}
+
+.resource-card.card-scheduling:hover .icon-container,
+.resource-card.card-scheduling:focus-within .icon-container {
+    box-shadow: 0 8px 24px rgba(6, 182, 212, 0.4);
+}
+
+/* ============================================
+   GRADIENT BACKGROUND OVERLAY
+   ============================================ */
+
+.card-gradient-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(17, 24, 39, 0.1) 0%,
+        rgba(0, 0, 0, 0.15) 100%
+    );
+    pointer-events: none;
+}
+
+/* ============================================
+   CATEGORY-SPECIFIC GRADIENTS
+   ============================================ */
+
+/* Multimedia cards - Purple/Pink gradient */
+.resource-card.card-multimedia .icon-container {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2));
+}
+
+.resource-card.card-multimedia:hover .card-border-gradient,
+.resource-card.card-multimedia:focus-within .card-border-gradient {
+    background: linear-gradient(
+        135deg,
+        #a855f7 0%,
+        transparent 50%,
+        #ec4899 100%
+    );
+}
+
+.resource-card.card-multimedia:hover .hover-glow,
+.resource-card.card-multimedia:focus-within .hover-glow {
+    background: radial-gradient(
+        circle at center,
+        rgba(168, 85, 247, 0.15) 0%,
+        transparent 70%
+    );
+}
+
+/* Scheduling cards - Cyan/Teal gradient */
+.resource-card.card-scheduling .icon-container {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(20, 184, 166, 0.2));
+}
+
+.resource-card.card-scheduling:hover .card-border-gradient,
+.resource-card.card-scheduling:focus-within .card-border-gradient {
+    background: linear-gradient(
+        135deg,
+        #06b6d4 0%,
+        transparent 50%,
+        #14b8a6 100%
+    );
+}
+
+.resource-card.card-scheduling:hover .hover-glow,
+.resource-card.card-scheduling:focus-within .hover-glow {
+    background: radial-gradient(
+        circle at center,
+        rgba(6, 182, 212, 0.15) 0%,
+        transparent 70%
+    );
+}
+
+/* ============================================
+   TEXT BRIGHTENING ON HOVER
+   ============================================ */
+
+.card-title,
+.card-description {
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.resource-card:hover .card-title,
+.resource-card:focus-within .card-title {
+    color: rgba(255, 255, 255, 1);
+}
+
+.resource-card:hover .card-description,
+.resource-card:focus-within .card-description {
+    color: rgba(209, 213, 219, 1); /* gray-300 */
+}
+
+/* ============================================
+   ACCESSIBILITY - FOCUS STATES
+   ============================================ */
+
+.resource-card:focus {
+    outline: none; /* Remove default outline */
+}
+
+.resource-card:focus-visible {
+    outline: 3px solid #10B981;
+    outline-offset: 4px;
+    box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+        0 0 0 4px rgba(16, 185, 129, 0.2); /* Additional focus ring */
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .resource-card,
+    .icon-container,
+    .card-border-gradient,
+    .hover-glow,
+    .card-title,
+    .card-description {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    /* Keep instant state changes for accessibility */
+    .resource-card:hover,
+    .resource-card:focus-within {
+        border-color: #10B981;
+    }
+    
+    /* Keep instant text brightening for accessibility */
+    .resource-card:hover .card-title,
+    .resource-card:focus-within .card-title {
+        color: rgba(255, 255, 255, 1);
+    }
+    
+    .resource-card:hover .card-description,
+    .resource-card:focus-within .card-description {
+        color: rgba(209, 213, 219, 1);
+    }
+}
+
+/* ============================================
+   CLICK FEEDBACK ANIMATION
+   ============================================ */
+
+.resource-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .resource-card:active {
+        transform: none;
+    }
+}
+
+/* ============================================
+   BACKGROUND GRADIENT ANIMATIONS
+   ============================================ */
+
+.section-bg-gradient {
+    animation: gradientDrift 8s ease-in-out infinite;
+}
+
+@keyframes gradientDrift {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(10px, 10px) scale(1.05);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .section-bg-gradient {
+        animation: none !important;
+    }
+}
