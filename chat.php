@@ -893,6 +893,10 @@ if ($isAttendant) {
                         <button onclick="openEditContactModal()" class="chat-action-btn edit" title="Editar Contato" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #60a5fa !important; font-size: 18px !important; padding: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">
                             <i class="fas fa-edit"></i>
                         </button>
+                        <!-- Botão de Chamada VoIP -->
+                        <button id="voip-call-btn" onclick="window.voipIntegration?.initiateCall()" class="chat-action-btn voip-call" title="Fazer Chamada" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: none !important; align-items: center !important; justify-content: center !important;">
+                            <i class="fas fa-phone"></i>
+                        </button>
                         <button onclick="refreshMessages()" class="chat-action-btn refresh" title="Atualizar" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">
                             <i class="fas fa-sync-alt"></i>
                         </button>
@@ -7277,6 +7281,59 @@ if ($isAttendant) {
 <!-- Polling em Tempo Real do Teams -->
 <script src="/assets/js/teams-realtime.js?v=<?php echo time(); ?>"></script>
 
+<!-- ============================================
+     SISTEMA VOIP - Chamadas de Voz/Vídeo
+     ============================================ -->
+<link rel="stylesheet" href="/assets/css/voip-styles.css?v=<?php echo time(); ?>">
+<script src="/assets/js/voip-webrtc-client.js?v=<?php echo time(); ?>"></script>
+<script src="/assets/js/voip-chat-integration.js?v=<?php echo time(); ?>"></script>
+
+<!-- Inicialização do Sistema VoIP -->
+<script>
+    // Inicializar VoIP quando o DOM estiver pronto
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🎯 Inicializando Sistema VoIP...');
+        
+        // Verificar se as classes VoIP foram carregadas
+        if (typeof VoIPWebRTCClient === 'undefined' || typeof VoIPChatIntegration === 'undefined') {
+            console.error('❌ Classes VoIP não carregadas!');
+            return;
+        }
+
+        // Verificar se já existe instância global
+        if (window.voipIntegration) {
+            console.log('✅ VoIP já inicializado');
+            return;
+        }
+
+        try {
+            // Criar instância global do sistema VoIP
+            window.voipIntegration = new VoIPChatIntegration();
+            console.log('✅ Sistema VoIP inicializado com sucesso!');
+            
+            // Mostrar botão de chamada quando uma conversa for selecionada
+            const originalSelectConversation = window.selectConversation;
+            if (originalSelectConversation) {
+                window.selectConversation = function(...args) {
+                    const result = originalSelectConversation.apply(this, args);
+                    
+                    // Mostrar botão VoIP após selecionar conversa
+                    setTimeout(() => {
+                        const voipBtn = document.getElementById('voip-call-btn');
+                        if (voipBtn && window.currentConversation) {
+                            voipBtn.style.display = 'inline-flex';
+                        }
+                    }, 100);
+                    
+                    return result;
+                };
+            }
+        } catch (error) {
+            console.error('❌ Erro ao inicializar VoIP:', error);
+        }
+    });
+</script>
+
 <!-- CSS INLINE PARA FORÇAR ESTILO DOS BOTÕES DE AÇÃO - RESETAR TUDO -->
 <style>
     /* RESET COMPLETO dos botões de ação - remover TODOS os estilos */
@@ -7300,6 +7357,10 @@ if ($isAttendant) {
     /* Cores específicas para cada botão */
     .chat-contact-header .chat-action-buttons button.chat-action-btn.edit {
         color: #60a5fa !important;
+    }
+
+    .chat-contact-header .chat-action-buttons button.chat-action-btn.voip-call {
+        color: #10b981 !important;
     }
 
     .chat-contact-header .chat-action-buttons button.chat-action-btn.refresh {
