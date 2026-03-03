@@ -1,0 +1,39 @@
+# Permitir acesso aos arquivos de mídia
+# Necessário para que o Teams possa baixar os arquivos via URL pública
+
+# Desabilitar listagem de diretórios (segurança)
+Options -Indexes
+
+# Permitir acesso a todos os arquivos de mídia
+<FilesMatch "\.(jpg|jpeg|png|gif|bmp|webp|pdf|doc|docx|xls|xlsx|ppt|pptx|mp3|wav|ogg|mp4|avi|mov)$">
+    Order Allow,Deny
+    Allow from all
+    
+    # Headers para melhor compatibilidade
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+    
+    # ✅ CACHE: Armazenar imagens por 7 dias (reduz requisições)
+    <IfModule mod_expires.c>
+        ExpiresActive On
+        ExpiresDefault "access plus 7 days"
+    </IfModule>
+    
+    # Cache-Control alternativo (se mod_expires não disponível)
+    <IfModule mod_headers.c>
+        Header set Cache-Control "max-age=604800, public"
+    </IfModule>
+</FilesMatch>
+
+# Bloquear acesso a arquivos PHP e outros scripts (segurança)
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Bloquear acesso a arquivos de configuração (segurança)
+<FilesMatch "^(\.htaccess|\.htpasswd|\.env|\.git)">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>

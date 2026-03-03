@@ -1,0 +1,17 @@
+# Permitir acesso às imagens de perfil
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Cache-Control "max-age=86400, public"
+</IfModule>
+
+# Tipos de arquivo permitidos
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Bloquear execução de PHP
+<FilesMatch "\.php$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
