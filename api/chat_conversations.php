@@ -13,6 +13,13 @@ require_once '../includes/RateLimiter.php';
 require_once '../includes/InputValidator.php';
 require_once '../includes/Logger.php';
 
+// ✅ REDIS CACHE: Adicionar QueryCache para otimização
+require_once '../libs/QueryCache.php';
+require_once '../libs/RedisCache.php';
+
+$queryCache = new QueryCache($pdo);
+$redisCache = new RedisCache();
+
 /**
  * Retorna o caminho local da foto de perfil se existir
  * Busca em múltiplas pastas para compatibilidade

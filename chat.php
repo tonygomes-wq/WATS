@@ -21,15 +21,26 @@ if (!$isSPA) {
     echo '<!-- MODO SPA ATIVO -->';
 }
 
+// ✅ REDIS CACHE: Incluir QueryCache para otimização
+require_once __DIR__ . '/libs/QueryCache.php';
+$queryCache = new QueryCache($pdo);
+
 $userId = $_SESSION['user_id'];
 
-// Buscar nome do usuário logado
+// Buscar nome do usuário logado (COM CACHE)
 $userName = $_SESSION['user_name'] ?? '';
 if (empty($userName)) {
-    $stmtName = $pdo->prepare("SELECT name FROM users WHERE id = ?");
-    $stmtName->execute([$userId]);
-    $userNameData = $stmtName->fetch(PDO::FETCH_ASSOC);
+    // ✅ REDIS CACHE: Cachear dados do usuário por 5 minutos
+    $userNameData = $queryCache->queryOne(
+        "SELECT name FROM users WHERE id = ?",
+        [$userId],
+        "user:name:{$userId}",
+        300 // 5 minutos
+    );
     $userName = $userNameData['name'] ?? 'Atendente';
+    
+    // Salvar na sessão para próximas requisições
+    $_SESSION['user_name'] = $userName;
 }
 
 // Verificar se é supervisor/admin OU atendente para funcionalidades de atendimento
@@ -44,15 +55,23 @@ if ($isAttendant) {
     $is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
     $is_supervisor_session = isset($_SESSION['is_supervisor']) && $_SESSION['is_supervisor'] == 1;
 
-    // Se não estiver na sessão, buscar do banco
+    // Se não estiver na sessão, buscar do banco (COM CACHE)
     if (!$is_admin && !$is_supervisor_session) {
-        $stmt = $pdo->prepare("SELECT is_admin, is_supervisor FROM users WHERE id = ?");
-        $stmt->execute([$userId]);
-        $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+        // ✅ REDIS CACHE: Cachear permissões do usuário por 10 minutos
+        $user_data = $queryCache->queryOne(
+            "SELECT is_admin, is_supervisor FROM users WHERE id = ?",
+            [$userId],
+            "user:permissions:{$userId}",
+            600 // 10 minutos
+        );
 
         if ($user_data) {
             $is_admin = ($user_data['is_admin'] == 1);
             $is_supervisor_session = ($user_data['is_supervisor'] == 1);
+            
+            // Salvar na sessão
+            $_SESSION['is_admin'] = $is_admin;
+            $_SESSION['is_supervisor'] = $is_supervisor_session;
         }
     }
 
