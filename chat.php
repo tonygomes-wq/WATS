@@ -856,7 +856,7 @@ if ($isAttendant) {
                     </div>
 
                     <!-- Botão VoIP Global -->
-                    <button onclick="window.voipIntegration?.initiateCall()" id="voip-global-btn" class="chat-filter-btn" title="Fazer Chamada VoIP" style="display: inline-flex !important; background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important;">
+                    <button onclick="window.voipIntegration?.call(window.currentConversation?.phone)" id="voip-global-btn" class="chat-filter-btn" title="Fazer Chamada VoIP" style="display: inline-flex !important; background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important;">
                         <i class="fas fa-phone" style="color: white !important;"></i>
                         <span style="color: white !important;">VoIP</span>
                     </button>
@@ -916,7 +916,7 @@ if ($isAttendant) {
                             <i class="fas fa-edit"></i>
                         </button>
                         <!-- Botão de Chamada VoIP -->
-                        <button id="voip-call-btn" onclick="window.voipIntegration?.initiateCall()" class="chat-action-btn voip-call" title="Fazer Chamada" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: none !important; align-items: center !important; justify-content: center !important;">
+                        <button id="voip-call-btn" onclick="window.voipIntegration?.call(window.currentConversation?.phone, window.currentConversation?.name)" class="chat-action-btn voip-call" title="Fazer Chamada" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: none !important; align-items: center !important; justify-content: center !important;">
                             <i class="fas fa-phone"></i>
                         </button>
                         <button onclick="refreshMessages()" class="chat-action-btn refresh" title="Atualizar" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">
@@ -7313,7 +7313,7 @@ if ($isAttendant) {
 <!-- Inicialização do Sistema VoIP -->
 <script>
     // Inicializar VoIP quando o DOM estiver pronto
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         console.log('🎯 Inicializando Sistema VoIP...');
         
         // Verificar se as classes VoIP foram carregadas
@@ -7331,6 +7331,10 @@ if ($isAttendant) {
         try {
             // Criar instância global do sistema VoIP
             window.voipIntegration = new VoIPChatIntegration();
+            
+            // Inicializar o sistema (conectar ao servidor, etc)
+            await window.voipIntegration.init();
+            
             console.log('✅ Sistema VoIP inicializado com sucesso!');
             
             // Mostrar botão de chamada quando uma conversa for selecionada
