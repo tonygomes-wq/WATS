@@ -246,10 +246,32 @@ $providerSettings = $voipManager->getProviderSettings();
             <span>Contacts</span>
         </button>
 
-        <button class="voip-menu-btn" onclick="openSettings()">
+        <button class="voip-menu-btn" onclick="toggleSettingsMenu(event)">
             <i class="fas fa-cog"></i>
             <span>Settings</span>
         </button>
+    </div>
+
+    <!-- Menu Dropdown de Configurações -->
+    <div class="voip-settings-dropdown" id="voip-settings-dropdown" style="display: none;">
+        <div class="voip-settings-menu">
+            <button class="voip-settings-menu-item" onclick="openAccountSettings()">
+                <i class="fas fa-user-cog"></i>
+                <span>Configurar Conta SIP</span>
+            </button>
+            <button class="voip-settings-menu-item" onclick="openGeneralSettings()">
+                <i class="fas fa-sliders-h"></i>
+                <span>Configurações Gerais</span>
+            </button>
+            <button class="voip-settings-menu-item" onclick="openAudioSettings()">
+                <i class="fas fa-volume-up"></i>
+                <span>Áudio e Codecs</span>
+            </button>
+            <button class="voip-settings-menu-item" onclick="openNetworkSettings()">
+                <i class="fas fa-network-wired"></i>
+                <span>Rede e Firewall</span>
+            </button>
+        </div>
     </div>
 </div>
 

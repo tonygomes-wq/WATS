@@ -338,8 +338,36 @@ class VoIPDialer {
         this.showNotification('Contatos em desenvolvimento', 'info');
     }
     
-    openSettings() {
+    toggleSettingsMenu(event) {
+        event.stopPropagation();
+        const dropdown = document.getElementById('voip-settings-dropdown');
+        
+        if (dropdown.style.display === 'none' || !dropdown.style.display) {
+            dropdown.style.display = 'block';
+            
+            // Fechar ao clicar fora
+            setTimeout(() => {
+                document.addEventListener('click', closeSettingsMenu);
+            }, 100);
+        } else {
+            dropdown.style.display = 'none';
+        }
+    }
+    
+    openAccountSettings() {
+        window.location.href = '/voip_account_settings.php';
+    }
+    
+    openGeneralSettings() {
         window.location.href = '/voip_settings.php';
+    }
+    
+    openAudioSettings() {
+        window.location.href = '/voip_settings.php#audio';
+    }
+    
+    openNetworkSettings() {
+        window.location.href = '/voip_settings.php#network';
     }
     
     // Controles de chamada
@@ -593,5 +621,35 @@ function openContacts() {
 }
 
 function openSettings() {
-    window.voipDialer?.openSettings();
+    window.voipDialer?.openGeneralSettings();
 }
+
+function toggleSettingsMenu(event) {
+    window.voipDialer?.toggleSettingsMenu(event);
+}
+
+function openAccountSettings() {
+    window.voipDialer?.openAccountSettings();
+}
+
+function openGeneralSettings() {
+    window.voipDialer?.openGeneralSettings();
+}
+
+function openAudioSettings() {
+    window.voipDialer?.openAudioSettings();
+}
+
+function openNetworkSettings() {
+    window.voipDialer?.openNetworkSettings();
+}
+
+// Fechar menu de configurações ao clicar fora
+function closeSettingsMenu() {
+    const dropdown = document.getElementById('voip-settings-dropdown');
+    if (dropdown) {
+        dropdown.style.display = 'none';
+    }
+    document.removeEventListener('click', closeSettingsMenu);
+}
+
