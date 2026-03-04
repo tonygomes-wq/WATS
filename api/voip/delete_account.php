@@ -45,16 +45,6 @@ try {
     $stmt = $pdo->prepare("DELETE FROM voip_users WHERE id = ? AND user_id = ?");
     $stmt->execute([$accountId, $userId]);
     
-    // Excluir do FreeSWITCH (se disponível)
-    try {
-        require_once __DIR__ . '/../../includes/voip/FreeSwitchAPI.php';
-        $fsApi = new FreeSwitchAPI();
-        $fsApi->deleteUser($account['extension'], $account['sip_domain']);
-    } catch (Exception $e) {
-        // Log erro mas não falhar
-        error_log("Erro ao excluir usuário do FreeSWITCH: " . $e->getMessage());
-    }
-    
     $pdo->commit();
     
     echo json_encode([

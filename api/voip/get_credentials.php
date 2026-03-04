@@ -7,7 +7,6 @@
 session_start();
 require_once '../../config/database.php';
 require_once '../../includes/functions.php';
-require_once '../../includes/voip/VoIPManager.php';
 
 requireLogin();
 
@@ -22,55 +21,52 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $userId = $_SESSION['user_id'];
 
 try {
-    $voipManager = new VoIPManager($pdo);
-    $credentials = $voipManager->getUserCredentials($userId);
+    // Buscar conta VoIP do usuário
+    $stmt = $pdo->prepare("SELECT * FROM voip_users WHERE user_id = ? LIMIT 1");
+    $stmt->execute([$userId]);
+    $account = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    if (!$credentials) {
-        http_response_code(404);
+    if (!$account) {
         echo json_encode([
-            'success' => false,
-            'error' => 'Conta VoIP não encontrada',
-            'has_account' => false
+            'success' => true,
+            'has_account' => false,
+            'provider_configured' => false,
+            'account' => null
         ]);
         exit;
     }
     
-    // Buscar configurações do provedor
-    $stmt = $pdo->prepare("SELECT * FROM voip_provider_settings WHERE id = 1");
-    $stmt->execute();
-    $provider = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Verificar se tem servidor configurado
+    $hasServer = !empty($account['sip_server']) && !empty($account['sip_domain']);
     
-    if (!$provider || empty($provider['server_host'])) {
-        http_response_code(503);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Provedor VoIP não configurado',
-            'has_account' => true,
-            'provider_configured' => false
-        ]);
-        exit;
-    }
-    
-    // Montar URL WebSocket Secure
-    $wssUrl = "wss://{$provider['server_host']}:{$provider['wss_port']}";
-    
-    // Retornar credenciais
+    // Retornar dados da conta
     echo json_encode([
         'success' => true,
         'has_account' => true,
-        'provider_configured' => true,
-        'credentials' => [
-            'extension' => $credentials['sip_extension'],
-            'username' => $credentials['sip_username'],
-            'display_name' => $credentials['display_name'],
-            'sip_domain' => $provider['sip_domain'],
-            'wss_url' => $wssUrl,
-            'stun_server' => $provider['stun_server'] ?? 'stun:stun.l.google.com:19302'
+        'provider_configured' => $hasServer,
+        'account' => [
+            'id' => $account['id'],
+            'account_name' => $account['account_name'],
+            'sip_server' => $account['sip_server'],
+            'sip_proxy' => $account['sip_proxy'],
+            'sip_username' => $account['sip_username'],
+            'sip_domain' => $account['sip_domain'],
+            'auth_id' => $account['auth_id'],
+            'display_name' => $account['display_name'],
+            'voicemail_number' => $account['voicemail_number'],
+            'transport' => $account['transport'] ?? 'udp',
+            'srtp' => $account['srtp'] ?? 0,
+            'publish_presence' => $account['publish_presence'] ?? 1,
+            'ice' => $account['ice'] ?? 1,
+            'extension' => $account['extension']
         ],
-        'provider' => [
-            'type' => $provider['provider_type'],
-            'host' => $provider['server_host'],
-            'domain' => $provider['sip_domain']
+        'credentials' => [
+            'extension' => $account['extension'],
+            'username' => $account['sip_username'],
+            'display_name' => $account['display_name'],
+            'sip_domain' => $account['sip_domain'],
+            'sip_server' => $account['sip_server'],
+            'transport' => $account['transport'] ?? 'udp'
         ]
     ]);
     
@@ -79,6 +75,7 @@ try {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'error' => 'Erro ao obter credenciais VoIP'
+        'error' => 'Erro ao obter credenciais VoIP: ' . $e->getMessage()
     ]);
 }
+

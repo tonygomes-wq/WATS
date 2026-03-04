@@ -213,16 +213,6 @@ try {
         
         $accountId = $pdo->lastInsertId();
         $message = 'Conta criada com sucesso';
-        
-        // Criar usuário no FreeSWITCH (se disponível)
-        try {
-            require_once __DIR__ . '/../../includes/voip/FreeSwitchAPI.php';
-            $fsApi = new FreeSwitchAPI();
-            $fsApi->createUser($extension, $passwordHash, $domain);
-        } catch (Exception $e) {
-            // Log erro mas não falhar
-            error_log("Erro ao criar usuário no FreeSWITCH: " . $e->getMessage());
-        }
     }
     
     $pdo->commit();
