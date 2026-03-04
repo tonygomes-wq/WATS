@@ -133,9 +133,9 @@ try {
             <span>Ligar</span>
         </button>
 
-        <button class="voip-action-btn voip-btn-video" onclick="makeVideoCall()" id="voip-btn-video" style="display: none;">
-            <i class="fas fa-video"></i>
-            <span>Vídeo</span>
+        <button class="voip-action-btn voip-btn-extensions" onclick="openExtensions()" id="voip-btn-extensions">
+            <i class="fas fa-users"></i>
+            <span>Ramais</span>
         </button>
 
         <button class="voip-action-btn voip-btn-message" onclick="sendMessage()" id="voip-btn-message">
@@ -275,6 +275,33 @@ try {
                 <i class="fas fa-network-wired"></i>
                 <span>Rede e Firewall</span>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Ramais -->
+<div class="voip-extensions-modal" id="voip-extensions-modal" style="display: none;">
+    <div class="voip-extensions-content">
+        <div class="voip-extensions-header">
+            <h3><i class="fas fa-users"></i> Ramais Disponíveis</h3>
+            <button class="voip-close-btn" onclick="closeExtensions()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="voip-extensions-search">
+            <i class="fas fa-search"></i>
+            <input type="text" 
+                   id="voip-extensions-search" 
+                   placeholder="Buscar ramal ou nome..."
+                   oninput="filterExtensions(this.value)">
+        </div>
+        
+        <div class="voip-extensions-body" id="voip-extensions-list">
+            <div class="voip-extensions-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>Carregando ramais...</span>
+            </div>
         </div>
     </div>
 </div>

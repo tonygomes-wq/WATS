@@ -338,6 +338,228 @@ class VoIPDialer {
         this.showNotification('Contatos em desenvolvimento', 'info');
     }
     
+    // Abrir lista de ramais
+    async openExtensions() {
+        const modal = document.getElementById('voip-extensions-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            await this.loadExtensions();
+        }
+    }
+    
+    // Carregar ramais
+    async loadExtensions() {
+        const listContainer = document.getElementById('voip-extensions-list');
+        
+        try {
+            listContainer.innerHTML = `
+                <div class="voip-extensions-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Carregando ramais...</span>
+                </div>
+            `;
+            
+            const response = await fetch('/api/voip/list_extensions.php');
+            const data = await response.json();
+            
+            if (!data.success) {
+                throw new Error(data.error || 'Erro ao carregar ramais');
+            }
+            
+            if (data.total === 0) {
+                listContainer.innerHTML = `
+                    <div class="voip-extensions-empty">
+                        <i class="fas fa-users-slash"></i>
+                        <p>Nenhum ramal disponível</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Renderizar ramais agrupados
+            this.renderExtensions(data.grouped);
+            
+        } catch (error) {
+            console.error('[VoIP Dialer] Erro ao carregar ramais:', error);
+            listContainer.innerHTML = `
+                <div class="voip-extensions-empty">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erro ao carregar ramais</p>
+                    <small>${error.message}</small>
+                </div>
+            `;
+        }
+    }
+    
+    // Renderizar ramais
+    renderExtensions(grouped) {
+        const listContainer = document.getElementById('voip-extensions-list');
+        let html = '';
+        
+        // Seu ramal
+        if (grouped.own && grouped.own.length > 0) {
+            html += '<div class="voip-extensions-group">';
+            html += '<div class="voip-extensions-group-title">Seu Ramal</div>';
+            grouped.own.forEach(ext => {
+                html += this.renderExtensionItem(ext, 'own');
+            });
+            html += '</div>';
+        }
+        
+        // Supervisor
+        if (grouped.supervisor && grouped.supervisor.length > 0) {
+            html += '<div class="voip-extensions-group">';
+            html += '<div class="voip-extensions-group-title">Supervisor</div>';
+            grouped.supervisor.forEach(ext => {
+                html += this.renderExtensionItem(ext, 'supervisor');
+            });
+            html += '</div>';
+        }
+        
+        // Equipe
+        if (grouped.team && grouped.team.length > 0) {
+            html += '<div class="voip-extensions-group">';
+            html += '<div class="voip-extensions-group-title">Equipe</div>';
+            grouped.team.forEach(ext => {
+                html += this.renderExtensionItem(ext, 'team');
+            });
+            html += '</div>';
+        }
+        
+        listContainer.innerHTML = html;
+    }
+    
+    // Renderizar item de ramal
+    renderExtensionItem(ext, type) {
+        const initial = ext.display_name ? ext.display_name.charAt(0).toUpperCase() : ext.extension.charAt(0);
+        const avatarClass = type === 'own' ? 'own' : (type === 'supervisor' ? 'supervisor' : '');
+        
+        let badges = '';
+        if (ext.is_own) {
+            badges += '<span class="voip-extension-badge own">Você</span>';
+        }
+        if (ext.is_supervisor) {
+            badges += '<span class="voip-extension-badge supervisor">Supervisor</span>';
+        }
+        if (ext.is_shared && !ext.is_own) {
+            badges += '<span class="voip-extension-badge shared">Compartilhado</span>';
+        }
+        if (ext.group_name) {
+            badges += `<span class="voip-extension-badge group">${ext.group_name}</span>`;
+        }
+        
+        return `
+            <div class="voip-extension-item" data-extension="${ext.extension}">
+                <div class="voip-extension-avatar ${avatarClass}">
+                    ${initial}
+                </div>
+                <div class="voip-extension-info">
+                    <div class="voip-extension-name">${ext.display_name || ext.extension}</div>
+                    <div class="voip-extension-details">
+                        <span class="voip-extension-number">${ext.extension}</span>
+                        ${ext.email ? `<span>•</span><span>${ext.email}</span>` : ''}
+                    </div>
+                    ${badges ? `<div class="voip-extension-badges">${badges}</div>` : ''}
+                </div>
+                <div class="voip-extension-actions">
+                    <button class="voip-extension-btn" 
+                            onclick="callExtension('${ext.extension}', '${ext.display_name}')"
+                            title="Ligar">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    ${!ext.is_own ? `
+                    <button class="voip-extension-btn transfer" 
+                            onclick="transferToExtension('${ext.extension}', '${ext.display_name}')"
+                            title="Transferir"
+                            ${!this.currentCall ? 'style="display:none;"' : ''}>
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+    
+    // Fechar modal de ramais
+    closeExtensions() {
+        const modal = document.getElementById('voip-extensions-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    // Filtrar ramais
+    filterExtensions(query) {
+        const items = document.querySelectorAll('.voip-extension-item');
+        const lowerQuery = query.toLowerCase();
+        
+        items.forEach(item => {
+            const name = item.querySelector('.voip-extension-name')?.textContent.toLowerCase() || '';
+            const extension = item.querySelector('.voip-extension-number')?.textContent.toLowerCase() || '';
+            const email = item.querySelector('.voip-extension-details')?.textContent.toLowerCase() || '';
+            
+            const matches = name.includes(lowerQuery) || 
+                          extension.includes(lowerQuery) || 
+                          email.includes(lowerQuery);
+            
+            item.style.display = matches ? 'flex' : 'none';
+        });
+        
+        // Ocultar grupos vazios
+        const groups = document.querySelectorAll('.voip-extensions-group');
+        groups.forEach(group => {
+            const visibleItems = group.querySelectorAll('.voip-extension-item[style="display: flex;"], .voip-extension-item:not([style*="display"])');
+            group.style.display = visibleItems.length > 0 ? 'block' : 'none';
+        });
+    }
+    
+    // Ligar para ramal
+    async callExtension(extension, name) {
+        this.currentNumber = extension;
+        document.getElementById('voip-number-input').value = extension;
+        
+        if (name) {
+            document.getElementById('voip-contact-name-text').textContent = name;
+            document.getElementById('voip-contact-name').style.display = 'flex';
+        }
+        
+        this.closeExtensions();
+        await this.makeCall();
+    }
+    
+    // Transferir para ramal
+    async transferToExtension(extension, name) {
+        if (!this.currentCall) {
+            this.showNotification('Nenhuma chamada ativa para transferir', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/voip/transfer_call.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    call_id: this.currentCall,
+                    target: extension
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showNotification(`Chamada transferida para ${name || extension}`, 'success');
+                this.closeExtensions();
+                this.endCall();
+            } else {
+                throw new Error(data.error || 'Erro ao transferir chamada');
+            }
+            
+        } catch (error) {
+            console.error('[VoIP Dialer] Erro ao transferir:', error);
+            this.showNotification('Erro ao transferir chamada: ' + error.message, 'error');
+        }
+    }
+    
     toggleSettingsMenu(event) {
         event.stopPropagation();
         const dropdown = document.getElementById('voip-settings-dropdown');
@@ -653,3 +875,23 @@ function closeSettingsMenu() {
     document.removeEventListener('click', closeSettingsMenu);
 }
 
+// Funções de ramais
+function openExtensions() {
+    window.voipDialer?.openExtensions();
+}
+
+function closeExtensions() {
+    window.voipDialer?.closeExtensions();
+}
+
+function filterExtensions(query) {
+    window.voipDialer?.filterExtensions(query);
+}
+
+function callExtension(extension, name) {
+    window.voipDialer?.callExtension(extension, name);
+}
+
+function transferToExtension(extension, name) {
+    window.voipDialer?.transferToExtension(extension, name);
+}
