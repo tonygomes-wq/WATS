@@ -1,0 +1,390 @@
+/* ============================================
+   VOIP STYLES - Sistema de Chamadas VoIP
+   ============================================ */
+
+/* Modal Base */
+.voip-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+.voip-modal.hidden {
+    display: none;
+}
+
+/* Modal Content */
+.voip-modal-content {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 24px;
+    padding: 32px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: white;
+    animation: voipModalSlideIn 0.3s ease-out;
+}
+
+@keyframes voipModalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Avatar do Contato */
+.voip-contact-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #10B981, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+    position: relative;
+}
+
+.voip-contact-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Pulse Animation para chamada em andamento */
+.voip-contact-avatar.calling::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    border-radius: 50%;
+    border: 3px solid #10B981;
+    animation: voipPulse 1.5s ease-out infinite;
+}
+
+@keyframes voipPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* Nome do Contato */
+.voip-contact-name {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: white;
+}
+
+/* Status da Chamada */
+.voip-call-status {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 24px;
+}
+
+/* Timer da Chamada */
+.voip-call-timer {
+    font-size: 18px;
+    font-weight: 500;
+    color: #10B981;
+    margin-bottom: 24px;
+    font-family: 'Courier New', monospace;
+}
+
+/* Controles da Chamada */
+.voip-call-controls {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.voip-control-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.voip-control-btn:hover {
+    transform: scale(1.1);
+}
+
+.voip-control-btn:active {
+    transform: scale(0.95);
+}
+
+/* Botão Atender */
+.voip-control-btn.answer {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+}
+
+.voip-control-btn.answer:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* Botão Rejeitar/Desligar */
+.voip-control-btn.hangup {
+    background: linear-gradient(135deg, #EF4444, #DC2626);
+    color: white;
+}
+
+.voip-control-btn.hangup:hover {
+    background: linear-gradient(135deg, #DC2626, #B91C1C);
+}
+
+/* Botão Mute */
+.voip-control-btn.mute {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.voip-control-btn.mute:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.voip-control-btn.mute.active {
+    background: #EF4444;
+    color: white;
+}
+
+/* Botão Hold */
+.voip-control-btn.hold {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.voip-control-btn.hold:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.voip-control-btn.hold.active {
+    background: #F59E0B;
+    color: white;
+}
+
+/* Botão Transfer */
+.voip-control-btn.transfer {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.voip-control-btn.transfer:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Botão de Chamada no Header do Chat */
+.chat-call-btn {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.chat-call-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.chat-call-btn:active {
+    transform: scale(0.95);
+}
+
+.chat-call-btn i {
+    font-size: 18px;
+}
+
+/* Indicador de Status VoIP */
+.voip-status-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 9999;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voip-status-indicator:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.voip-status-indicator.hidden {
+    display: none;
+}
+
+.voip-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10B981;
+    animation: voipStatusPulse 2s ease-in-out infinite;
+}
+
+@keyframes voipStatusPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.voip-status-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Dark Mode Support */
+:root[data-theme="dark"] .voip-modal-content {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+    .voip-modal-content {
+        padding: 24px;
+        max-width: 90%;
+    }
+
+    .voip-contact-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+    }
+
+    .voip-contact-name {
+        font-size: 20px;
+    }
+
+    .voip-call-status {
+        font-size: 14px;
+    }
+
+    .voip-control-btn {
+        width: 48px;
+        height: 48px;
+        font-size: 18px;
+    }
+
+    .voip-call-controls {
+        gap: 12px;
+    }
+}
+
+/* Audio Element (escondido) */
+#voip-remote-audio {
+    display: none;
+}
+
+/* Tooltip para botões */
+.voip-control-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+
+/* ============================================
+   BOTÃO VOIP GLOBAL NO HEADER
+   ============================================ */
+
+/* Botão VoIP no header superior */
+#voip-global-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: white !important;
+    border: none !important;
+    transition: all 0.3s ease !important;
+}
+
+#voip-global-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+#voip-global-btn i {
+    color: white !important;
+}
+
+/* Animação de pulso quando em chamada */
+#voip-global-btn.in-call {
+    animation: voipPulse 2s infinite;
+}
+
+@keyframes voipPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+}
+
+/* Dark mode */
+:root[data-theme="dark"] #voip-global-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+:root[data-theme="dark"] #voip-global-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+}

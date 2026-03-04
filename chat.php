@@ -855,6 +855,12 @@ if ($isAttendant) {
                         </div>
                     </div>
 
+                    <!-- Botão VoIP Global -->
+                    <button onclick="window.voipIntegration?.initiateCall()" id="voip-global-btn" class="chat-filter-btn" title="Fazer Chamada VoIP" style="display: none;">
+                        <i class="fas fa-phone"></i>
+                        <span>VoIP</span>
+                    </button>
+
                     <!-- Campo de Busca (Movido para cá) -->
                     <div class="chat-search-box-inline">
                         <input type="text" id="search-conversations" placeholder="Buscar...">
@@ -7317,11 +7323,20 @@ if ($isAttendant) {
                 window.selectConversation = function(...args) {
                     const result = originalSelectConversation.apply(this, args);
                     
-                    // Mostrar botão VoIP após selecionar conversa
+                    // Mostrar botões VoIP após selecionar conversa
                     setTimeout(() => {
-                        const voipBtn = document.getElementById('voip-call-btn');
-                        if (voipBtn && window.currentConversation) {
-                            voipBtn.style.display = 'inline-flex';
+                        if (window.currentConversation) {
+                            // Botão no header do contato
+                            const voipBtn = document.getElementById('voip-call-btn');
+                            if (voipBtn) {
+                                voipBtn.style.display = 'inline-flex';
+                            }
+                            
+                            // Botão global no header superior
+                            const voipGlobalBtn = document.getElementById('voip-global-btn');
+                            if (voipGlobalBtn) {
+                                voipGlobalBtn.style.display = 'inline-flex';
+                            }
                         }
                     }, 100);
                     
