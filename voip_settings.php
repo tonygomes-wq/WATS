@@ -1,299 +1,465 @@
 <?php
-/**
- * Configurações VoIP - Provedor e Credenciais
- * Página para configurar servidor FreeSWITCH e credenciais SIP
- */
-
-session_start();
-require_once 'config/database.php';
-require_once 'includes/functions.php';
-
-requireLogin();
-
-$user_id = $_SESSION['user_id'];
-$user_type = $_SESSION['user_type'] ?? 'user';
-$is_admin = isset($_SESSION['is_admin']) && $_SESSION['is_admin'] == 1;
-$is_supervisor = isset($_SESSION['is_supervisor']) && $_SESSION['is_supervisor'] == 1;
-
-// Apenas Admin pode configurar provedor VoIP
-if (!$is_admin) {
-    header('Location: chat.php');
-    exit;
+// Iniciar sessão
+if (!isset($_SESSION)) {
+    session_start();
 }
 
-// Buscar configurações VoIP globais
-$stmt = $pdo->prepare("
-    SELECT * FROM voip_provider_settings 
-    WHERE id = 1
-");
-$stmt->execute();
-$provider_config = $stmt->fetch(PDO::FETCH_ASSOC);
+$page_title = 'VoIP - Configurações';
+require_once 'includes/header_spa.php';
+require_once 'includes/functions.php';
+requireLogin();
+
+$userId = $_SESSION['user_id'];
 
 // Buscar configurações do usuário
 $stmt = $pdo->prepare("
-    SELECT * FROM voip_users 
+    SELECT * FROM voip_user_settings 
     WHERE user_id = ?
 ");
-$stmt->execute([$user_id]);
-$user_voip = $stmt->fetch(PDO::FETCH_ASSOC);
+$stmt->execute([$userId]);
+$settings = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Verificar status de conexão
-$is_configured = !empty($provider_config['server_host']);
-$has_user_account = !empty($user_voip);
+// Se não existir, criar com valores padrão
+if (!$settings) {
+    $settings = [
+        'single_call_mode' => 1,
+        'ring_device' => 'default',
+        'speaker_device' => 'default',
+        'microphone_device' => 'default',
+        'mic_adjustment' => 1,
+        'enabled_codecs' => 'PCMU,PCMA',
+        'video_enabled' => 0,
+        'video_codec' => 'H264',
+        'video_bitrate' => 256,
+        'source_port' => 5060,
+        'dns_srv' => 0,
+        'stun_server' => 'stun:stun.l.google.com:19302',
+        'dtmf_method' => 'rfc2833',
+        'call_recording' => 0,
+        'recording_format' => 'wav',
+        'recording_path' => '',
+        'deny_incoming' => 'disabled',
+        'call_forwarding' => 'disabled',
+        'forwarding_number' => '',
+        'auto_answer' => 0,
+        'auto_answer_delay' => 0,
+        'check_updates' => 'weekly',
+        'run_on_startup' => 0
+    ];
+}
 
-$page_title = 'Configurações VoIP';
-include 'includes/header_spa.php';
+// Codecs disponíveis
+$availableCodecs = [
+    'opus/48000' => 'Opus 48 kHz',
+    'opus/24000' => 'Opus 24 kHz',
+    'G722/16000' => 'G.722 16 kHz',
+    'PCMU/8000' => 'G.711 μ-law 8 kHz',
+    'PCMA/8000' => 'G.711 A-law 8 kHz',
+    'GSM/8000' => 'GSM 8 kHz',
+    'iLBC/8000' => 'iLBC 8 kHz',
+    'speex/16000' => 'Speex 16 kHz',
+    'speex/8000' => 'Speex 8 kHz'
+];
+
+$enabledCodecs = explode(',', $settings['enabled_codecs']);
 ?>
 
-<div class="container mx-auto px-4 py-6">
+<link rel="stylesheet" href="/assets/css/voip-settings.css?v=<?php echo time(); ?>">
+
+<div class="voip-settings-dialog">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-6">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <i class="fas fa-phone-volume text-purple-600"></i>
-                Configurações VoIP
-            </h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">
-                Configure o provedor VoIP e credenciais de telefonia
-            </p>
-        </div>
-        <button onclick="testVoIPConnection()" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
-            <i class="fas fa-plug"></i>
-            Testar Conexão
+    <div class="voip-dialog-header">
+        <h3>Configurações VoIP</h3>
+        <button class="voip-close-btn" onclick="closeDialog()">
+            <i class="fas fa-times"></i>
         </button>
     </div>
 
-    <!-- Status Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <!-- Provedor Configurado -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center <?= $is_configured ? 'bg-green-100' : 'bg-gray-200' ?>">
-                    <i class="fas fa-server text-xl <?= $is_configured ? 'text-green-600' : 'text-gray-400' ?>"></i>
-                </div>
-                <div>
-                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Provedor</div>
-                    <div class="text-xs <?= $is_configured ? 'text-green-600' : 'text-gray-500' ?>">
-                        <?= $is_configured ? 'Configurado' : 'Não configurado' ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Conta do Usuário -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center <?= $has_user_account ? 'bg-blue-100' : 'bg-gray-200' ?>">
-                    <i class="fas fa-user text-xl <?= $has_user_account ? 'text-blue-600' : 'text-gray-400' ?>"></i>
-                </div>
-                <div>
-                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Minha Conta</div>
-                    <div class="text-xs <?= $has_user_account ? 'text-blue-600' : 'text-gray-500' ?>">
-                        <?= $has_user_account ? 'Ramal: ' . $user_voip['sip_extension'] : 'Não criada' ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Status Geral -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-full flex items-center justify-center <?= ($is_configured && $has_user_account) ? 'bg-green-100' : 'bg-gray-200' ?>">
-                    <i class="fas fa-check-circle text-xl <?= ($is_configured && $has_user_account) ? 'text-green-600' : 'text-gray-400' ?>"></i>
-                </div>
-                <div>
-                    <div class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</div>
-                    <div class="text-xs <?= ($is_configured && $has_user_account) ? 'text-green-600' : 'text-gray-500' ?>">
-                        <?= ($is_configured && $has_user_account) ? 'Pronto para usar' : 'Configuração pendente' ?>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- Tabs -->
+    <div class="voip-settings-tabs">
+        <button class="voip-tab-btn active" onclick="switchTab('general')">
+            <i class="fas fa-cog"></i>
+            Geral
+        </button>
+        <button class="voip-tab-btn" onclick="switchTab('audio')">
+            <i class="fas fa-volume-up"></i>
+            Áudio
+        </button>
+        <button class="voip-tab-btn" onclick="switchTab('video')">
+            <i class="fas fa-video"></i>
+            Vídeo
+        </button>
+        <button class="voip-tab-btn" onclick="switchTab('network')">
+            <i class="fas fa-network-wired"></i>
+            Rede
+        </button>
+        <button class="voip-tab-btn" onclick="switchTab('advanced')">
+            <i class="fas fa-sliders-h"></i>
+            Avançado
+        </button>
     </div>
 
-    <!-- Guia de Configuração -->
-    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-6 mb-6">
-        <h3 class="text-lg font-semibold mb-3 text-blue-900 dark:text-blue-100">
-            <i class="fas fa-book mr-2"></i>
-            Como Configurar
-        </h3>
-        <ol class="space-y-2 text-sm ml-4 list-decimal text-blue-800 dark:text-blue-200">
-            <li><strong>Instale o FreeSWITCH:</strong> No servidor, instale o FreeSWITCH seguindo o guia de instalação</li>
-            <li><strong>Configure o mod_verto:</strong> Habilite o módulo WebRTC no FreeSWITCH</li>
-            <li><strong>Configure SSL/TLS:</strong> Gere certificados SSL para conexão segura (WSS)</li>
-            <li><strong>Preencha os dados abaixo:</strong> Host, porta, domínio e senha ESL</li>
-            <li><strong>Teste a conexão:</strong> Clique em "Testar Conexão" para verificar</li>
-            <li><strong>Crie sua conta VoIP:</strong> Após configurar o provedor, crie seu ramal</li>
-        </ol>
-    </div>
+    <!-- Content -->
+    <div class="voip-dialog-content">
+        <form id="voip-settings-form" onsubmit="saveSettings(event)">
+            <input type="hidden" name="user_id" value="<?php echo $userId; ?>">
 
-    <!-- Formulário de Configuração do Provedor -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-            <i class="fas fa-server text-purple-600"></i>
-            Configuração do Provedor VoIP
-        </h2>
+            <!-- Tab: General -->
+            <div class="voip-tab-content active" id="tab-general">
+                <h4>Configurações Gerais</h4>
 
-        <form id="provider-form" class="space-y-4">
-            <!-- Tipo de Provedor -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Tipo de Provedor
-                </label>
-                <select name="provider_type" id="provider_type" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white">
-                    <option value="freeswitch" <?= ($provider_config['provider_type'] ?? '') == 'freeswitch' ? 'selected' : '' ?>>FreeSWITCH (Recomendado)</option>
-                    <option value="asterisk" <?= ($provider_config['provider_type'] ?? '') == 'asterisk' ? 'selected' : '' ?>>Asterisk</option>
-                    <option value="kamailio" <?= ($provider_config['provider_type'] ?? '') == 'kamailio' ? 'selected' : '' ?>>Kamailio</option>
-                    <option value="custom" <?= ($provider_config['provider_type'] ?? '') == 'custom' ? 'selected' : '' ?>>Outro (SIP Genérico)</option>
-                </select>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Host do Servidor -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Host do Servidor *
+                <!-- Single Call Mode -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="single_call_mode" 
+                               value="1"
+                               <?php echo $settings['single_call_mode'] ? 'checked' : ''; ?>>
+                        Single Call Mode
+                        <a href="#" class="voip-help-link" title="Permitir apenas uma chamada por vez">?</a>
                     </label>
-                    <input type="text" name="server_host" id="server_host" 
-                           value="<?= htmlspecialchars($provider_config['server_host'] ?? '') ?>"
-                           placeholder="voip.macip.com.br ou 192.168.1.100"
-                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-                           required>
                 </div>
 
-                <!-- Porta WebSocket -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Porta WebSocket Secure (WSS) *
+                <!-- Ring Device -->
+                <div class="voip-form-group">
+                    <label for="ring_device">
+                        Ring Device
+                        <a href="#" class="voip-help-link" title="Dispositivo para tocar">?</a>
                     </label>
-                    <input type="number" name="wss_port" id="wss_port" 
-                           value="<?= htmlspecialchars($provider_config['wss_port'] ?? '8083') ?>"
-                           placeholder="8083"
-                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-                           required>
+                    <select id="ring_device" name="ring_device">
+                        <option value="default">Default</option>
+                        <!-- Dispositivos serão carregados via JavaScript -->
+                    </select>
+                </div>
+
+                <!-- Speaker -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="speaker_enabled" 
+                               value="1"
+                               checked>
+                        Speaker
+                    </label>
+                </div>
+
+                <div class="voip-form-group">
+                    <label for="speaker_device">Speaker Device</label>
+                    <select id="speaker_device" name="speaker_device">
+                        <option value="default">Default</option>
+                    </select>
+                </div>
+
+                <!-- Microphone -->
+                <div class="voip-form-group">
+                    <label for="microphone_device">
+                        Microphone
+                        <a href="#" class="voip-help-link" title="Dispositivo de entrada de áudio">?</a>
+                    </label>
+                    <select id="microphone_device" name="microphone_device">
+                        <option value="default">Default</option>
+                    </select>
+                </div>
+
+                <!-- Microphone Adjustment -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="mic_adjustment" 
+                               value="1"
+                               <?php echo $settings['mic_adjustment'] ? 'checked' : ''; ?>>
+                        Microphone Adjustment
+                        <a href="#" class="voip-help-link" title="Ajuste automático de ganho">?</a>
+                    </label>
+                </div>
+
+                <!-- Auto Answer -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="auto_answer" 
+                               value="1"
+                               <?php echo $settings['auto_answer'] ? 'checked' : ''; ?>>
+                        Auto Answer
+                        <a href="#" class="voip-help-link" title="Atender automaticamente">?</a>
+                    </label>
+                </div>
+
+                <div class="voip-form-group" id="auto-answer-delay-group" style="display: <?php echo $settings['auto_answer'] ? 'block' : 'none'; ?>;">
+                    <label for="auto_answer_delay">Delay (seconds)</label>
+                    <input type="number" 
+                           id="auto_answer_delay" 
+                           name="auto_answer_delay" 
+                           value="<?php echo $settings['auto_answer_delay']; ?>"
+                           min="0"
+                           max="30">
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Domínio SIP -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Domínio SIP *
-                    </label>
-                    <input type="text" name="sip_domain" id="sip_domain" 
-                           value="<?= htmlspecialchars($provider_config['sip_domain'] ?? 'wats.macip.com.br') ?>"
-                           placeholder="wats.macip.com.br"
-                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
-                           required>
+            <!-- Tab: Audio -->
+            <div class="voip-tab-content" id="tab-audio">
+                <h4>Codecs de Áudio</h4>
+
+                <div class="voip-codec-selector">
+                    <div class="voip-codec-column">
+                        <label>Available Codecs</label>
+                        <select id="available-codecs" multiple size="10">
+                            <?php foreach ($availableCodecs as $codec => $name): ?>
+                                <?php if (!in_array($codec, $enabledCodecs)): ?>
+                                    <option value="<?php echo $codec; ?>"><?php echo $name; ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="voip-codec-buttons">
+                        <button type="button" onclick="moveCodecUp()" title="Mover para cima">
+                            <i class="fas fa-chevron-up"></i>
+                        </button>
+                        <button type="button" onclick="moveCodecDown()" title="Mover para baixo">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button type="button" onclick="addCodec()" title="Adicionar">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button type="button" onclick="removeCodec()" title="Remover">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+
+                    <div class="voip-codec-column">
+                        <label>Enabled Codecs</label>
+                        <select id="enabled-codecs" name="enabled_codecs[]" multiple size="10">
+                            <?php foreach ($enabledCodecs as $codec): ?>
+                                <?php if (isset($availableCodecs[$codec])): ?>
+                                    <option value="<?php echo $codec; ?>"><?php echo $availableCodecs[$codec]; ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Porta ESL -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Porta ESL (Event Socket)
+                <p class="voip-help-text">
+                    <i class="fas fa-info-circle"></i>
+                    A ordem dos codecs determina a prioridade na negociação.
+                </p>
+            </div>
+
+            <!-- Tab: Video -->
+            <div class="voip-tab-content" id="tab-video">
+                <h4>Configurações de Vídeo</h4>
+
+                <!-- Video Enabled -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="video_enabled" 
+                               value="1"
+                               <?php echo $settings['video_enabled'] ? 'checked' : ''; ?>>
+                        Enable Video
                     </label>
-                    <input type="number" name="esl_port" id="esl_port" 
-                           value="<?= htmlspecialchars($provider_config['esl_port'] ?? '8021') ?>"
-                           placeholder="8021"
-                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white">
+                </div>
+
+                <div id="video-settings" style="display: <?php echo $settings['video_enabled'] ? 'block' : 'none'; ?>;">
+                    <!-- Camera -->
+                    <div class="voip-form-group">
+                        <label for="camera_device">Camera</label>
+                        <select id="camera_device" name="camera_device">
+                            <option value="default">Default</option>
+                        </select>
+                    </div>
+
+                    <!-- Video Codec -->
+                    <div class="voip-form-group">
+                        <label for="video_codec">Video Codec</label>
+                        <select id="video_codec" name="video_codec">
+                            <option value="H264" <?php echo $settings['video_codec'] == 'H264' ? 'selected' : ''; ?>>H.264</option>
+                            <option value="VP8" <?php echo $settings['video_codec'] == 'VP8' ? 'selected' : ''; ?>>VP8</option>
+                            <option value="VP9" <?php echo $settings['video_codec'] == 'VP9' ? 'selected' : ''; ?>>VP9</option>
+                        </select>
+                    </div>
+
+                    <!-- Video Bitrate -->
+                    <div class="voip-form-group">
+                        <label for="video_bitrate">Video Bitrate (kbps)</label>
+                        <input type="number" 
+                               id="video_bitrate" 
+                               name="video_bitrate" 
+                               value="<?php echo $settings['video_bitrate']; ?>"
+                               min="64"
+                               max="2048"
+                               step="64">
+                    </div>
                 </div>
             </div>
 
-            <!-- Senha ESL -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Senha ESL (Event Socket)
-                </label>
-                <input type="password" name="esl_password" id="esl_password" 
-                       value="<?= htmlspecialchars($provider_config['esl_password'] ?? '') ?>"
-                       placeholder="ClueCon"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white">
+            <!-- Tab: Network -->
+            <div class="voip-tab-content" id="tab-network">
+                <h4>Configurações de Rede</h4>
+
+                <!-- Source Port -->
+                <div class="voip-form-group">
+                    <label for="source_port">
+                        Source Port
+                        <a href="#" class="voip-help-link" title="Porta local SIP">?</a>
+                    </label>
+                    <input type="number" 
+                           id="source_port" 
+                           name="source_port" 
+                           value="<?php echo $settings['source_port']; ?>"
+                           min="1024"
+                           max="65535">
+                </div>
+
+                <!-- DNS SRV -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="dns_srv" 
+                               value="1"
+                               <?php echo $settings['dns_srv'] ? 'checked' : ''; ?>>
+                        DNS SRV
+                        <a href="#" class="voip-help-link" title="Usar registros DNS SRV">?</a>
+                    </label>
+                </div>
+
+                <!-- STUN Server -->
+                <div class="voip-form-group">
+                    <label for="stun_server">
+                        STUN Server
+                        <a href="#" class="voip-help-link" title="Servidor STUN para NAT traversal">?</a>
+                    </label>
+                    <input type="text" 
+                           id="stun_server" 
+                           name="stun_server" 
+                           value="<?php echo htmlspecialchars($settings['stun_server']); ?>"
+                           placeholder="stun:stun.l.google.com:19302">
+                </div>
+
+                <!-- DTMF Method -->
+                <div class="voip-form-group">
+                    <label for="dtmf_method">
+                        DTMF Method
+                        <a href="#" class="voip-help-link" title="Método de envio de DTMF">?</a>
+                    </label>
+                    <select id="dtmf_method" name="dtmf_method">
+                        <option value="rfc2833" <?php echo $settings['dtmf_method'] == 'rfc2833' ? 'selected' : ''; ?>>RFC 2833</option>
+                        <option value="inband" <?php echo $settings['dtmf_method'] == 'inband' ? 'selected' : ''; ?>>In-band</option>
+                        <option value="info" <?php echo $settings['dtmf_method'] == 'info' ? 'selected' : ''; ?>>SIP INFO</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Servidor STUN -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Servidor STUN (Opcional)
-                </label>
-                <input type="text" name="stun_server" id="stun_server" 
-                       value="<?= htmlspecialchars($provider_config['stun_server'] ?? 'stun:stun.l.google.com:19302') ?>"
-                       placeholder="stun:stun.l.google.com:19302"
-                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white">
-            </div>
+            <!-- Tab: Advanced -->
+            <div class="voip-tab-content" id="tab-advanced">
+                <h4>Configurações Avançadas</h4>
 
-            <!-- Botões -->
-            <div class="flex gap-3">
-                <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
-                    <i class="fas fa-save"></i>
-                    Salvar Configurações
-                </button>
-                <button type="button" onclick="resetForm()" class="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-medium transition-colors">
-                    Cancelar
-                </button>
+                <!-- Call Recording -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="call_recording" 
+                               value="1"
+                               <?php echo $settings['call_recording'] ? 'checked' : ''; ?>>
+                        Call Recording
+                        <a href="#" class="voip-help-link" title="Gravar chamadas automaticamente">?</a>
+                    </label>
+                </div>
+
+                <div id="recording-settings" style="display: <?php echo $settings['call_recording'] ? 'block' : 'none'; ?>;">
+                    <div class="voip-form-group">
+                        <label for="recording_format">Recording Format</label>
+                        <select id="recording_format" name="recording_format">
+                            <option value="wav" <?php echo $settings['recording_format'] == 'wav' ? 'selected' : ''; ?>>WAV</option>
+                            <option value="mp3" <?php echo $settings['recording_format'] == 'mp3' ? 'selected' : ''; ?>>MP3</option>
+                            <option value="ogg" <?php echo $settings['recording_format'] == 'ogg' ? 'selected' : ''; ?>>OGG</option>
+                        </select>
+                    </div>
+
+                    <div class="voip-form-group">
+                        <label for="recording_path">Recording Path</label>
+                        <div class="voip-input-with-button">
+                            <input type="text" 
+                                   id="recording_path" 
+                                   name="recording_path" 
+                                   value="<?php echo htmlspecialchars($settings['recording_path']); ?>"
+                                   placeholder="/var/recordings">
+                            <button type="button" onclick="browseFolder()">Browse</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deny Incoming -->
+                <div class="voip-form-group">
+                    <label for="deny_incoming">
+                        Deny Incoming
+                        <a href="#" class="voip-help-link" title="Bloquear chamadas recebidas">?</a>
+                    </label>
+                    <select id="deny_incoming" name="deny_incoming">
+                        <option value="disabled" <?php echo $settings['deny_incoming'] == 'disabled' ? 'selected' : ''; ?>>Disabled</option>
+                        <option value="all" <?php echo $settings['deny_incoming'] == 'all' ? 'selected' : ''; ?>>All</option>
+                        <option value="anonymous" <?php echo $settings['deny_incoming'] == 'anonymous' ? 'selected' : ''; ?>>Anonymous</option>
+                    </select>
+                </div>
+
+                <!-- Call Forwarding -->
+                <div class="voip-form-group">
+                    <label for="call_forwarding">
+                        Call Forwarding
+                        <a href="#" class="voip-help-link" title="Encaminhamento de chamadas">?</a>
+                    </label>
+                    <select id="call_forwarding" name="call_forwarding">
+                        <option value="disabled" <?php echo $settings['call_forwarding'] == 'disabled' ? 'selected' : ''; ?>>Disabled</option>
+                        <option value="always" <?php echo $settings['call_forwarding'] == 'always' ? 'selected' : ''; ?>>Always</option>
+                        <option value="busy" <?php echo $settings['call_forwarding'] == 'busy' ? 'selected' : ''; ?>>On Busy</option>
+                        <option value="no_answer" <?php echo $settings['call_forwarding'] == 'no_answer' ? 'selected' : ''; ?>>On No Answer</option>
+                    </select>
+                </div>
+
+                <div class="voip-form-group" id="forwarding-number-group" style="display: <?php echo $settings['call_forwarding'] != 'disabled' ? 'block' : 'none'; ?>;">
+                    <label for="forwarding_number">Forwarding Number</label>
+                    <input type="text" 
+                           id="forwarding_number" 
+                           name="forwarding_number" 
+                           value="<?php echo htmlspecialchars($settings['forwarding_number']); ?>"
+                           placeholder="+5511999999999">
+                </div>
+
+                <!-- Check for Updates -->
+                <div class="voip-form-group">
+                    <label for="check_updates">Check for Updates</label>
+                    <select id="check_updates" name="check_updates">
+                        <option value="weekly" <?php echo $settings['check_updates'] == 'weekly' ? 'selected' : ''; ?>>Weekly</option>
+                        <option value="monthly" <?php echo $settings['check_updates'] == 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+                        <option value="never" <?php echo $settings['check_updates'] == 'never' ? 'selected' : ''; ?>>Never</option>
+                    </select>
+                </div>
+
+                <!-- Run on Startup -->
+                <div class="voip-form-group voip-checkbox-group">
+                    <label>
+                        <input type="checkbox" 
+                               name="run_on_startup" 
+                               value="1"
+                               <?php echo $settings['run_on_startup'] ? 'checked' : ''; ?>>
+                        Run on System Startup
+                    </label>
+                </div>
             </div>
         </form>
     </div>
 
-    <!-- Minha Conta VoIP -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-        <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center gap-2">
-            <i class="fas fa-user-circle text-blue-600"></i>
-            Minha Conta VoIP
-        </h2>
-
-        <?php if ($has_user_account): ?>
-            <!-- Conta Existente -->
-            <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ramal</label>
-                        <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg font-mono">
-                            <?= htmlspecialchars($user_voip['sip_extension']) ?>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome de Exibição</label>
-                        <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                            <?= htmlspecialchars($user_voip['display_name']) ?>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                    <div class="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full <?= $user_voip['status'] == 'online' ? 'bg-green-500' : 'bg-gray-400' ?>"></span>
-                        <?= ucfirst($user_voip['status']) ?>
-                    </div>
-                </div>
-
-                <div class="flex gap-3">
-                    <button onclick="regeneratePassword()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
-                        <i class="fas fa-key"></i>
-                        Regenerar Senha SIP
-                    </button>
-                    <button onclick="deleteAccount()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2">
-                        <i class="fas fa-trash"></i>
-                        Excluir Conta
-                    </button>
-                </div>
-            </div>
-        <?php else: ?>
-            <!-- Criar Conta -->
-            <div class="text-center py-8">
-                <i class="fas fa-user-plus text-6xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                <p class="text-gray-600 dark:text-gray-400 mb-4">
-                    Você ainda não possui uma conta VoIP. Crie uma para começar a fazer chamadas.
-                </p>
-                <button onclick="createVoIPAccount()" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto">
-                    <i class="fas fa-plus"></i>
-                    Criar Minha Conta VoIP
-                </button>
-            </div>
-        <?php endif; ?>
+    <!-- Footer -->
+    <div class="voip-dialog-footer">
+        <button type="button" class="voip-btn-secondary" onclick="closeDialog()">
+            Cancel
+        </button>
+        <button type="submit" form="voip-settings-form" class="voip-btn-primary">
+            Save
+        </button>
     </div>
 </div>
 
-<script src="/assets/js/voip-settings.js?v=<?= time() ?>"></script>
+<script src="/assets/js/voip-settings.js?v=<?php echo time(); ?>"></script>
 
-<?php include 'includes/footer.php'; ?>
+<?php require_once 'includes/footer_spa.php'; ?>

@@ -1,0 +1,338 @@
+/* ============================================
+   VOIP ACCOUNT SETTINGS - Estilo MicroSIP
+   ============================================ */
+
+.voip-account-dialog {
+    width: 420px;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+}
+
+/* Header */
+.voip-dialog-header {
+    background: linear-gradient(180deg, #ffffff 0%, #f0f0f0 100%);
+    padding: 12px 16px;
+    border-bottom: 1px solid #d0d0d0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.voip-dialog-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.voip-close-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.voip-close-btn:hover {
+    color: #666;
+}
+
+/* Content */
+.voip-dialog-content {
+    padding: 16px;
+    max-height: 600px;
+    overflow-y: auto;
+    background: white;
+}
+
+/* Scrollbar */
+.voip-dialog-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.voip-dialog-content::-webkit-scrollbar-track {
+    background: #f0f0f0;
+}
+
+.voip-dialog-content::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.voip-dialog-content::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+/* Form Groups */
+.voip-form-group {
+    margin-bottom: 16px;
+}
+
+.voip-form-group label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.voip-required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.voip-help-link {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+    text-align: center;
+    background: #e0e0e0;
+    color: #666;
+    border-radius: 50%;
+    font-size: 10px;
+    text-decoration: none;
+    margin-left: 4px;
+    transition: all 0.2s;
+}
+
+.voip-help-link:hover {
+    background: #10b981;
+    color: white;
+}
+
+/* Inputs */
+.voip-form-group input[type="text"],
+.voip-form-group input[type="password"],
+.voip-form-group input[type="number"],
+.voip-form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    font-size: 13px;
+    background: white;
+    color: #333;
+    transition: border-color 0.2s;
+}
+
+.voip-form-group input:focus,
+.voip-form-group select:focus {
+    outline: none;
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.voip-form-group input:disabled,
+.voip-form-group select:disabled {
+    background: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Password Field */
+.voip-password-field {
+    position: relative;
+}
+
+.voip-toggle-password {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+}
+
+.voip-toggle-password:hover {
+    color: #666;
+}
+
+.voip-link-small {
+    font-size: 11px;
+    color: #10b981;
+    text-decoration: none;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.voip-link-small:hover {
+    text-decoration: underline;
+}
+
+/* Checkboxes */
+.voip-checkbox-group {
+    margin-bottom: 12px;
+}
+
+.voip-checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+}
+
+.voip-checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Footer */
+.voip-dialog-footer {
+    padding: 12px 16px;
+    border-top: 1px solid #d0d0d0;
+    background: #f9f9f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.voip-footer-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.voip-link-danger {
+    font-size: 12px;
+    color: #ef4444;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.voip-link-danger:hover {
+    color: #dc2626;
+    text-decoration: underline;
+}
+
+/* Buttons */
+.voip-btn-primary {
+    padding: 8px 24px;
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+    border: 1px solid #059669;
+    border-radius: 4px;
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.voip-btn-primary:hover {
+    background: linear-gradient(180deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.voip-btn-primary:active {
+    transform: translateY(0);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.voip-btn-secondary {
+    padding: 8px 24px;
+    background: linear-gradient(180deg, #ffffff 0%, #f5f5f5 100%);
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.voip-btn-secondary:hover {
+    background: linear-gradient(180deg, #f8f8f8 0%, #e8e8e8 100%);
+    border-color: #b0b0b0;
+}
+
+.voip-btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Mode */
+:root[data-theme="dark"] .voip-account-dialog {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+:root[data-theme="dark"] .voip-dialog-header {
+    background: linear-gradient(180deg, #374151 0%, #1f2937 100%);
+    border-bottom-color: #4b5563;
+}
+
+:root[data-theme="dark"] .voip-dialog-header h3 {
+    color: #f3f4f6;
+}
+
+:root[data-theme="dark"] .voip-dialog-content {
+    background: #111827;
+}
+
+:root[data-theme="dark"] .voip-form-group label {
+    color: #d1d5db;
+}
+
+:root[data-theme="dark"] .voip-form-group input,
+:root[data-theme="dark"] .voip-form-group select {
+    background: #1f2937;
+    border-color: #4b5563;
+    color: #f3f4f6;
+}
+
+:root[data-theme="dark"] .voip-form-group input:focus,
+:root[data-theme="dark"] .voip-form-group select:focus {
+    border-color: #10b981;
+}
+
+:root[data-theme="dark"] .voip-checkbox-group label {
+    color: #f3f4f6;
+}
+
+:root[data-theme="dark"] .voip-dialog-footer {
+    background: #1f2937;
+    border-top-color: #374151;
+}
+
+:root[data-theme="dark"] .voip-help-link {
+    background: #374151;
+    color: #9ca3af;
+}
+
+:root[data-theme="dark"] .voip-help-link:hover {
+    background: #10b981;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .voip-account-dialog {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 0;
+    }
+    
+    .voip-dialog-content {
+        max-height: calc(100vh - 120px);
+    }
+}
