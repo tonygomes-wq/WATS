@@ -409,43 +409,9 @@ try {
                 </form>
             </div>
             <div style="flex: 1;">
-                <h1 style="font-size: var(--text-3xl); font-weight: var(--font-bold); margin-bottom: var(--space-2);">
+                <h1 style="font-size: var(--text-3xl); font-weight: var(--font-bold);">
                     <?php echo htmlspecialchars($user['name']); ?>
                 </h1>
-                <p style="opacity: 0.9; margin-bottom: var(--space-2);">
-                    <i class="fas fa-envelope" style="margin-right: var(--space-2);"></i>
-                    <?php echo htmlspecialchars($user['email']); ?>
-                </p>
-                <?php if (!empty($user['phone'])): ?>
-                <p style="opacity: 0.9; margin-bottom: var(--space-2);">
-                    <i class="fas fa-phone" style="margin-right: var(--space-2);"></i>
-                    <?php echo htmlspecialchars($user['phone']); ?>
-                </p>
-                <?php endif; ?>
-                <?php if (!empty($user['position'])): ?>
-                <p style="opacity: 0.9;">
-                    <i class="fas fa-briefcase" style="margin-right: var(--space-2);"></i>
-                    <?php echo htmlspecialchars($user['position']); ?>
-                </p>
-                <?php endif; ?>
-            </div>
-            <div style="text-align: right;">
-                <?php if ($user['is_admin']): ?>
-                    <span class="badge badge-admin">
-                        <i class="fas fa-crown"></i>Administrador
-                    </span>
-                <?php elseif ($user['is_supervisor']): ?>
-                    <span class="badge badge-supervisor">
-                        <i class="fas fa-user-tie"></i>Supervisor
-                    </span>
-                <?php else: ?>
-                    <span class="badge badge-user">
-                        <i class="fas fa-user"></i>Usuário
-                    </span>
-                <?php endif; ?>
-                <p style="opacity: 0.9; font-size: var(--text-sm); margin-top: var(--space-2); color: white !important;">
-                    Membro desde <?php echo date('d/m/Y', strtotime($user['created_at'])); ?>
-                </p>
             </div>
         </div>
     </div>
