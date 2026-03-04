@@ -11,11 +11,15 @@ requireLogin();
 
 $userId = $_SESSION['user_id'];
 
-// Buscar configurações VoIP do usuário
-require_once __DIR__ . '/includes/voip/VoIPManager.php';
-$voipManager = new VoIPManager($pdo);
-$voipUser = $voipManager->getUserVoIPAccount($userId);
-$providerSettings = $voipManager->getProviderSettings();
+// Buscar configurações VoIP do usuário (se existir)
+$voipUser = null;
+try {
+    $stmt = $pdo->prepare("SELECT * FROM voip_users WHERE user_id = ? LIMIT 1");
+    $stmt->execute([$userId]);
+    $voipUser = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    error_log("Erro ao buscar conta VoIP: " . $e->getMessage());
+}
 ?>
 
 <link rel="stylesheet" href="/assets/css/voip-dialer.css?v=<?php echo time(); ?>">
