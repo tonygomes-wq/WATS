@@ -25,36 +25,48 @@ class VoIPChatIntegration {
             const response = await fetch('/api/voip/get_credentials.php');
             const data = await response.json();
             
-            if (data.success && data.has_account && data.provider_configured) {
+            if (data.success && data.has_account) {
                 this.hasAccount = true;
+                console.log('[VoIP Integration] Conta VoIP encontrada');
                 
-                // Criar cliente WebRTC
-                this.voipClient = new VoIPWebRTCClient();
-                
-                // Configurar callbacks
-                this.setupCallbacks();
-                
-                // Inicializar cliente
-                await this.voipClient.init();
-                
-                // Conectar ao servidor
-                await this.voipClient.connect();
-                
-                this.isInitialized = true;
-                
-                console.log('[VoIP Integration] Inicializado com sucesso');
-                
-                // Mostrar indicador de status
-                this.showStatusIndicator('online');
+                // Verificar se VoIPWebRTCClient está disponível
+                if (typeof VoIPWebRTCClient !== 'undefined') {
+                    // Criar cliente WebRTC
+                    this.voipClient = new VoIPWebRTCClient();
+                    
+                    // Configurar callbacks
+                    this.setupCallbacks();
+                    
+                    // Inicializar cliente
+                    await this.voipClient.init();
+                    
+                    // Conectar ao servidor (se provedor configurado)
+                    if (data.provider_configured) {
+                        await this.voipClient.connect();
+                        this.showStatusIndicator('online');
+                    } else {
+                        console.log('[VoIP Integration] Provedor não configurado');
+                        this.showStatusIndicator('warning');
+                    }
+                    
+                    this.isInitialized = true;
+                    console.log('[VoIP Integration] Inicializado com sucesso');
+                } else {
+                    console.warn('[VoIP Integration] VoIPWebRTCClient não disponível');
+                    this.hasAccount = true;
+                    this.isInitialized = false;
+                }
                 
             } else {
                 console.log('[VoIP Integration] Conta VoIP não configurada');
                 this.hasAccount = false;
+                this.isInitialized = false;
             }
             
         } catch (error) {
             console.error('[VoIP Integration] Erro ao inicializar:', error);
-            this.showStatusIndicator('offline');
+            this.hasAccount = false;
+            this.isInitialized = false;
         }
     }
     
@@ -100,8 +112,16 @@ class VoIPChatIntegration {
      * Iniciar chamada para um contato
      */
     async call(phoneNumber, contactName = null) {
-        if (!this.isInitialized) {
-            this.showNotification('VoIP não está inicializado', 'error');
+        // Verificar se tem conta configurada
+        if (!this.hasAccount) {
+            this.showConfigurationModal();
+            return;
+        }
+        
+        // Verificar se está inicializado
+        if (!this.isInitialized || !this.voipClient) {
+            this.showNotification('VoIP não está inicializado. Configure sua conta primeiro.', 'warning');
+            this.showConfigurationModal();
             return;
         }
         
@@ -121,6 +141,42 @@ class VoIPChatIntegration {
             this.showNotification('Erro ao iniciar chamada: ' + error.message, 'error');
             this.closeCallModal();
         }
+    }
+    
+    /**
+     * Mostrar modal de configuração
+     */
+    showConfigurationModal() {
+        const modal = document.createElement('div');
+        modal.className = 'voip-modal voip-config-modal';
+        modal.innerHTML = `
+            <div class="voip-modal-content">
+                <div class="voip-config-header">
+                    <i class="fas fa-cog" style="font-size: 48px; color: #10b981; margin-bottom: 20px;"></i>
+                    <h3>VoIP não está configurado</h3>
+                    <p>Configure sua conta VoIP para fazer e receber chamadas.</p>
+                </div>
+                
+                <div class="voip-config-actions">
+                    <button class="voip-btn voip-btn-primary" onclick="window.location.href='/voip_account_settings.php'">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Configurar Conta SIP</span>
+                    </button>
+                    
+                    <button class="voip-btn voip-btn-secondary" onclick="this.closest('.voip-modal').remove()">
+                        <i class="fas fa-times"></i>
+                        <span>Fechar</span>
+                    </button>
+                </div>
+                
+                <div class="voip-config-help">
+                    <p><small>Você precisa de credenciais de um provedor VoIP (VoIP.ms, Twilio, etc)</small></p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        setTimeout(() => modal.classList.add('show'), 10);
     }
     
     /**

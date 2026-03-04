@@ -388,3 +388,84 @@
 :root[data-theme="dark"] #voip-global-btn:hover {
     background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
 }
+
+
+/* ============================================
+   MODAL DE CONFIGURAÇÃO
+   ============================================ */
+
+.voip-config-modal .voip-modal-content {
+    max-width: 450px;
+    text-align: center;
+    padding: 40px 30px;
+}
+
+.voip-config-header h3 {
+    font-size: 24px;
+    color: #e0e0e0;
+    margin: 0 0 10px 0;
+}
+
+.voip-config-header p {
+    font-size: 16px;
+    color: #999;
+    margin: 0 0 30px 0;
+}
+
+.voip-config-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.voip-btn {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.voip-btn-primary {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.voip-btn-primary:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.voip-btn-secondary {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+    color: white;
+}
+
+.voip-btn-secondary:hover {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+}
+
+.voip-config-help {
+    padding-top: 20px;
+    border-top: 1px solid #333;
+}
+
+.voip-config-help p {
+    margin: 0;
+    color: #666;
+    font-size: 13px;
+}
+
+/* Status indicator warning */
+.voip-status-indicator.warning .voip-status-dot {
+    background: #f59e0b;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
