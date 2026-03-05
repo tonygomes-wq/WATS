@@ -33,17 +33,15 @@
 }
 
 /* Dark Mode */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --kanban-bg: #1a1d24;
-        --kanban-surface: #22252d;
-        --kanban-border: rgba(255, 255, 255, 0.1);
-        --kanban-border-subtle: rgba(255, 255, 255, 0.06);
-        --kanban-text: #e5e7eb;
-        --kanban-text-secondary: #9ca3af;
-        --kanban-text-muted: #6b7280;
-        --kanban-accent: #3b82f6;
-    }
+:root[data-theme="dark"] {
+    --kanban-bg: #1a1d24;
+    --kanban-surface: #22252d;
+    --kanban-border: rgba(255, 255, 255, 0.1);
+    --kanban-border-subtle: rgba(255, 255, 255, 0.06);
+    --kanban-text: #e5e7eb;
+    --kanban-text-secondary: #9ca3af;
+    --kanban-text-muted: #6b7280;
+    --kanban-accent: #3b82f6;
 }
 
 /* ============================================
