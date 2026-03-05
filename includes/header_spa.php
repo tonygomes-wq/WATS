@@ -2563,30 +2563,6 @@ if (file_exists($logo_full_path)) {
 
                                 <p class="text-sm font-semibold"><?php echo htmlspecialchars($user_name); ?></p>
 
-                                <p class="text-xs opacity-90"><?php 
-
-                                    if ($is_admin) {
-
-                                        echo 'Administrador';
-
-                                    } elseif ($is_supervisor) {
-
-                                        echo 'Supervisor';
-
-                                    } elseif ($is_attendant) {
-
-                                        echo 'Atendente';
-
-                                    } else {
-
-                                        echo 'Usuário';
-
-                                    }
-
-                                ?></p>
-
-                                <p class="text-xs opacity-80"><?php echo htmlspecialchars($user_email); ?></p>
-
                             </div>
 
                             <?php
