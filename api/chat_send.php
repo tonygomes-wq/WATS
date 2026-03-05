@@ -538,6 +538,7 @@ function handleSendMessage(int $userId): void
         }
     } else {
         // Para WhatsApp, salvar na tabela chat_messages (mesma tabela que o webhook usa)
+        // IMPORTANTE: Usar instanceUserId (supervisor) ao invés de userId (atendente) para respeitar foreign key
         $stmt = $pdo->prepare("
             INSERT INTO chat_messages (
                 conversation_id, user_id, message_id, from_me, message_type,
@@ -547,14 +548,14 @@ function handleSendMessage(int $userId): void
         
         $stmt->execute([
             $conversationId,
-            $userId,
+            $instanceUserId,  // Usar instanceUserId ao invés de userId
             $messageId,
             $messageText,
             $timestamp
         ]);
         
         $insertedId = $pdo->lastInsertId();
-        error_log("[CHAT_SEND] Mensagem WhatsApp salva em chat_messages (ID: {$insertedId})");
+        error_log("[CHAT_SEND] Mensagem WhatsApp salva em chat_messages (ID: {$insertedId}, user_id: {$instanceUserId})");
     }
     
     // Atualizar conversa
