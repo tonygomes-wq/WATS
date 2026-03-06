@@ -59,9 +59,6 @@ try {
             <button onclick="showTab('autoreply')" id="tab-autoreply" class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
                 <i class="fas fa-robot mr-1"></i> Auto-Resposta
             </button>
-            <button onclick="showTab('crm')" id="tab-crm" class="tab-btn px-4 py-2 font-medium text-gray-500 hover:text-gray-700">
-                <i class="fas fa-plug mr-1"></i> CRM
-            </button>
         </div>
         
         <!-- Tab: Análise Preditiva -->
@@ -238,95 +235,6 @@ try {
                     <button onclick="saveAutoReplySettings()" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
                         <i class="fas fa-save mr-1"></i> Salvar Configurações
                     </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Tab: CRM -->
-        <div id="content-crm" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
-                <h2 class="text-xl font-semibold mb-4">
-                    <i class="fas fa-plug text-indigo-500 mr-2"></i>Integração com CRM
-                </h2>
-                <p class="text-gray-600 mb-4">Conecte seu sistema de disparo com seu CRM favorito.</p>
-                
-                <!-- Status da Integração -->
-                <div id="crmStatus" class="mb-6 p-4 rounded-lg <?= $crmIntegration ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' ?>">
-                    <?php if ($crmIntegration): ?>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span class="text-green-600 font-medium">
-                                    <i class="fas fa-check-circle mr-1"></i> Conectado ao <?= ucfirst($crmIntegration['crm_type']) ?>
-                                </span>
-                                <p class="text-sm text-gray-600 mt-1">API Key: <?= substr($crmIntegration['api_key'], 0, 8) ?>********</p>
-                            </div>
-                            <button onclick="disconnectCRM()" class="text-red-500 hover:text-red-700">
-                                <i class="fas fa-unlink"></i> Desconectar
-                            </button>
-                        </div>
-                    <?php else: ?>
-                        <span class="text-gray-500">
-                            <i class="fas fa-info-circle mr-1"></i> Nenhum CRM conectado
-                        </span>
-                    <?php endif; ?>
-                </div>
-                
-                <!-- Seleção de CRM -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <button onclick="selectCRM('pipedrive')" class="crm-option border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
-                        <img src="https://www.pipedrive.com/favicon.ico" alt="Pipedrive" class="w-10 h-10 mx-auto mb-2">
-                        <span class="text-sm font-medium">Pipedrive</span>
-                    </button>
-                    <button onclick="selectCRM('hubspot')" class="crm-option border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
-                        <img src="https://www.hubspot.com/favicon.ico" alt="HubSpot" class="w-10 h-10 mx-auto mb-2">
-                        <span class="text-sm font-medium">HubSpot</span>
-                    </button>
-                    <button onclick="selectCRM('rd_station')" class="crm-option border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
-                        <img src="https://www.rdstation.com/favicon.ico" alt="RD Station" class="w-10 h-10 mx-auto mb-2">
-                        <span class="text-sm font-medium">RD Station</span>
-                    </button>
-                    <button onclick="selectCRM('custom')" class="crm-option border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
-                        <i class="fas fa-code text-3xl text-gray-400 mb-2"></i>
-                        <span class="text-sm font-medium">Webhook</span>
-                    </button>
-                </div>
-                
-                <!-- Formulário de Configuração -->
-                <div id="crmConfigForm" class="hidden border rounded-lg p-4 bg-gray-50">
-                    <h3 class="font-medium mb-4">Configurar <span id="selectedCRMName">CRM</span></h3>
-                    <input type="hidden" id="selectedCRMType">
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-                            <input type="text" id="crmApiKey" class="w-full border rounded-lg p-2" placeholder="Sua API Key">
-                        </div>
-                        
-                        <div id="webhookUrlField" class="hidden">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
-                            <input type="url" id="crmWebhookUrl" class="w-full border rounded-lg p-2" placeholder="https://seu-sistema.com/webhook">
-                        </div>
-                        
-                        <div class="flex items-center gap-4">
-                            <label class="flex items-center">
-                                <input type="checkbox" id="syncContacts" checked class="mr-2">
-                                <span class="text-sm">Sincronizar contatos</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" id="syncResponses" checked class="mr-2">
-                                <span class="text-sm">Sincronizar respostas</span>
-                            </label>
-                        </div>
-                        
-                        <div class="flex gap-2">
-                            <button onclick="testCRMConnection()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
-                                <i class="fas fa-plug mr-1"></i> Testar Conexão
-                            </button>
-                            <button onclick="saveCRMConfig()" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">
-                                <i class="fas fa-save mr-1"></i> Salvar
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

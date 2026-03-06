@@ -63,6 +63,16 @@ if ($teamsConfig && !empty($teamsConfig['teams_client_id']) && !empty($teamsConf
     }
 }
 
+// Buscar integração CRM
+$crmIntegration = null;
+try {
+    $stmt = $pdo->prepare("SELECT * FROM crm_integrations WHERE user_id = ? AND sync_enabled = TRUE LIMIT 1");
+    $stmt->execute([$user_id]);
+    $crmIntegration = $stmt->fetch(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $crmIntegration = null;
+}
+
 require_once 'includes/header_spa.php';
 ?>
 
@@ -83,7 +93,7 @@ require_once 'includes/header_spa.php';
     </div>
     
     <!-- Grid de Canais -->
-    <div class="p-6 bg-gray-50">
+    <div class="p-6 bg-gray-50" style="min-height: calc(100vh - 140px);">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             
             <!-- WhatsApp (já existe) -->
@@ -95,7 +105,7 @@ require_once 'includes/header_spa.php';
                 <p>Evolution API</p>
                 <span class="status-badge active">ATIVO</span>
                 <button onclick="window.location.href='my_instance.php'" class="btn-configure">
-                    <i class="fas fa-cog mr-2"></i>Configurar
+                    <i class="fas fa-cog"></i><span>Configurar</span>
                 </button>
             </div>
             
@@ -103,76 +113,124 @@ require_once 'includes/header_spa.php';
             <?php
             $telegramActive = isset($channelsByType['telegram']) && $channelsByType['telegram']['status'] === 'active';
             $telegramName = $channelsByType['telegram']['telegram_name'] ?? '';
+            $telegramId = $channelsByType['telegram']['id'] ?? 0;
             ?>
-            <div class="channel-card <?= $telegramActive ? 'active' : '' ?>">
+            <div class="channel-card <?php echo $telegramActive ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: #0088cc;">
                     <i class="fab fa-telegram"></i>
                 </div>
                 <h3>Telegram</h3>
-                <p><?= $telegramActive ? $telegramName : 'Bot do Telegram' ?></p>
-                <span class="status-badge <?= $telegramActive ? 'active' : 'inactive' ?>">
-                    <?= $telegramActive ? 'ATIVO' : 'INATIVO' ?>
+                <p><?php echo $telegramActive ? htmlspecialchars($telegramName) : 'Bot do Telegram'; ?></p>
+                <span class="status-badge <?php echo $telegramActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $telegramActive ? 'ATIVO' : 'INATIVO'; ?>
                 </span>
-                <button onclick="openChannelModal('telegram')" class="btn-configure">
-                    <i class="fas fa-<?= $telegramActive ? 'cog' : 'plus' ?> mr-2"></i>
-                    <?= $telegramActive ? 'Configurar' : 'Conectar' ?>
-                </button>
+                <?php if ($telegramActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="openChannelModal('telegram')" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectChannel('telegram', <?php echo $telegramId; ?>)" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="openChannelModal('telegram')" class="btn-configure">
+                        <i class="fas fa-plus"></i><span>Conectar</span>
+                    </button>
+                <?php endif; ?>
             </div>
             
             <!-- Facebook Messenger -->
             <?php
             $facebookActive = isset($channelsByType['facebook']) && $channelsByType['facebook']['status'] === 'active';
             $facebookName = $channelsByType['facebook']['facebook_name'] ?? '';
+            $facebookId = $channelsByType['facebook']['id'] ?? 0;
             ?>
-            <div class="channel-card <?= $facebookActive ? 'active' : '' ?>">
+            <div class="channel-card <?php echo $facebookActive ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: #0084ff;">
                     <i class="fab fa-facebook-messenger"></i>
                 </div>
                 <h3>Facebook Messenger</h3>
-                <p><?= $facebookActive ? $facebookName : 'Conecte sua página do Facebook' ?></p>
-                <span class="status-badge <?= $facebookActive ? 'active' : 'inactive' ?>">
-                    <?= $facebookActive ? 'ATIVO' : 'INATIVO' ?>
+                <p><?php echo $facebookActive ? htmlspecialchars($facebookName) : 'Conecte sua página do Facebook'; ?></p>
+                <span class="status-badge <?php echo $facebookActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $facebookActive ? 'ATIVO' : 'INATIVO'; ?>
                 </span>
-                <button onclick="openChannelModal('facebook')" class="btn-configure">
-                    <i class="fas fa-<?= $facebookActive ? 'cog' : 'plus' ?> mr-2"></i>
-                    <?= $facebookActive ? 'Configurar' : 'Conectar' ?>
-                </button>
+                <?php if ($facebookActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="openChannelModal('facebook')" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectChannel('facebook', <?php echo $facebookId; ?>)" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="openChannelModal('facebook')" class="btn-configure">
+                        <i class="fas fa-plus"></i><span>Conectar</span>
+                    </button>
+                <?php endif; ?>
             </div>
             
             <!-- Instagram DM -->
-            <div class="channel-card">
+            <?php
+            $instagramId = $channelsByType['instagram']['id'] ?? 0;
+            ?>
+            <div class="channel-card <?php echo $instagramActive ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: #e1306c;">
                     <i class="fab fa-instagram"></i>
                 </div>
                 <h3>Instagram DM</h3>
                 <p>Mensagens diretas do Instagram</p>
-                <span class="status-badge <?= $instagramActive ? 'active' : 'inactive' ?>">
-                    <?= $instagramActive ? 'ATIVO' : 'INATIVO' ?>
+                <span class="status-badge <?php echo $instagramActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $instagramActive ? 'ATIVO' : 'INATIVO'; ?>
                 </span>
-                <button onclick="openChannelModal('instagram')" class="btn-configure">
-                    <i class="fas fa-<?= $instagramActive ? 'cog' : 'plus' ?> mr-2"></i>
-                    <?= $instagramActive ? 'Configurar' : 'Conectar' ?>
-                </button>
+                <?php if ($instagramActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="openChannelModal('instagram')" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectChannel('instagram', <?php echo $instagramId; ?>)" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="openChannelModal('instagram')" class="btn-configure">
+                        <i class="fas fa-plus"></i><span>Conectar</span>
+                    </button>
+                <?php endif; ?>
             </div>
             
             <!-- Email -->
-            <div class="channel-card">
+            <?php
+            $emailId = $channelsByType['email']['id'] ?? 0;
+            ?>
+            <div class="channel-card <?php echo $emailActive ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: #ea4335;">
                     <i class="fas fa-envelope"></i>
                 </div>
                 <h3>Email</h3>
                 <p>Inbox de email completo</p>
-                <span class="status-badge <?= $emailActive ? 'active' : 'inactive' ?>">
-                    <?= $emailActive ? 'ATIVO' : 'INATIVO' ?>
+                <span class="status-badge <?php echo $emailActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $emailActive ? 'ATIVO' : 'INATIVO'; ?>
                 </span>
-                <button onclick="openChannelModal('email')" class="btn-configure">
-                    <i class="fas fa-<?= $emailActive ? 'cog' : 'plus' ?> mr-2"></i>
-                    <?= $emailActive ? 'Configurar' : 'Conectar' ?>
-                </button>
+                <?php if ($emailActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="openChannelModal('email')" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectChannel('email', <?php echo $emailId; ?>)" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="openChannelModal('email')" class="btn-configure">
+                        <i class="fas fa-plus"></i><span>Conectar</span>
+                    </button>
+                <?php endif; ?>
             </div>
             
             <!-- Microsoft Teams -->
-            <div class="channel-card <?= $teamsActive ? 'active' : '' ?>">
+            <div class="channel-card <?php echo $teamsActive ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: linear-gradient(135deg, #5558AF 0%, #464EB8 100%);">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2228.833 2073.333" style="width: 36px; height: 36px; fill: white;">
                         <path d="M1554.637 777.5h575.713c54.391 0 98.483 44.092 98.483 98.483v524.398c0 199.901-162.051 361.952-361.952 361.952h-1.711c-199.901.028-361.975-162-362.004-361.901V828.971c.001-28.427 23.045-51.471 51.471-51.471z"/>
@@ -198,12 +256,53 @@ require_once 'includes/header_spa.php';
                 </div>
                 <h3>Microsoft Teams</h3>
                 <p>Chat bidirecional completo</p>
-                <span class="status-badge <?= $teamsActive ? 'active' : 'inactive' ?>">
-                    <?= $teamsActive ? 'ATIVO' : 'INATIVO' ?>
+                <span class="status-badge <?php echo $teamsActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $teamsActive ? 'ATIVO' : 'INATIVO'; ?>
                 </span>
-                <button onclick="window.location.href='teams_graph_config.php'" class="btn-configure">
-                    <i class="fas fa-cog mr-2"></i>Configurar Graph API
-                </button>
+                <?php if ($teamsActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="window.location.href='teams_graph_config.php'" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectTeams()" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="window.location.href='teams_graph_config.php'" class="btn-configure">
+                        <i class="fas fa-cog"></i><span>Configurar Graph API</span>
+                    </button>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Integração com CRM -->
+            <?php
+            $crmActive = $crmIntegration !== null;
+            $crmName = $crmActive ? ucfirst($crmIntegration['crm_type']) : 'Nenhum CRM conectado';
+            ?>
+            <div class="channel-card <?php echo $crmActive ? 'active' : ''; ?>">
+                <div class="channel-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <h3>Integração CRM</h3>
+                <p><?php echo htmlspecialchars($crmName); ?></p>
+                <span class="status-badge <?php echo $crmActive ? 'active' : 'inactive'; ?>">
+                    <?php echo $crmActive ? 'CONECTADO' : 'DESCONECTADO'; ?>
+                </span>
+                <?php if ($crmActive): ?>
+                    <div class="flex gap-2">
+                        <button onclick="openChannelModal('crm')" class="btn-configure flex-1">
+                            <i class="fas fa-cog"></i><span>Configurar</span>
+                        </button>
+                        <button onclick="disconnectCRM()" class="btn-disconnect">
+                            <i class="fas fa-unlink"></i>
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <button onclick="openChannelModal('crm')" class="btn-configure">
+                        <i class="fas fa-plus"></i><span>Conectar</span>
+                    </button>
+                <?php endif; ?>
             </div>
             
             <!-- Twitter DM -->
@@ -607,7 +706,124 @@ require_once 'includes/header_spa.php';
     </div>
 </div>
 
+<!-- Modal CRM -->
+<div id="crm-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-container" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-plug mr-2"></i>Integração com CRM</h2>
+            <button onclick="closeModal('crm-modal')" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                <h4 class="font-semibold text-indigo-900 mb-2"><i class="fas fa-info-circle mr-2"></i>Conecte seu CRM</h4>
+                <p class="text-sm text-indigo-800">
+                    Sincronize automaticamente seus contatos e interações com seu CRM favorito.
+                </p>
+            </div>
+            
+            <!-- Status da Integração -->
+            <div id="crmStatus" class="mb-6 p-4 rounded-lg <?= $crmIntegration ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200' ?>">
+                <?php if ($crmIntegration): ?>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-green-600 font-medium">
+                                <i class="fas fa-check-circle mr-1"></i> Conectado ao <?= ucfirst($crmIntegration['crm_type']) ?>
+                            </span>
+                            <p class="text-sm text-gray-600 mt-1">API Key: <?= substr($crmIntegration['api_key'], 0, 8) ?>********</p>
+                        </div>
+                        <button onclick="disconnectCRM()" class="text-red-500 hover:text-red-700 text-sm font-medium">
+                            <i class="fas fa-unlink mr-1"></i> Desconectar
+                        </button>
+                    </div>
+                <?php else: ?>
+                    <span class="text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i> Nenhum CRM conectado
+                    </span>
+                <?php endif; ?>
+            </div>
+            
+            <!-- Seleção de CRM -->
+            <h4 class="font-semibold text-gray-800 mb-3">Selecione seu CRM:</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <button onclick="selectCRM('pipedrive')" class="crm-option-btn border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl font-bold text-green-600">P</span>
+                    </div>
+                    <span class="text-sm font-medium">Pipedrive</span>
+                </button>
+                <button onclick="selectCRM('hubspot')" class="crm-option-btn border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-orange-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl font-bold text-orange-600">H</span>
+                    </div>
+                    <span class="text-sm font-medium">HubSpot</span>
+                </button>
+                <button onclick="selectCRM('rd_station')" class="crm-option-btn border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span class="text-2xl font-bold text-blue-600">RD</span>
+                    </div>
+                    <span class="text-sm font-medium">RD Station</span>
+                </button>
+                <button onclick="selectCRM('custom')" class="crm-option-btn border-2 border-gray-200 rounded-lg p-4 text-center hover:border-indigo-500 transition-colors">
+                    <div class="w-12 h-12 mx-auto mb-2 bg-gray-100 rounded-full flex items-center justify-center">
+                        <i class="fas fa-code text-2xl text-gray-600"></i>
+                    </div>
+                    <span class="text-sm font-medium">Webhook</span>
+                </button>
+            </div>
+            
+            <!-- Formulário de Configuração -->
+            <div id="crmConfigForm" class="hidden border rounded-lg p-4 bg-gray-50">
+                <h4 class="font-medium mb-4">Configurar <span id="selectedCRMName">CRM</span></h4>
+                <input type="hidden" id="selectedCRMType">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                        <input type="text" id="crmApiKey" class="w-full border rounded-lg p-2" placeholder="Sua API Key">
+                    </div>
+                    
+                    <div id="webhookUrlField" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Webhook URL</label>
+                        <input type="url" id="crmWebhookUrl" class="w-full border rounded-lg p-2" placeholder="https://seu-sistema.com/webhook">
+                    </div>
+                    
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="syncContacts" checked class="mr-2">
+                            <span class="text-sm">Sincronizar contatos</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" id="syncResponses" checked class="mr-2">
+                            <span class="text-sm">Sincronizar respostas</span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button onclick="testCRMConnection()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                            <i class="fas fa-plug mr-1"></i> Testar Conexão
+                        </button>
+                        <button onclick="saveCRMConfig()" class="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600">
+                            <i class="fas fa-save mr-1"></i> Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal('crm-modal')" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
+/* Remover overflow duplicado da main-content */
+.main-content {
+    overflow-y: visible !important;
+    height: auto !important;
+}
+
 .channel-card {
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.08);
@@ -692,12 +908,25 @@ require_once 'includes/header_spa.php';
     background: #10b981;
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px !important;
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
     transition: background 0.15s;
     box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+}
+
+.btn-configure i {
+    font-size: 14px;
+}
+
+.btn-configure span {
+    line-height: 1;
 }
 
 .btn-configure:hover:not(:disabled) {
@@ -709,6 +938,42 @@ require_once 'includes/header_spa.php';
     cursor: not-allowed;
     background: #9ca3af;
     box-shadow: none;
+}
+
+.btn-disconnect {
+    padding: 10px 16px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-disconnect:hover {
+    background: #dc2626;
+}
+
+.channel-card .flex {
+    display: flex !important;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.channel-card .flex.gap-2 {
+    gap: 8px;
+}
+
+.channel-card > button,
+.channel-card > .flex {
+    margin-top: auto;
 }
 
 .modal-overlay {
@@ -1356,6 +1621,221 @@ function showNotification(message, type) {
     } else {
         alert(message);
     }
+}
+
+// ==========================================
+// Funções CRM
+// ==========================================
+function selectCRM(crmType) {
+    const crmNames = {
+        'pipedrive': 'Pipedrive',
+        'hubspot': 'HubSpot',
+        'rd_station': 'RD Station',
+        'custom': 'Webhook Personalizado'
+    };
+    
+    document.getElementById('selectedCRMType').value = crmType;
+    document.getElementById('selectedCRMName').textContent = crmNames[crmType];
+    document.getElementById('crmConfigForm').classList.remove('hidden');
+    
+    // Mostrar/ocultar campo de webhook
+    const webhookField = document.getElementById('webhookUrlField');
+    if (crmType === 'custom') {
+        webhookField.classList.remove('hidden');
+    } else {
+        webhookField.classList.add('hidden');
+    }
+}
+
+function testCRMConnection() {
+    const crmType = document.getElementById('selectedCRMType').value;
+    const apiKey = document.getElementById('crmApiKey').value.trim();
+    
+    if (!crmType) {
+        showNotification('Selecione um CRM primeiro', 'error');
+        return;
+    }
+    
+    if (!apiKey) {
+        showNotification('Informe a API Key', 'error');
+        return;
+    }
+    
+    showNotification('Testando conexão com ' + crmType + '...', 'info');
+    
+    fetch('/api/crm/test_connection.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            crm_type: crmType,
+            api_key: apiKey
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✅ Conexão testada com sucesso!', 'success');
+        } else {
+            showNotification('Erro: ' + (data.error || 'Falha na conexão'), 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Erro ao testar conexão: ' + error.message, 'error');
+    });
+}
+
+function saveCRMConfig() {
+    const crmType = document.getElementById('selectedCRMType').value;
+    const apiKey = document.getElementById('crmApiKey').value.trim();
+    const webhookUrl = document.getElementById('crmWebhookUrl').value.trim();
+    const syncContacts = document.getElementById('syncContacts').checked;
+    const syncResponses = document.getElementById('syncResponses').checked;
+    
+    if (!crmType) {
+        showNotification('Selecione um CRM primeiro', 'error');
+        return;
+    }
+    
+    if (!apiKey && crmType !== 'custom') {
+        showNotification('Informe a API Key', 'error');
+        return;
+    }
+    
+    if (crmType === 'custom' && !webhookUrl) {
+        showNotification('Informe a URL do webhook', 'error');
+        return;
+    }
+    
+    showNotification('Salvando configuração...', 'info');
+    
+    fetch('/api/crm/save_config.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            crm_type: crmType,
+            api_key: apiKey,
+            webhook_url: webhookUrl,
+            sync_contacts: syncContacts,
+            sync_responses: syncResponses
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('✅ CRM configurado com sucesso!', 'success');
+            closeModal('crm-modal');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Erro: ' + (data.error || 'Falha ao salvar'), 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Erro ao salvar: ' + error.message, 'error');
+    });
+}
+
+function disconnectCRM() {
+    if (!confirm('Deseja realmente desconectar o CRM? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    showNotification('Desconectando CRM...', 'info');
+    
+    fetch('/api/crm/disconnect.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('CRM desconectado com sucesso', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Erro ao desconectar: ' + (data.error || 'Erro desconhecido'), 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Erro: ' + error.message, 'error');
+    });
+}
+
+// ==========================================
+// Função genérica para desconectar canais
+// ==========================================
+function disconnectChannel(channelType, channelId) {
+    const channelNames = {
+        'telegram': 'Telegram',
+        'facebook': 'Facebook Messenger',
+        'instagram': 'Instagram DM',
+        'email': 'Email'
+    };
+    
+    const channelName = channelNames[channelType] || channelType;
+    
+    if (!confirm(`Deseja realmente desconectar o canal ${channelName}? Esta ação não pode ser desfeita.`)) {
+        return;
+    }
+    
+    showNotification(`Desconectando ${channelName}...`, 'info');
+    
+    fetch('/api/channels/disconnect.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            channel_id: channelId,
+            channel_type: channelType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${channelName} desconectado com sucesso!`, 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Erro ao desconectar: ' + (data.error || 'Erro desconhecido'), 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Erro: ' + error.message, 'error');
+    });
+}
+
+// ==========================================
+// Função para desconectar Microsoft Teams
+// ==========================================
+function disconnectTeams() {
+    if (!confirm('Deseja realmente desconectar o Microsoft Teams? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    
+    showNotification('Desconectando Microsoft Teams...', 'info');
+    
+    fetch('/api/teams/disconnect.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Microsoft Teams desconectado com sucesso!', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification('Erro ao desconectar: ' + (data.error || 'Erro desconhecido'), 'error');
+        }
+    })
+    .catch(error => {
+        showNotification('Erro: ' + error.message, 'error');
+    });
 }
 </script>
 
