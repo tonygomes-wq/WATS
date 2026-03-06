@@ -42,11 +42,23 @@ try {
     // Construir URL do WebSocket
     $wssUrl = '';
     if ($hasServer) {
+        // Verificar se a página atual está em HTTPS
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') 
+                   || $_SERVER['SERVER_PORT'] == 443
+                   || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        
         $transport = $account['transport'] ?? 'udp';
-        if ($transport === 'tls' || $transport === 'wss') {
+        
+        // Se o site está em HTTPS, SEMPRE usar WSS (seguro)
+        if ($isHttps) {
             $wssUrl = 'wss://' . $account['sip_server'] . ':8083';
         } else {
-            $wssUrl = 'ws://' . $account['sip_server'] . ':8081';
+            // Se HTTP, usar WS ou WSS baseado no transport
+            if ($transport === 'tls' || $transport === 'wss') {
+                $wssUrl = 'wss://' . $account['sip_server'] . ':8083';
+            } else {
+                $wssUrl = 'ws://' . $account['sip_server'] . ':8081';
+            }
         }
     }
     
