@@ -49,15 +49,20 @@ try {
         
         $transport = $account['transport'] ?? 'udp';
         
+        // Determinar qual servidor usar (proxy tem prioridade)
+        $wsServer = !empty($account['sip_proxy']) ? $account['sip_proxy'] : $account['sip_server'];
+        
         // Se o site está em HTTPS, SEMPRE usar WSS (seguro)
         if ($isHttps) {
-            $wssUrl = 'wss://' . $account['sip_server'] . ':8083';
+            // Tentar porta padrão WSS (443) primeiro
+            // Alguns provedores usam a porta HTTPS padrão para WSS
+            $wssUrl = 'wss://' . $wsServer;
         } else {
             // Se HTTP, usar WS ou WSS baseado no transport
             if ($transport === 'tls' || $transport === 'wss') {
-                $wssUrl = 'wss://' . $account['sip_server'] . ':8083';
+                $wssUrl = 'wss://' . $wsServer . ':8083';
             } else {
-                $wssUrl = 'ws://' . $account['sip_server'] . ':8081';
+                $wssUrl = 'ws://' . $wsServer . ':8081';
             }
         }
     }
