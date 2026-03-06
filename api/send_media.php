@@ -54,6 +54,27 @@ try {
     $mediaType = $_POST['media_type'] ?? $_POST['type'] ?? 'image';
     $caption = $_POST['caption'] ?? '';
     
+    // ✅ ADICIONAR NOME DO ATENDENTE NO CAPTION
+    // Buscar nome do usuário logado
+    $userName = $_SESSION['user_name'] ?? null;
+    if (empty($userName)) {
+        $stmt = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userName = $userRow['name'] ?? 'Atendente';
+        $_SESSION['user_name'] = $userName;
+    }
+    
+    // Adicionar prefixo com nome do atendente (negrito no WhatsApp)
+    if (!empty($caption)) {
+        $caption = "*{$userName}:* {$caption}";
+    } else {
+        // Se não tem caption, adicionar apenas o nome
+        $caption = "*{$userName}*";
+    }
+    
+    error_log("Caption com nome do atendente: " . $caption);
+    
     error_log("Conversation ID: $conversationId");
     error_log("Media Type: $mediaType");
     

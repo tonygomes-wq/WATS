@@ -115,6 +115,22 @@ function handleSendMessage(int $userId): void
     }
     $messageText = $msgValidation['sanitized'];
     
+    // ✅ ADICIONAR NOME DO ATENDENTE NO TEXTO DA MENSAGEM
+    // Buscar nome do usuário logado
+    $userName = $_SESSION['user_name'] ?? null;
+    if (empty($userName)) {
+        $stmt = $pdo->prepare("SELECT name FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $userRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userName = $userRow['name'] ?? 'Atendente';
+        $_SESSION['user_name'] = $userName;
+    }
+    
+    // Adicionar prefixo com nome do atendente (negrito no WhatsApp)
+    $messageText = "*{$userName}:* {$messageText}";
+    
+    error_log("[CHAT_SEND] Mensagem com nome do atendente: " . substr($messageText, 0, 100));
+    
     // Limite 2: 10 mensagens por minuto por conversa (anti-spam)
     if (!$rateLimiter->allow("conv_{$conversationId}", 'send_message', 10, 60)) {
         Logger::warning('Rate limit excedido - conversa', [

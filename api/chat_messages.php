@@ -202,10 +202,11 @@ function handleGetMessages(int $userId): void
                 FROM_UNIXTIME(m.timestamp) as created_at,
                 m.read_at,
                 m.user_id as sender_user_id,
-                NULL as sender_name,
+                u.name as sender_name,
                 'whatsapp' as channel_type,
                 m.message_id as external_id
             FROM chat_messages m
+            LEFT JOIN users u ON m.user_id = u.id
             WHERE m.conversation_id = ?
         ";
     }
