@@ -915,6 +915,10 @@ if ($isAttendant) {
                         <button onclick="openEditContactModal()" class="chat-action-btn edit" title="Editar Contato" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #60a5fa !important; font-size: 18px !important; padding: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">
                             <i class="fas fa-edit"></i>
                         </button>
+                        <!-- Botão de Configuração VoIP -->
+                        <button id="voip-settings-btn" onclick="window.openVoIPSettings()" class="chat-action-btn voip-settings" title="Configurar VoIP" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #8b5cf6 !important; font-size: 18px !important; padding: 8px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;">
+                            <i class="fas fa-cog"></i>
+                        </button>
                         <!-- Botão de Chamada VoIP -->
                         <button id="voip-call-btn" onclick="window.voipIntegration?.call(window.currentConversation?.phone, window.currentConversation?.name)" class="chat-action-btn voip-call" title="Fazer Chamada" style="background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; cursor: pointer !important; color: #10b981 !important; font-size: 18px !important; padding: 8px !important; display: none !important; align-items: center !important; justify-content: center !important;">
                             <i class="fas fa-phone"></i>
@@ -7317,8 +7321,13 @@ if ($isAttendant) {
         console.log('🎯 Inicializando Sistema VoIP...');
         
         // Verificar se as classes VoIP foram carregadas
-        if (typeof VoIPWebRTCClient === 'undefined' || typeof VoIPChatIntegration === 'undefined') {
-            console.error('❌ Classes VoIP não carregadas!');
+        if (typeof VoIPWebRTCClient === 'undefined') {
+            console.warn('⚠️ VoIPWebRTCClient não carregado');
+            return;
+        }
+        
+        if (typeof VoIPChatIntegration === 'undefined') {
+            console.warn('⚠️ VoIPChatIntegration não carregado');
             return;
         }
 
@@ -7331,6 +7340,8 @@ if ($isAttendant) {
         try {
             // Criar instância global do sistema VoIP
             window.voipIntegration = new VoIPChatIntegration();
+            
+            console.log('📞 Instância VoIP criada, iniciando conexão...');
             
             // Inicializar o sistema (conectar ao servidor, etc)
             await window.voipIntegration.init();
@@ -7365,8 +7376,29 @@ if ($isAttendant) {
             }
         } catch (error) {
             console.error('❌ Erro ao inicializar VoIP:', error);
+            console.error('Detalhes do erro:', error.message, error.stack);
         }
     });
+    
+    // Função global para abrir configurações VoIP
+    window.openVoIPSettings = function() {
+        if (window.voipIntegration) {
+            window.voipIntegration.showConfigurationModal();
+        } else {
+            console.error('VoIP não inicializado');
+            alert('Sistema VoIP não está disponível. Recarregue a página.');
+        }
+    };
+    
+    // Função global para fazer chamada
+    window.makeVoIPCall = function(phoneNumber, contactName) {
+        if (window.voipIntegration) {
+            window.voipIntegration.call(phoneNumber, contactName);
+        } else {
+            console.error('VoIP não inicializado');
+            alert('Sistema VoIP não está disponível. Recarregue a página.');
+        }
+    };
 </script>
 
 <!-- CSS INLINE PARA FORÇAR ESTILO DOS BOTÕES DE AÇÃO - RESETAR TUDO -->
@@ -7392,6 +7424,10 @@ if ($isAttendant) {
     /* Cores específicas para cada botão */
     .chat-contact-header .chat-action-buttons button.chat-action-btn.edit {
         color: #60a5fa !important;
+    }
+
+    .chat-contact-header .chat-action-buttons button.chat-action-btn.voip-settings {
+        color: #8b5cf6 !important;
     }
 
     .chat-contact-header .chat-action-buttons button.chat-action-btn.voip-call {

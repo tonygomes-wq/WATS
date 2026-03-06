@@ -39,6 +39,17 @@ try {
     // Verificar se tem servidor configurado
     $hasServer = !empty($account['sip_server']) && !empty($account['sip_domain']);
     
+    // Construir URL do WebSocket
+    $wssUrl = '';
+    if ($hasServer) {
+        $transport = $account['transport'] ?? 'udp';
+        if ($transport === 'tls' || $transport === 'wss') {
+            $wssUrl = 'wss://' . $account['sip_server'] . ':8083';
+        } else {
+            $wssUrl = 'ws://' . $account['sip_server'] . ':8081';
+        }
+    }
+    
     // Retornar dados da conta
     echo json_encode([
         'success' => true,
@@ -63,10 +74,13 @@ try {
         'credentials' => [
             'extension' => $account['extension'],
             'username' => $account['sip_username'],
+            'password' => $account['password'], // Senha necessária para autenticação
             'display_name' => $account['display_name'],
             'sip_domain' => $account['sip_domain'],
             'sip_server' => $account['sip_server'],
-            'transport' => $account['transport'] ?? 'udp'
+            'transport' => $account['transport'] ?? 'udp',
+            'wss_url' => $wssUrl,
+            'stun_server' => 'stun:stun.l.google.com:19302'
         ]
     ]);
     
