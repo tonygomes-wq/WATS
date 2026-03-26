@@ -855,27 +855,6 @@ if ($isAttendant) {
                         </div>
                     </div>
 
-                    <!-- Botão VoIP Global -->
-                    <button onclick="window.voipIntegration?.call(window.currentConversation?.phone)" id="voip-global-btn" class="chat-filter-btn" title="Fazer Chamada VoIP" style="display: inline-flex !important; background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; color: white !important;">
-                        <i class="fas fa-phone" style="color: white !important;"></i>
-                        <span style="color: white !important;">VoIP</span>
-                    </button>
-
-                    <script>
-                        // Debug: Verificar se botão VoIP foi renderizado
-                        console.log('🔍 Verificando botão VoIP...');
-                        setTimeout(() => {
-                            const btn = document.getElementById('voip-global-btn');
-                            if (btn) {
-                                console.log('✅ Botão VoIP encontrado!', btn);
-                                console.log('📊 Estilo display:', window.getComputedStyle(btn).display);
-                                console.log('📊 Estilo visibility:', window.getComputedStyle(btn).visibility);
-                                console.log('📊 Posição:', btn.getBoundingClientRect());
-                            } else {
-                                console.error('❌ Botão VoIP NÃO encontrado!');
-                            }
-                        }, 1000);
-                    </script>
 
                     <!-- Campo de Busca (Movido para cá) -->
                     <div class="chat-search-box-inline">
