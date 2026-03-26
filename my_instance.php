@@ -475,6 +475,7 @@ function loadInstanceStatus() {
 
 function updateInstanceStatus(data) {
     const statusDiv = document.getElementById('instanceStatus');
+    if (!statusDiv) return; // ✅ Proteção contra elemento null
     
     if (data.success) {
         const status = data.status;
