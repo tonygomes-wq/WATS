@@ -59,7 +59,8 @@ class MediaStorageManager {
             
             // Criar diretório se não existir
             if (!is_dir($userDir)) {
-                if (!mkdir($userDir, 0755, true)) {
+                // ✅ CORREÇÃO: Usar 0777 para garantir permissão de escrita
+                if (!mkdir($userDir, 0777, true)) {
                     return [
                         'success' => false,
                         'media_url' => null,
@@ -67,9 +68,21 @@ class MediaStorageManager {
                         'error' => 'Erro ao criar diretório de upload: ' . $userDir
                     ];
                 }
+                
+                // ✅ GARANTIR permissões após criação
+                chmod($userDir, 0777);
+                
                 error_log("  - Diretório criado: " . $userDir);
+                error_log("  - Permissões aplicadas: 0777");
             } else {
                 error_log("  - Diretório já existe: " . $userDir);
+                
+                // ✅ VERIFICAR e corrigir permissões se necessário
+                if (!is_writable($userDir)) {
+                    error_log("  - AVISO: Diretório sem permissão de escrita, corrigindo...");
+                    chmod($userDir, 0777);
+                    error_log("  - Permissões corrigidas: 0777");
+                }
             }
             
             // Gerar nome único para o arquivo
