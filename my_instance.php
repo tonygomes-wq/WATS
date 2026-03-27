@@ -1232,11 +1232,19 @@ function deleteInstance() {
 }
 
 function disconnectZAPI() {
+    console.log('disconnectZAPI chamada');
+    
     if (!confirm('Tem certeza que deseja desconectar a Z-API? Você poderá reconfigurar ou trocar de provider depois.')) {
         return;
     }
     
     const btn = document.getElementById('disconnectZAPIBtn');
+    if (!btn) {
+        console.error('Botão disconnectZAPIBtn não encontrado');
+        showMessage('error', 'Erro: Botão não encontrado');
+        return;
+    }
+    
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Desconectando...';
     btn.disabled = true;
@@ -1244,24 +1252,31 @@ function disconnectZAPI() {
     const formData = new FormData();
     formData.append('action', 'disconnect_zapi');
     
+    console.log('Enviando requisição para /api/provider_manager.php');
+    
     fetch('/api/provider_manager.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Resposta recebida:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Dados:', data);
             if (data.success) {
                 showMessage('success', 'Z-API desconectada com sucesso! Você pode configurar outro provider agora.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 2000);
             } else {
-                showMessage('error', 'Erro ao desconectar Z-API: ' + (data.message || 'Erro desconhecido'));
+                showMessage('error', 'Erro ao desconectar Z-API: ' + (data.error || data.message || 'Erro desconhecido'));
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         })
         .catch(error => {
+            console.error('Erro na requisição:', error);
             showMessage('error', 'Erro de conexão: ' + error.message);
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -1269,11 +1284,19 @@ function disconnectZAPI() {
 }
 
 function disconnectEvolutionGo() {
+    console.log('disconnectEvolutionGo chamada');
+    
     if (!confirm('Tem certeza que deseja desconectar a Evolution Go? Você poderá reconfigurar ou trocar de provider depois.')) {
         return;
     }
     
     const btn = document.getElementById('disconnectEvolutionGoBtn');
+    if (!btn) {
+        console.error('Botão disconnectEvolutionGoBtn não encontrado');
+        showMessage('error', 'Erro: Botão não encontrado');
+        return;
+    }
+    
     const originalText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Desconectando...';
     btn.disabled = true;
@@ -1281,23 +1304,36 @@ function disconnectEvolutionGo() {
     const formData = new FormData();
     formData.append('action', 'disconnect_evolution_go');
     
+    console.log('Enviando requisição para /api/provider_manager.php');
+    
     fetch('/api/provider_manager.php', {
         method: 'POST',
         body: formData
     })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Resposta recebida:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Dados:', data);
             if (data.success) {
                 showMessage('success', 'Evolution Go desconectada com sucesso! Você pode configurar outro provider agora.');
                 setTimeout(() => {
                     window.location.reload();
                 }, 2000);
             } else {
-                showMessage('error', 'Erro ao desconectar Evolution Go: ' + (data.message || 'Erro desconhecido'));
+                showMessage('error', 'Erro ao desconectar Evolution Go: ' + (data.error || data.message || 'Erro desconhecido'));
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         })
+        .catch(error => {
+            console.error('Erro na requisição:', error);
+            showMessage('error', 'Erro de conexão: ' + error.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+}
         .catch(error => {
             showMessage('error', 'Erro de conexão: ' + error.message);
             btn.innerHTML = originalText;
