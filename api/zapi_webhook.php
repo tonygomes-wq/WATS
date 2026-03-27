@@ -30,21 +30,7 @@ $logPrefix = '[ZAPI_WEBHOOK]';
 $rawPayload = file_get_contents('php://input');
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
-// Log de requisição
-if ($requestMethod === 'POST' && !empty($rawPayload)) {
-    try {
-        $payload = json_decode($rawPayload, true);
-        $eventType = $payload['event'] ?? 'unknown';
-        
-        $stmt = $pdo->prepare("
-            INSERT INTO webhook_logs (event_type, payload) 
-            VALUES (?, ?)
-        ");
-        $stmt->execute(['zapi_' . $eventType, $rawPayload]);
-    } catch (Exception $e) {
-        error_log("$logPrefix Erro ao registrar webhook: " . $e->getMessage());
-    }
-}
+error_log("$logPrefix Recebido $requestMethod - Tamanho payload: " . strlen($rawPayload));
 
 // Validação GET (verificação do webhook)
 if ($requestMethod === 'GET') {
@@ -63,21 +49,36 @@ if ($requestMethod !== 'POST') {
 // Decodificar payload
 $payload = json_decode($rawPayload, true);
 
-if (json_last_error() !== JSON_ERROR_NONE) {
-    error_log("$logPrefix Erro ao decodificar payload: " . json_last_error_msg());
+if (json_last_error() !== JSON_ERROR_NONE || empty($payload)) {
+    error_log("$logPrefix Erro ao decodificar payload: " . json_last_error_msg() . " | Raw: " . substr($rawPayload, 0, 500));
     http_response_code(200);
     echo json_encode(['success' => false, 'error' => 'Invalid payload']);
     exit;
 }
 
-// Registrar webhook no log
-$webhookLogId = logWebhookReceived($payload);
+// ==============================================================================
+// NORMALIZAR PAYLOAD: Z-API tem 2 formatos
+// Formato 1 (event-based): {"event": "message-received", "instanceId": "...", "data": {...}}
+// Formato 2 (individual webhooks): dados direto no payload, sem 'event' nem 'data'
+// ==============================================================================
+$normalized = normalizeZAPIPayload($payload);
+error_log("$logPrefix Evento normalizado: {$normalized['event']} | Instance: {$normalized['instanceId']}");
+
+// Log rápido na tabela webhook_logs (se existir)
+try {
+    $stmt = $pdo->prepare("INSERT INTO webhook_logs (event_type, payload) VALUES (?, ?)");
+    $stmt->execute(['zapi_' . $normalized['event'], $rawPayload]);
+} catch (\Throwable $e) {
+    // Tabela pode não existir, ignorar
+}
+
+// Registrar webhook no log principal
+$webhookLogId = logWebhookReceived($normalized);
 
 try {
     // Processar evento
-    $result = processWebhookEvent($payload, $webhookLogId);
+    $result = processWebhookEvent($normalized, $webhookLogId);
 
-    // Sempre retornar 200 OK
     http_response_code(200);
 
     if ($result['success']) {
@@ -85,8 +86,8 @@ try {
     } else {
         echo json_encode(['success' => false, 'error' => $result['error']]);
     }
-} catch (Exception $e) {
-    error_log("$logPrefix Exception: " . $e->getMessage());
+} catch (\Throwable $e) {
+    error_log("$logPrefix Exception: " . $e->getMessage() . " | Trace: " . $e->getTraceAsString());
     updateWebhookLog($webhookLogId, false, $e->getMessage());
     http_response_code(200);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
@@ -97,6 +98,118 @@ exit;
 // ==================================================================================
 // FUNÇÕES DE PROCESSAMENTO
 // ==================================================================================
+
+/**
+ * Normaliza payload da Z-API para formato padrão
+ * 
+ * Z-API tem 2 formatos de webhook:
+ * 1. Event-based: {"event": "message-received", "instanceId": "...", "data": {...}}
+ * 2. Individual: dados direto no payload (phone, messageId, text, etc.)
+ * 
+ * Esta função normaliza ambos para:
+ * {"event": "...", "instanceId": "...", "data": {...}}
+ */
+function normalizeZAPIPayload(array $payload): array
+{
+    // Formato 1: já tem 'event' → payload event-based
+    if (isset($payload['event'])) {
+        return $payload;
+    }
+    
+    // Formato 2: webhook individual — detectar tipo pelo conteúdo
+    $event = detectWebhookType($payload);
+    $instanceId = $payload['instanceId'] ?? '';
+    
+    // Se não tem instanceId no payload, tentar descobrir
+    if (empty($instanceId)) {
+        $instanceId = detectInstanceId($payload);
+    }
+    
+    return [
+        'event' => $event,
+        'instanceId' => $instanceId,
+        'data' => $payload,
+        '_normalized' => true,
+        '_original_format' => 'individual'
+    ];
+}
+
+/**
+ * Detecta o tipo de evento baseado no conteúdo do payload
+ */
+function detectWebhookType(array $payload): string
+{
+    // Se tem 'phone' e algum conteúdo de mensagem → mensagem recebida ou enviada
+    if (isset($payload['phone']) || isset($payload['from'])) {
+        $fromMe = $payload['fromMe'] ?? false;
+        if ($fromMe) {
+            return 'message-sent';
+        }
+        // Se tem texto, imagem, audio, etc → mensagem recebida
+        if (isset($payload['text']) || isset($payload['message']) || isset($payload['body']) ||
+            isset($payload['image']) || isset($payload['video']) || isset($payload['audio']) ||
+            isset($payload['document']) || isset($payload['sticker']) || isset($payload['location']) ||
+            isset($payload['messageId']) || isset($payload['momment'])) {
+            return 'message-received';
+        }
+    }
+    
+    // Status de mensagem (delivery receipt)
+    if (isset($payload['status']) && isset($payload['id'])) {
+        return 'message-status';
+    }
+    
+    // Presença
+    if (isset($payload['available']) || isset($payload['lastSeen'])) {
+        return 'presence';
+    }
+    
+    // Conexão/Desconexão
+    if (isset($payload['connected'])) {
+        return $payload['connected'] ? 'connected' : 'disconnected';
+    }
+    
+    error_log("[ZAPI_WEBHOOK] Tipo de evento não detectado. Keys: " . implode(', ', array_keys($payload)));
+    return 'unknown';
+}
+
+/**
+ * Tenta descobrir o instanceId quando não está no payload
+ */
+function detectInstanceId(array $payload): string
+{
+    global $pdo;
+    
+    // Tentar pelo query string
+    $instanceId = $_GET['instanceId'] ?? $_GET['instance_id'] ?? '';
+    if (!empty($instanceId)) {
+        return $instanceId;
+    }
+    
+    // Tentar pelo header
+    $headers = getallheaders();
+    foreach ($headers as $key => $value) {
+        if (strtolower($key) === 'x-instance-id') {
+            return $value;
+        }
+    }
+    
+    // Fallback: se só existe um usuário Z-API, usar esse
+    try {
+        $stmt = $pdo->prepare("SELECT zapi_instance_id FROM users WHERE whatsapp_provider = 'zapi' AND zapi_instance_id IS NOT NULL AND zapi_instance_id != ''");
+        $stmt->execute();
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        if (count($users) === 1) {
+            error_log("[ZAPI_WEBHOOK] InstanceId não encontrado no payload, usando único usuário Z-API: " . $users[0]['zapi_instance_id']);
+            return $users[0]['zapi_instance_id'];
+        }
+    } catch (\Throwable $e) {
+        error_log("[ZAPI_WEBHOOK] Erro ao buscar instanceId fallback: " . $e->getMessage());
+    }
+    
+    return '';
+}
 
 function logWebhookReceived(array $payload): int
 {
@@ -156,14 +269,21 @@ function processWebhookEvent(array $payload, int $webhookLogId): array
     switch ($event) {
         case 'message-received':
         case 'received-callback':
+        case 'message-sent':
             return handleNewMessage($payload, $userId, $webhookLogId, $userData);
         
         case 'message-status':
         case 'status-callback':
             return handleMessageStatus($payload, $userId);
         
+        case 'presence':
+        case 'connected':
+        case 'disconnected':
+            error_log("$logPrefix Evento de presença/conexão: $event (ignorado)");
+            return ['success' => true, 'message' => "Event $event acknowledged"];
+        
         default:
-            error_log("$logPrefix Evento não suportado: $event");
+            error_log("$logPrefix Evento não suportado: $event | Keys do payload: " . implode(', ', array_keys($payload)));
             return ['success' => true, 'message' => 'Event not supported (ignored)'];
     }
 }
