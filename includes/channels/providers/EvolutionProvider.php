@@ -16,8 +16,8 @@ class EvolutionProvider implements ProviderInterface {
     public function __construct($instance, $pdo) {
         $this->instance = $instance;
         $this->pdo = $pdo;
-        $this->baseUrl = rtrim($instance['api_url'] ?? $instance['evolution_api_url'], '/');
-        $this->apiKey = $instance['api_key'] ?? $instance['token'] ?? $instance['evolution_api_key'];
+        $this->baseUrl = rtrim($instance['api_url'] ?? (defined('EVOLUTION_API_URL') ? EVOLUTION_API_URL : 'http://localhost:8080'), '/');
+        $this->apiKey = $instance['api_key'] ?? $instance['token'] ?? '';
         $this->resolver = new IdentifierResolver($pdo);
     }
     

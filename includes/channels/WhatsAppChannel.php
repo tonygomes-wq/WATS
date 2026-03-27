@@ -22,8 +22,10 @@ class WhatsAppChannel {
      * @param PDO|null $pdo Conexão PDO (usa global se não fornecido)
      */
     public function __construct($userIdOrData, $pdo = null) {
-        global $pdo as $globalPdo;
-        $this->pdo = $pdo ?? $globalPdo;
+        if ($pdo === null) {
+            global $pdo;
+        }
+        $this->pdo = $pdo;
         
         // Se recebeu ID, carregar dados do usuário
         if (is_numeric($userIdOrData)) {
@@ -53,12 +55,9 @@ class WhatsAppChannel {
                 evolution_instance as instance_id,
                 evolution_token as token,
                 evolution_api_url as api_url,
-                evolution_api_key,
                 whatsapp_provider as provider,
                 zapi_instance_id,
                 zapi_token,
-                provider_config,
-                supports_lid,
                 meta_phone_number_id,
                 meta_business_account_id
             FROM users 
@@ -86,10 +85,7 @@ class WhatsAppChannel {
                 $this->instance['token'] = $this->instance['zapi_token'];
             }
             
-            // Garantir api_key para Evolution
-            if (empty($this->instance['api_key']) && !empty($this->instance['evolution_api_key'])) {
-                $this->instance['api_key'] = $this->instance['evolution_api_key'];
-            }
+            // Garantir api_key para Evolution (usa token como api_key)
             if (empty($this->instance['api_key']) && !empty($this->instance['token'])) {
                 $this->instance['api_key'] = $this->instance['token'];
             }

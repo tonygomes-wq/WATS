@@ -205,6 +205,7 @@ function handleSendMessage(int $userId): void
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
+            zapi_instance_id, zapi_token,
             meta_phone_number_id, meta_business_account_id, meta_app_id,
             meta_app_secret, meta_permanent_token, meta_api_version
         FROM users 
@@ -233,9 +234,10 @@ function handleSendMessage(int $userId): void
     $channelType = $conversation['channel_type'] ?? 'whatsapp';
     $hasEvolution = !empty($user['evolution_instance']) && !empty($user['evolution_token']);
     $hasMeta = !empty($user['meta_phone_number_id']) && !empty($user['meta_permanent_token']);
+    $hasZapi = !empty($user['zapi_instance_id']) && !empty($user['zapi_token']);
     
     // Verificar se tem alguma API configurada (apenas para WhatsApp)
-    if ($channelType !== 'teams' && !$hasEvolution && !$hasMeta) {
+    if ($channelType !== 'teams' && !$hasEvolution && !$hasMeta && !$hasZapi) {
         Logger::error('Nenhuma API configurada', [
             'user_id' => $userId,
             'instance_user_id' => $instanceUserId,
@@ -456,7 +458,21 @@ function handleSendMessage(int $userId): void
             return;
         }
         
-        if ($provider === 'meta' && $hasMeta) {
+        if ($provider === 'zapi' && $hasZapi) {
+            // Enviar via Z-API
+            error_log("[CHAT_SEND] Enviando via Z-API");
+            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token']);
+            
+            // Fallback para Evolution se Z-API falhar
+            if (!$result['success'] && $hasEvolution) {
+                error_log("[CHAT_SEND] Z-API falhou, tentando fallback para Evolution API");
+                $result = sendMessageViaEvolution(
+                    $phone, $messageText, 
+                    $user['evolution_instance'], $user['evolution_token']
+                );
+                $result['fallback'] = true;
+            }
+        } elseif ($provider === 'meta' && $hasMeta) {
             // Enviar via Meta API
             error_log("[CHAT_SEND] Enviando via Meta API");
             $result = sendMessageViaMeta($phone, $messageText, $user, $instanceUserId, $conversationId);
@@ -472,17 +488,8 @@ function handleSendMessage(int $userId): void
                 );
                 $result['fallback'] = true;
             }
-        } else {
+        } elseif ($hasEvolution) {
             // Enviar via Evolution API (padrão)
-            if (!$hasEvolution) {
-                http_response_code(400);
-                echo json_encode([
-                    'success' => false, 
-                    'error' => 'Evolution API não configurada. Configure em "Minha Instância".'
-                ]);
-                return;
-            }
-            
             error_log("[CHAT_SEND] Enviando via Evolution API");
             $result = sendMessageViaEvolution(
                 $phone, 
@@ -490,6 +497,17 @@ function handleSendMessage(int $userId): void
                 $user['evolution_instance'], 
                 $user['evolution_token']
             );
+        } elseif ($hasZapi) {
+            // Fallback Z-API
+            error_log("[CHAT_SEND] Enviando via Z-API (fallback)");
+            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token']);
+        } else {
+            http_response_code(400);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Nenhuma API de WhatsApp configurada. Configure em "Minha Instância".'
+            ]);
+            return;
         }
         
         if (!$result['success']) {
@@ -679,6 +697,54 @@ function handleSendMessage(int $userId): void
     }
     
     echo json_encode($response);
+}
+
+/**
+ * Enviar mensagem via Z-API
+ */
+function sendMessageViaZAPI(string $phone, string $message, string $instanceId, string $token): array
+{
+    $phoneFormatted = preg_replace('/[^0-9]/', '', $phone);
+    
+    $url = "https://api.z-api.io/instances/{$instanceId}/token/{$token}/send-text";
+    
+    $data = [
+        'phone' => $phoneFormatted,
+        'message' => $message
+    ];
+    
+    error_log("[CHAT_SEND_ZAPI] Enviando para: $phoneFormatted | Instance: $instanceId");
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+    
+    error_log("[CHAT_SEND_ZAPI] HTTP Code: $httpCode | Response: $response");
+    
+    if ($curlError) {
+        return ['success' => false, 'error' => 'Erro Z-API: ' . $curlError];
+    }
+    
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $responseData = json_decode($response, true);
+        return [
+            'success' => true,
+            'message_id' => $responseData['messageId'] ?? null
+        ];
+    }
+    
+    $responseData = json_decode($response, true);
+    $errorMsg = $responseData['message'] ?? $responseData['error'] ?? 'Erro desconhecido';
+    return ['success' => false, 'error' => "Erro Z-API (HTTP {$httpCode}): {$errorMsg}"];
 }
 
 /**

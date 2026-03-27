@@ -182,6 +182,7 @@ function sendWhatsAppMessage(string $phone, string $message, int $userId): array
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
+            zapi_instance_id, zapi_token,
             meta_phone_number_id, meta_permanent_token, meta_api_version
         FROM users 
         WHERE id = ?
@@ -196,6 +197,20 @@ function sendWhatsAppMessage(string $phone, string $message, int $userId): array
     $provider = $user['whatsapp_provider'] ?? 'evolution';
     $hasEvolution = !empty($user['evolution_instance']) && !empty($user['evolution_token']);
     $hasMeta = !empty($user['meta_phone_number_id']) && !empty($user['meta_permanent_token']);
+    $hasZapi = !empty($user['zapi_instance_id']) && !empty($user['zapi_token']);
+    
+    // Tentar Z-API se configurado
+    if ($provider === 'zapi' && $hasZapi) {
+        $result = sendWhatsAppViaZAPI($phone, $message, $user);
+        
+        // Fallback para Evolution se Z-API falhar
+        if (!$result['success'] && $hasEvolution) {
+            error_log("[MULTICHANNEL] Z-API falhou, usando Evolution API como fallback");
+            return sendWhatsAppViaEvolution($phone, $message, $user);
+        }
+        
+        return $result;
+    }
     
     // Tentar Meta API se configurado
     if ($provider === 'meta' && $hasMeta) {
@@ -217,16 +232,64 @@ function sendWhatsAppMessage(string $phone, string $message, int $userId): array
     }
     
     // Usar Evolution API (padrão)
-    if (!$hasEvolution) {
-        return ['success' => false, 'error' => 'Nenhuma API de WhatsApp configurada'];
+    if ($hasEvolution) {
+        return sendWhatsAppViaEvolution($phone, $message, $user);
     }
     
-    return sendWhatsAppViaEvolution($phone, $message, $user);
+    // Fallback: tentar Z-API se disponível
+    if ($hasZapi) {
+        return sendWhatsAppViaZAPI($phone, $message, $user);
+    }
+    
+    return ['success' => false, 'error' => 'Nenhuma API de WhatsApp configurada'];
 }
 
 /**
  * Enviar mensagem via Evolution API
  */
+function sendWhatsAppViaZAPI(string $phone, string $message, array $user): array
+{
+    $instanceId = $user['zapi_instance_id'];
+    $token = $user['zapi_token'];
+    $phone = preg_replace('/[^0-9]/', '', $phone);
+    
+    $url = "https://api.z-api.io/instances/{$instanceId}/token/{$token}/send-text";
+    
+    $data = [
+        'phone' => $phone,
+        'message' => $message
+    ];
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $error = curl_error($ch);
+    curl_close($ch);
+    
+    if ($error) {
+        return ['success' => false, 'error' => 'Erro Z-API: ' . $error];
+    }
+    
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $responseData = json_decode($response, true);
+        return [
+            'success' => true,
+            'message_id' => $responseData['messageId'] ?? null
+        ];
+    }
+    
+    $responseData = json_decode($response, true);
+    $errorMsg = $responseData['message'] ?? $responseData['error'] ?? 'Erro desconhecido';
+    return ['success' => false, 'error' => "Erro Z-API (HTTP {$httpCode}): {$errorMsg}"];
+}
+
 function sendWhatsAppViaEvolution(string $phone, string $message, array $user): array
 {
     $instanceName = $user['evolution_instance'];

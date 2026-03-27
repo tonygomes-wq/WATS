@@ -1,4 +1,5 @@
 <?php
+ob_start();
 $page_title = 'Configurar Minha Instância';
 require_once 'includes/header_spa.php';
 require_once 'includes/webhook_config.php';
@@ -71,20 +72,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $selected_provider = 'meta';
     } elseif ($provider === 'zapi') {
-        // Processar Z-API
-        $zapi_instance_id = sanitize($_POST['zapi_instance_id'] ?? '');
-        $zapi_token = sanitize($_POST['zapi_token'] ?? '');
+        // Processar Z-API — usar trim() para não corromper tokens com htmlspecialchars
+        $zapi_instance_id = trim($_POST['zapi_instance_id'] ?? '');
+        $zapi_token = trim($_POST['zapi_token'] ?? '');
+        
+        $user_data['zapi_instance_id'] = $zapi_instance_id;
+        $user_data['zapi_token'] = $zapi_token;
         
         if (empty($zapi_instance_id) || empty($zapi_token)) {
             setError('Por favor, preencha o Instance ID e Token da Z-API.');
         } else {
-            $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'zapi', zapi_instance_id = ?, zapi_token = ? WHERE id = ?");
-            if ($stmt->execute([$zapi_instance_id, $zapi_token, $user_id])) {
-                setSuccess('Configurações da Z-API salvas com sucesso! ✅');
-                header('Location: /my_instance.php');
-                exit;
-            } else {
-                setError('Erro ao salvar configurações da Z-API.');
+            try {
+                $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'zapi', zapi_instance_id = ?, zapi_token = ? WHERE id = ?");
+                if ($stmt->execute([$zapi_instance_id, $zapi_token, $user_id])) {
+                    setSuccess('Configurações da Z-API salvas com sucesso! ✅');
+                    header('Location: /my_instance.php');
+                    exit;
+                } else {
+                    setError('Erro ao salvar configurações da Z-API.');
+                }
+            } catch (PDOException $e) {
+                error_log("ERRO Z-API SAVE: " . $e->getMessage());
+                setError('Erro ao salvar configurações da Z-API: ' . $e->getMessage());
             }
         }
         

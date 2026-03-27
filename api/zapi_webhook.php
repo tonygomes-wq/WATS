@@ -322,7 +322,7 @@ function handleNewMessage(array $payload, int $userId, int $webhookLogId, array 
                             if ($automationResult['flows_executed'] > 0) {
                                 error_log("$logPrefix Automation flows executed: {$automationResult['flows_executed']}");
                             }
-                        } catch (Exception $automationException) {
+                        } catch (\Throwable $automationException) {
                             error_log("$logPrefix Erro ao executar automation flows: " . $automationException->getMessage());
                         }
                     }

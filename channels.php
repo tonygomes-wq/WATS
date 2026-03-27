@@ -9,6 +9,13 @@ require_once 'includes/header_spa.php';
 
 $user_id = $_SESSION['user_id'];
 
+// Buscar provider WhatsApp do usuário
+$stmtWp = $pdo->prepare("SELECT whatsapp_provider, evolution_instance, zapi_instance_id FROM users WHERE id = ?");
+$stmtWp->execute([$user_id]);
+$wpData = $stmtWp->fetch(PDO::FETCH_ASSOC);
+$whatsappProvider = $wpData['whatsapp_provider'] ?? 'evolution';
+$whatsappConfigured = ($whatsappProvider === 'zapi' && !empty($wpData['zapi_instance_id'])) || ($whatsappProvider !== 'zapi' && !empty($wpData['evolution_instance']));
+
 // Buscar canais ativos do usuário
 $stmt = $pdo->prepare("
     SELECT c.*, 
@@ -73,7 +80,6 @@ try {
     $crmIntegration = null;
 }
 
-require_once 'includes/header_spa.php';
 ?>
 
 <div class="main-content">
@@ -96,14 +102,16 @@ require_once 'includes/header_spa.php';
     <div class="p-6 bg-gray-50" style="min-height: calc(100vh - 140px);">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             
-            <!-- WhatsApp (já existe) -->
-            <div class="channel-card active">
+            <!-- WhatsApp -->
+            <div class="channel-card <?php echo $whatsappConfigured ? 'active' : ''; ?>">
                 <div class="channel-icon" style="background: #25d366;">
                     <i class="fab fa-whatsapp"></i>
                 </div>
                 <h3>WhatsApp</h3>
-                <p>Evolution API</p>
-                <span class="status-badge active">ATIVO</span>
+                <p><?php echo $whatsappProvider === 'zapi' ? 'Z-API' : ($whatsappProvider === 'meta' ? 'API Oficial (Meta)' : 'Evolution API'); ?></p>
+                <span class="status-badge <?php echo $whatsappConfigured ? 'active' : 'inactive'; ?>">
+                    <?php echo $whatsappConfigured ? 'ATIVO' : 'NÃO CONFIGURADO'; ?>
+                </span>
                 <button onclick="window.location.href='my_instance.php'" class="btn-configure">
                     <i class="fas fa-cog"></i><span>Configurar</span>
                 </button>
