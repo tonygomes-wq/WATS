@@ -6,6 +6,10 @@
  */
 
 session_start();
+
+// ✅ GARANTIR TIMEZONE CORRETO ANTES DE TUDO
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once '../config/database.php';
 require_once '../includes/functions.php';
 

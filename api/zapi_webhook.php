@@ -19,6 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || $_SERVER['REQUEST_METHOD'] === '
     exit;
 }
 
+// ✅ GARANTIR TIMEZONE CORRETO ANTES DE TUDO
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once '../config/database.php';
 require_once '../includes/bot_engine.php';
 require_once '../includes/AutomationEngine.php';

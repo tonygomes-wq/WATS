@@ -23,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || $_SERVER['REQUEST_METHOD'] === '
 // Output buffering para capturar qualquer saída indesejada (BOM, warnings, etc.)
 ob_start();
 
+// ✅ GARANTIR TIMEZONE CORRETO ANTES DE TUDO
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once '../config/database.php';
 require_once '../libs/google_ai.php';
 require_once '../includes/bot_engine.php';

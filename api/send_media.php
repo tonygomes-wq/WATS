@@ -11,6 +11,9 @@
 header('Content-Type: application/json');
 session_start();
 
+// ✅ GARANTIR TIMEZONE CORRETO ANTES DE TUDO
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/handlers/WhatsAppMediaHandler.php';
