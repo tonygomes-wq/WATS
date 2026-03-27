@@ -114,10 +114,11 @@ try {
         }
     }
     
-    // Buscar configuração do WhatsApp (Evolution ou Z-API)
+    // Buscar configuração do WhatsApp (Evolution, Evolution Go ou Z-API)
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
+            evolution_go_instance, evolution_go_token,
             zapi_instance_id, zapi_token, zapi_client_token
         FROM users 
         WHERE id = ?
@@ -132,33 +133,57 @@ try {
     // Detectar provider configurado
     $provider = $user['whatsapp_provider'] ?? 'evolution';
     $hasEvolution = !empty($user['evolution_instance']) && !empty($user['evolution_token']);
+    $hasEvolutionGo = !empty($user['evolution_go_instance']) && !empty($user['evolution_go_token']);
     $hasZapi = !empty($user['zapi_instance_id']) && !empty($user['zapi_token']);
     
     // Verificar se tem alguma API configurada
-    if (!$hasEvolution && !$hasZapi) {
+    if (!$hasEvolution && !$hasEvolutionGo && !$hasZapi) {
         throw new Exception('Instância não configurada');
     }
     
-    // Se provider é Z-API mas não tem configuração, tentar Evolution como fallback
-    if ($provider === 'zapi' && !$hasZapi && $hasEvolution) {
-        error_log("SEND_MEDIA: Provider é Z-API mas não configurado, usando Evolution como fallback");
-        $provider = 'evolution';
+    // Se provider é Z-API mas não tem configuração, tentar Evolution Go ou Evolution como fallback
+    if ($provider === 'zapi' && !$hasZapi) {
+        if ($hasEvolutionGo) {
+            error_log("SEND_MEDIA: Provider é Z-API mas não configurado, usando Evolution Go como fallback");
+            $provider = 'evolution-go';
+        } elseif ($hasEvolution) {
+            error_log("SEND_MEDIA: Provider é Z-API mas não configurado, usando Evolution como fallback");
+            $provider = 'evolution';
+        }
     }
     
-    // Se provider é Evolution mas não tem configuração, tentar Z-API como fallback
-    if ($provider === 'evolution' && !$hasEvolution && $hasZapi) {
-        error_log("SEND_MEDIA: Provider é Evolution mas não configurado, usando Z-API como fallback");
-        $provider = 'zapi';
+    // Se provider é Evolution Go mas não tem configuração, tentar Evolution ou Z-API como fallback
+    if ($provider === 'evolution-go' && !$hasEvolutionGo) {
+        if ($hasEvolution) {
+            error_log("SEND_MEDIA: Provider é Evolution Go mas não configurado, usando Evolution como fallback");
+            $provider = 'evolution';
+        } elseif ($hasZapi) {
+            error_log("SEND_MEDIA: Provider é Evolution Go mas não configurado, usando Z-API como fallback");
+            $provider = 'zapi';
+        }
+    }
+    
+    // Se provider é Evolution mas não tem configuração, tentar Evolution Go ou Z-API como fallback
+    if ($provider === 'evolution' && !$hasEvolution) {
+        if ($hasEvolutionGo) {
+            error_log("SEND_MEDIA: Provider é Evolution mas não configurado, usando Evolution Go como fallback");
+            $provider = 'evolution-go';
+        } elseif ($hasZapi) {
+            error_log("SEND_MEDIA: Provider é Evolution mas não configurado, usando Z-API como fallback");
+            $provider = 'zapi';
+        }
     }
     
     error_log("SEND_MEDIA: Provider detectado: $provider");
     
     $config = [
         'provider' => $provider,
-        'instance' => $provider === 'zapi' ? $user['zapi_instance_id'] : $user['evolution_instance'],
-        'token' => $provider === 'zapi' ? $user['zapi_token'] : ($user['evolution_token'] ?: EVOLUTION_API_KEY),
+        'instance' => $provider === 'zapi' ? $user['zapi_instance_id'] : 
+                     ($provider === 'evolution-go' ? $user['evolution_go_instance'] : $user['evolution_instance']),
+        'token' => $provider === 'zapi' ? $user['zapi_token'] : 
+                  ($provider === 'evolution-go' ? $user['evolution_go_token'] : ($user['evolution_token'] ?: EVOLUTION_API_KEY)),
         'client_token' => $user['zapi_client_token'] ?? '',
-        'url' => EVOLUTION_API_URL
+        'url' => $provider === 'evolution-go' ? EVOLUTION_GO_API_URL : EVOLUTION_API_URL
     ];
     
     // ✅ CORREÇÃO: Verificar tipo de canal antes de enviar

@@ -1,0 +1,140 @@
+═══════════════════════════════════════════════════════════════
+  EVOLUTION GO API - INSTRUÇÕES RÁPIDAS
+═══════════════════════════════════════════════════════════════
+
+✅ IMPLEMENTAÇÃO COMPLETA!
+
+A Evolution Go API foi integrada com sucesso ao sistema.
+
+═══════════════════════════════════════════════════════════════
+  PASSO 1: EXECUTAR MIGRATION DO BANCO DE DADOS
+═══════════════════════════════════════════════════════════════
+
+Execute este comando no terminal:
+
+mysql -u root -p whatsapp_sender < migrations/add_evolution_go_support.sql
+
+Isso irá:
+- Adicionar 'evolution-go' ao ENUM whatsapp_provider
+- Criar colunas evolution_go_instance e evolution_go_token
+- Criar índices para performance
+
+═══════════════════════════════════════════════════════════════
+  PASSO 2: CONFIGURAR NO SISTEMA
+═══════════════════════════════════════════════════════════════
+
+1. Acesse o sistema e faça login
+2. Vá em "Minha Instância" no menu
+3. No dropdown "Selecione o provedor de envio", escolha:
+   → "Evolution Go API (Alta Performance)"
+4. Preencha os campos:
+   - Instance ID: minha-instancia (ou qualquer nome único)
+   - API Key: a9F3kLm8Qz2XvP7rT1bYcN6dE4uHsJ5W
+5. Clique em "Salvar Configurações"
+
+═══════════════════════════════════════════════════════════════
+  PASSO 3: CONECTAR WHATSAPP
+═══════════════════════════════════════════════════════════════
+
+1. Após salvar, clique em "Gerar QR Code para Conectar"
+2. Abra o WhatsApp no seu celular
+3. Vá em Menu (⋮) > Dispositivos conectados
+4. Toque em "Conectar dispositivo"
+5. Escaneie o QR Code exibido na tela
+6. Aguarde a confirmação de conexão
+
+═══════════════════════════════════════════════════════════════
+  PASSO 4: TESTAR A INTEGRAÇÃO
+═══════════════════════════════════════════════════════════════
+
+Acesse no navegador:
+http://seu-dominio.com/test_evolution_go.php
+
+Este script irá verificar:
+✓ Configuração do sistema
+✓ Estrutura do banco de dados
+✓ Classes PHP carregadas
+✓ Conectividade com Evolution Go API
+✓ Usuários configurados
+
+═══════════════════════════════════════════════════════════════
+  INFORMAÇÕES IMPORTANTES
+═══════════════════════════════════════════════════════════════
+
+URL da Evolution Go: https://evogo.macip.com.br
+API Key Global: a9F3kLm8Qz2XvP7rT1bYcN6dE4uHsJ5W
+
+VANTAGENS DA EVOLUTION GO:
+- 3x mais rápido que Evolution API
+- 50% menos consumo de memória
+- Maior estabilidade em alta carga
+- 100% compatível com Evolution API
+
+FALLBACK AUTOMÁTICO:
+Se Evolution Go falhar, o sistema tenta automaticamente:
+1. Evolution API (se configurado)
+2. Z-API (se configurado)
+
+═══════════════════════════════════════════════════════════════
+  ARQUIVOS CRIADOS
+═══════════════════════════════════════════════════════════════
+
+✓ includes/channels/providers/EvolutionGoProvider.php
+✓ migrations/add_evolution_go_support.sql
+✓ test_evolution_go.php
+✓ EVOLUTION_GO_INTEGRATION.md (documentação completa)
+✓ RESUMO_EVOLUTION_GO.md (resumo técnico)
+✓ INSTRUCOES_RAPIDAS_EVOLUTION_GO.txt (este arquivo)
+
+═══════════════════════════════════════════════════════════════
+  ARQUIVOS MODIFICADOS
+═══════════════════════════════════════════════════════════════
+
+✓ config/database.php (constantes Evolution Go)
+✓ includes/channels/WhatsAppChannel.php (factory de providers)
+✓ api/send_media.php (suporte Evolution Go + fallback)
+✓ api/chat_send.php (função sendMessageViaEvolutionGo)
+✓ my_instance.php (UI + processamento Evolution Go)
+
+═══════════════════════════════════════════════════════════════
+  TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════
+
+ERRO: "Instância não configurada"
+→ Verifique se preencheu Instance ID e API Key
+→ Confirme que salvou as configurações
+
+ERRO: "Erro de conexão"
+→ Verifique se Evolution Go está rodando no Easypanel
+→ Teste: curl https://evogo.macip.com.br/
+
+QR CODE NÃO APARECE:
+→ Verifique logs do Evolution Go no Easypanel
+→ Tente remover e recriar a instância
+
+MENSAGENS NÃO ENVIAM:
+→ Verifique se WhatsApp está conectado (status "open")
+→ Confirme formato do número (5511999999999)
+→ Verifique logs em error_log do PHP
+
+═══════════════════════════════════════════════════════════════
+  SUPORTE
+═══════════════════════════════════════════════════════════════
+
+Documentação completa: EVOLUTION_GO_INTEGRATION.md
+Resumo técnico: RESUMO_EVOLUTION_GO.md
+Teste de integração: /test_evolution_go.php
+
+Logs do Evolution Go:
+docker logs -f evolution-go-container
+
+Logs do PHP:
+tail -f /var/log/apache2/error.log
+
+═══════════════════════════════════════════════════════════════
+
+Data: 27/03/2026
+Versão: 1.0
+Status: ✅ IMPLEMENTAÇÃO COMPLETA
+
+═══════════════════════════════════════════════════════════════

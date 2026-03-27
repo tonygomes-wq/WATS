@@ -205,6 +205,7 @@ function handleSendMessage(int $userId): void
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
+            evolution_go_instance, evolution_go_token,
             zapi_instance_id, zapi_token, zapi_client_token,
             meta_phone_number_id, meta_business_account_id, meta_app_id,
             meta_app_secret, meta_permanent_token, meta_api_version
@@ -233,12 +234,13 @@ function handleSendMessage(int $userId): void
     $provider = $user['whatsapp_provider'] ?? 'evolution';
     $channelType = $conversation['channel_type'] ?? 'whatsapp';
     $hasEvolution = !empty($user['evolution_instance']) && !empty($user['evolution_token']);
+    $hasEvolutionGo = !empty($user['evolution_go_instance']) && !empty($user['evolution_go_token']);
     $hasMeta = !empty($user['meta_phone_number_id']) && !empty($user['meta_permanent_token']);
     $hasZapi = !empty($user['zapi_instance_id']) && !empty($user['zapi_token']);
     $zapiClientToken = $user['zapi_client_token'] ?? '';
     
     // Verificar se tem alguma API configurada (apenas para WhatsApp)
-    if ($channelType !== 'teams' && !$hasEvolution && !$hasMeta && !$hasZapi) {
+    if ($channelType !== 'teams' && !$hasEvolution && !$hasEvolutionGo && !$hasMeta && !$hasZapi) {
         Logger::error('Nenhuma API configurada', [
             'user_id' => $userId,
             'instance_user_id' => $instanceUserId,
@@ -248,7 +250,7 @@ function handleSendMessage(int $userId): void
         http_response_code(400);
         echo json_encode([
             'success' => false, 
-            'error' => 'Nenhuma API configurada. Configure Evolution API ou Meta API em "Minha Instância".'
+            'error' => 'Nenhuma API configurada. Configure Evolution API, Evolution Go ou Meta API em "Minha Instância".'
         ]);
         return;
     }
@@ -464,9 +466,35 @@ function handleSendMessage(int $userId): void
             error_log("[CHAT_SEND] Enviando via Z-API");
             $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token'], $zapiClientToken);
             
-            // Fallback para Evolution se Z-API falhar
+            // Fallback para Evolution Go ou Evolution se Z-API falhar
+            if (!$result['success']) {
+                if ($hasEvolutionGo) {
+                    error_log("[CHAT_SEND] Z-API falhou, tentando fallback para Evolution Go");
+                    $result = sendMessageViaEvolutionGo(
+                        $phone, $messageText, 
+                        $user['evolution_go_instance'], $user['evolution_go_token']
+                    );
+                    $result['fallback'] = true;
+                } elseif ($hasEvolution) {
+                    error_log("[CHAT_SEND] Z-API falhou, tentando fallback para Evolution API");
+                    $result = sendMessageViaEvolution(
+                        $phone, $messageText, 
+                        $user['evolution_instance'], $user['evolution_token']
+                    );
+                    $result['fallback'] = true;
+                }
+            }
+        } elseif ($provider === 'evolution-go' && $hasEvolutionGo) {
+            // Enviar via Evolution Go
+            error_log("[CHAT_SEND] Enviando via Evolution Go");
+            $result = sendMessageViaEvolutionGo(
+                $phone, $messageText, 
+                $user['evolution_go_instance'], $user['evolution_go_token']
+            );
+            
+            // Fallback para Evolution se Evolution Go falhar
             if (!$result['success'] && $hasEvolution) {
-                error_log("[CHAT_SEND] Z-API falhou, tentando fallback para Evolution API");
+                error_log("[CHAT_SEND] Evolution Go falhou, tentando fallback para Evolution API");
                 $result = sendMessageViaEvolution(
                     $phone, $messageText, 
                     $user['evolution_instance'], $user['evolution_token']
@@ -478,17 +506,35 @@ function handleSendMessage(int $userId): void
             error_log("[CHAT_SEND] Enviando via Meta API");
             $result = sendMessageViaMeta($phone, $messageText, $user, $instanceUserId, $conversationId);
             
-            // Fallback para Evolution se Meta falhar e Evolution estiver configurado
-            if (!$result['success'] && $hasEvolution) {
-                error_log("[CHAT_SEND] Meta API falhou, tentando fallback para Evolution API");
-                $result = sendMessageViaEvolution(
-                    $phone, 
-                    $messageText, 
-                    $user['evolution_instance'], 
-                    $user['evolution_token']
-                );
-                $result['fallback'] = true;
+            // Fallback para Evolution Go ou Evolution se Meta falhar
+            if (!$result['success']) {
+                if ($hasEvolutionGo) {
+                    error_log("[CHAT_SEND] Meta API falhou, tentando fallback para Evolution Go");
+                    $result = sendMessageViaEvolutionGo(
+                        $phone, $messageText, 
+                        $user['evolution_go_instance'], $user['evolution_go_token']
+                    );
+                    $result['fallback'] = true;
+                } elseif ($hasEvolution) {
+                    error_log("[CHAT_SEND] Meta API falhou, tentando fallback para Evolution API");
+                    $result = sendMessageViaEvolution(
+                        $phone, 
+                        $messageText, 
+                        $user['evolution_instance'], 
+                        $user['evolution_token']
+                    );
+                    $result['fallback'] = true;
+                }
             }
+        } elseif ($hasEvolutionGo) {
+            // Enviar via Evolution Go (padrão se configurado)
+            error_log("[CHAT_SEND] Enviando via Evolution Go (padrão)");
+            $result = sendMessageViaEvolutionGo(
+                $phone, 
+                $messageText, 
+                $user['evolution_go_instance'], 
+                $user['evolution_go_token']
+            );
         } elseif ($hasEvolution) {
             // Enviar via Evolution API (padrão)
             error_log("[CHAT_SEND] Enviando via Evolution API");
@@ -750,6 +796,84 @@ function sendMessageViaZAPI(string $phone, string $message, string $instanceId, 
     $responseData = json_decode($response, true);
     $errorMsg = $responseData['message'] ?? $responseData['error'] ?? 'Erro desconhecido';
     return ['success' => false, 'error' => "Erro Z-API (HTTP {$httpCode}): {$errorMsg}"];
+}
+
+/**
+ * Enviar mensagem via Evolution Go API
+ */
+function sendMessageViaEvolutionGo(string $phone, string $message, string $instance, string $token): array
+{
+    // Formatar número para padrão internacional
+    $phoneFormatted = preg_replace('/[^0-9]/', '', $phone);
+    
+    // Se não começar com código do país, adicionar 55 (Brasil)
+    if (strlen($phoneFormatted) < 12) {
+        $phoneFormatted = '55' . $phoneFormatted;
+    }
+    
+    // Evolution Go usa mesma estrutura da Evolution API
+    $data = [
+        'number' => $phoneFormatted,
+        'text' => $message
+    ];
+    
+    // Log para debug
+    error_log("[CHAT_SEND_EVOGO] Enviando para: $phoneFormatted | Instância: $instance | API Key: " . substr($token, 0, 10) . "...");
+    error_log("[CHAT_SEND_EVOGO] URL: " . EVOLUTION_GO_API_URL . '/message/sendText/' . $instance);
+    error_log("[CHAT_SEND_EVOGO] Payload: " . json_encode($data));
+    
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, EVOLUTION_GO_API_URL . '/message/sendText/' . $instance);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'apikey: ' . $token
+    ]);
+    
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlError = curl_error($ch);
+    curl_close($ch);
+    
+    // Log para debug
+    error_log("[CHAT_SEND_EVOGO] HTTP Code: $httpCode | Response: $response");
+    
+    if ($httpCode >= 200 && $httpCode < 300) {
+        $responseData = json_decode($response, true);
+        
+        return [
+            'success' => true,
+            'message_id' => $responseData['key']['id'] ?? null,
+            'timestamp' => $responseData['messageTimestamp'] ?? time()
+        ];
+    }
+    
+    // Erro
+    $errorMessage = 'Erro ao enviar mensagem via Evolution Go';
+    
+    if (!empty($curlError)) {
+        $errorMessage = "Erro de conexão: $curlError";
+    } elseif (!empty($response)) {
+        $errorData = json_decode($response, true);
+        if (is_array($errorData)) {
+            $errorMessage = $errorData['message'] ?? $errorData['error'] ?? $errorData['response']['message'] ?? $errorMessage;
+        } else {
+            $errorMessage = "Erro HTTP $httpCode: $response";
+        }
+    } else {
+        $errorMessage = "Erro HTTP $httpCode sem resposta";
+    }
+    
+    error_log("[CHAT_SEND_EVOGO] ERRO: $errorMessage");
+    
+    return [
+        'success' => false,
+        'error' => $errorMessage,
+        'http_code' => $httpCode
+    ];
 }
 
 /**

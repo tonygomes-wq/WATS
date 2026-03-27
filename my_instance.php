@@ -7,7 +7,7 @@ require_once 'includes/webhook_config.php';
 $user_id = $_SESSION['user_id'];
 
 // Buscar dados atuais do usuário
-$stmt = $pdo->prepare("SELECT evolution_instance, evolution_token, whatsapp_provider, zapi_instance_id, zapi_token, zapi_client_token, meta_phone_number_id, meta_business_account_id, meta_app_id, meta_app_secret, meta_permanent_token, meta_webhook_verify_token, meta_api_version FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT evolution_instance, evolution_token, whatsapp_provider, zapi_instance_id, zapi_token, zapi_client_token, evolution_go_instance, evolution_go_token, meta_phone_number_id, meta_business_account_id, meta_app_id, meta_app_secret, meta_permanent_token, meta_webhook_verify_token, meta_api_version FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user_data = $stmt->fetch();
 $selected_provider = $user_data['whatsapp_provider'] ?? 'evolution';
@@ -100,6 +100,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $selected_provider = 'zapi';
+    } elseif ($provider === 'evolution-go') {
+        // Processar Evolution Go
+        $evolution_go_instance = trim($_POST['evolution_go_instance'] ?? '');
+        $evolution_go_token = trim($_POST['evolution_go_token'] ?? '');
+        
+        $user_data['evolution_go_instance'] = $evolution_go_instance;
+        $user_data['evolution_go_token'] = $evolution_go_token;
+        
+        if (empty($evolution_go_instance) || empty($evolution_go_token)) {
+            setError('Por favor, preencha o Instance ID e Token da Evolution Go.');
+        } else {
+            try {
+                $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'evolution-go', evolution_go_instance = ?, evolution_go_token = ? WHERE id = ?");
+                if ($stmt->execute([$evolution_go_instance, $evolution_go_token, $user_id])) {
+                    setSuccess('Configurações da Evolution Go salvas com sucesso! ✅');
+                    header('Location: /my_instance.php');
+                    exit;
+                } else {
+                    setError('Erro ao salvar configurações da Evolution Go.');
+                }
+            } catch (PDOException $e) {
+                error_log("ERRO EVOLUTION_GO SAVE: " . $e->getMessage());
+                setError('Erro ao salvar configurações da Evolution Go: ' . $e->getMessage());
+            }
+        }
+        
+        $selected_provider = 'evolution-go';
     } else {
         $evolution_instance = sanitize($_POST['evolution_instance'] ?? '');
         $evolution_token = sanitize($_POST['evolution_token'] ?? '');
@@ -157,6 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                     <option value="evolution" <?php echo $selected_provider === 'evolution' ? 'selected' : ''; ?>>Evolution API (Baileys)</option>
+                    <option value="evolution-go" <?php echo $selected_provider === 'evolution-go' ? 'selected' : ''; ?>>Evolution Go API (Alta Performance)</option>
                     <option value="zapi" <?php echo $selected_provider === 'zapi' ? 'selected' : ''; ?>>Z-API</option>
                     <option value="meta" <?php echo $selected_provider === 'meta' ? 'selected' : ''; ?>>API Oficial do WhatsApp (Meta)</option>
                 </select>
@@ -201,6 +229,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="meta_api_version" value="<?php echo htmlspecialchars($user_data['meta_api_version'] ?? 'v19.0'); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Ex: v19.0. Atualize conforme a versão da Graph API utilizada.</p>
                     </div>
+                </div>
+            </div>
+
+            <div id="evolutionGoSettings" class="<?php echo $selected_provider === 'evolution-go' ? '' : 'hidden'; ?>">
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                    <h4 class="font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                        <i class="fas fa-rocket mr-2"></i>Sobre a Evolution Go
+                    </h4>
+                    <p class="text-sm text-blue-700 dark:text-blue-400">
+                        Evolution Go é uma versão em Go da Evolution API com melhor performance e menor consumo de recursos. 
+                        Compatível com a API Evolution original, mas mais rápida e estável.
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Instance ID *</label>
+                        <input type="text" name="evolution_go_instance" value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: minha-instancia">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nome único para sua instância</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">API Key *</label>
+                        <input type="text" name="evolution_go_token" value="<?php echo htmlspecialchars($user_data['evolution_go_token'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="API Key da Evolution Go">
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chave de autenticação global</p>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4">
+                    <h4 class="font-semibold text-yellow-800 dark:text-yellow-300 mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>Configuração
+                    </h4>
+                    <ul class="text-sm text-yellow-700 dark:text-yellow-400 list-disc list-inside space-y-1">
+                        <li>Evolution Go deve estar rodando em: <?php echo EVOLUTION_GO_API_URL; ?></li>
+                        <li>Use a mesma API Key configurada no servidor (GLOBAL_API_KEY)</li>
+                        <li>Após salvar, você poderá gerar QR Code para conectar o WhatsApp</li>
+                        <li>Compatível com todas as funcionalidades da Evolution API</li>
+                    </ul>
                 </div>
             </div>
 
@@ -1165,6 +1230,7 @@ function initProviderToggle() {
     if (!select) return;
     const metaSettings = document.getElementById('metaSettings');
     const zapiSettings = document.getElementById('zapiSettings');
+    const evolutionGoSettings = document.getElementById('evolutionGoSettings');
     const evolutionSection = document.getElementById('evolutionSection');
     const metaSection = document.getElementById('metaSection');
     const zapiSection = document.getElementById('zapiSection');
@@ -1173,7 +1239,8 @@ function initProviderToggle() {
         const provider = select.value;
         if (metaSettings) metaSettings.classList.toggle('hidden', provider !== 'meta');
         if (zapiSettings) zapiSettings.classList.toggle('hidden', provider !== 'zapi');
-        if (evolutionSection) evolutionSection.classList.toggle('hidden', provider === 'meta' || provider === 'zapi');
+        if (evolutionGoSettings) evolutionGoSettings.classList.toggle('hidden', provider !== 'evolution-go');
+        if (evolutionSection) evolutionSection.classList.toggle('hidden', provider === 'meta' || provider === 'zapi' || provider === 'evolution-go');
         if (metaSection) metaSection.classList.toggle('hidden', provider !== 'meta');
         if (zapiSection) zapiSection.classList.toggle('hidden', provider !== 'zapi');
     };
@@ -1183,8 +1250,9 @@ function initProviderToggle() {
 }
 
 function ensureEvolutionProvider() {
-    if (getSelectedProvider() !== 'evolution') {
-        showMessage('info', 'Altere o provedor para "Evolution API" para usar esta funcionalidade.');
+    const provider = getSelectedProvider();
+    if (provider !== 'evolution' && provider !== 'evolution-go') {
+        showMessage('info', 'Altere o provedor para "Evolution API" ou "Evolution Go" para usar esta funcionalidade.');
         return false;
     }
     return true;

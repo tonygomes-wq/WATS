@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/ProviderInterface.php';
 require_once __DIR__ . '/providers/EvolutionProvider.php';
+require_once __DIR__ . '/providers/EvolutionGoProvider.php';
 require_once __DIR__ . '/providers/ZAPIProvider.php';
 require_once __DIR__ . '/../IdentifierResolver.php';
 
@@ -95,7 +96,7 @@ class WhatsAppChannel {
     
     /**
      * Factory para criar provider baseado na configuração
-     * Suporta: evolution, zapi, baileys
+     * Suporta: evolution, evolution-go, zapi, baileys
      */
     private function createProvider() {
         $provider = $this->instance['provider'] ?? 'evolution';
@@ -103,6 +104,10 @@ class WhatsAppChannel {
         switch ($provider) {
             case 'zapi':
                 return new ZAPIProvider($this->instance, $this->pdo);
+            
+            case 'evolution-go':
+            case 'evolutiongo':
+                return new EvolutionGoProvider($this->instance, $this->pdo);
             
             case 'evolution':
             case 'baileys':
