@@ -1334,14 +1334,6 @@ function disconnectEvolutionGo() {
             btn.disabled = false;
         });
 }
-        .catch(error => {
-            showMessage('error', 'Erro de conexão: ' + error.message);
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        });
-}
-        });
-}
 
 function testConnection() {
     if (!ensureEvolutionProvider()) {
