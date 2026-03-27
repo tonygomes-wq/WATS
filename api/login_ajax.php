@@ -27,14 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Rate limiting - CORRIGIDO: Sem parâmetros
+// Rate limiting - TEMPORARIAMENTE DESATIVADO
 $rateLimiter = new RateLimiter();
 
-// Obter IP do cliente - CORRIGIDO: Direto do $_SERVER
+// Obter IP do cliente
 $clientIP = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
-// Verificar rate limit por IP (5 tentativas a cada 15 minutos = 900 segundos)
-// CORRIGIDO: Usar método allow() ao invés de check()
+// DESATIVADO TEMPORARIAMENTE - Verificar rate limit por IP (5 tentativas a cada 15 minutos = 900 segundos)
+/*
 if (!$rateLimiter->allow($clientIP, 'login_attempt', 5, 900)) {
     http_response_code(429);
     echo json_encode([
@@ -43,6 +43,7 @@ if (!$rateLimiter->allow($clientIP, 'login_attempt', 5, 900)) {
     ]);
     exit;
 }
+*/
 
 // Obter dados JSON
 $input = json_decode(file_get_contents('php://input'), true);
@@ -60,8 +61,8 @@ try {
         $email = sanitize($input['email'] ?? '');
         $password = $input['password'] ?? '';
 
-        // Verificar rate limit por email também
-        // CORRIGIDO: Usar método allow()
+        // DESATIVADO TEMPORARIAMENTE - Verificar rate limit por email também
+        /*
         if (!empty($email)) {
             if (!$rateLimiter->allow($email, 'login_attempt', 5, 900)) {
                 http_response_code(429);
@@ -72,6 +73,7 @@ try {
                 exit;
             }
         }
+        */
 
         $result = $authService->authenticate($email, $password);
         
