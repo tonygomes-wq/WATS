@@ -20,10 +20,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || $_SERVER['REQUEST_METHOD'] === '
     exit;
 }
 
+// Output buffering para capturar qualquer saída indesejada (BOM, warnings, etc.)
+ob_start();
+
 require_once '../config/database.php';
 require_once '../libs/google_ai.php';
 require_once '../includes/bot_engine.php';
 require_once '../includes/AutomationEngine.php';
+
+// Limpar qualquer saída gerada pelos includes (BOM, whitespace, etc.)
+ob_end_clean();
 
 header('Content-Type: application/json');
 
@@ -104,11 +110,16 @@ try {
     if ($result['success']) {
         echo json_encode(['success' => true, 'message' => 'Event processed']);
     } else {
-        echo json_encode(['success' => false, 'error' => $result['error']]);
+        // IMPORTANTE: Registrar falha no log do webhook
+        $errorMsg = $result['error'] ?? 'Unknown processing error';
+        updateWebhookLog($webhookLogId, false, $errorMsg);
+        error_log("$logPrefix Processamento falhou: $errorMsg");
+        echo json_encode(['success' => false, 'error' => $errorMsg]);
     }
-} catch (Exception $e) {
-    error_log("$logPrefix Exception: " . $e->getMessage());
-    updateWebhookLog($webhookLogId, false, $e->getMessage());
+} catch (\Throwable $e) {
+    // Throwable captura Exception + Error (TypeError, fatal errors, etc.)
+    error_log("$logPrefix Throwable: " . get_class($e) . " - " . $e->getMessage() . " em " . $e->getFile() . ":" . $e->getLine());
+    updateWebhookLog($webhookLogId, false, get_class($e) . ': ' . $e->getMessage());
     // Sempre retornar 200 OK
     http_response_code(200);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
