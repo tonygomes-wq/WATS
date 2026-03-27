@@ -84,11 +84,12 @@ if ($action === 'enable') {
     $apiKey   = $_POST['apikey']   ?? $globalApiKey;
     $wUrl     = $_POST['wurl']     ?? $correctWebhookUrl;
 
+    // Evolution API: /webhook/set/ espera payload FLAT (sem wrapper "webhook")
     $payload = [
         'url'              => $wUrl,
         'enabled'          => true,
-        'webhook_by_events'=> false,
-        'webhook_base64'   => false,
+        'webhookByEvents'  => false,
+        'webhookBase64'    => false,
         'events'           => [
             'MESSAGES_UPSERT',
             'MESSAGES_UPDATE',
@@ -163,8 +164,10 @@ if ($action === 'enable') {
             'message'          => ['conversation' => '✅ Mensagem de teste simulada via script PHP - ' . date('H:i:s')],
             'messageTimestamp' => time(),
             'messageType'      => 'conversation',
+            'source'           => 'web',
         ]
     ];
+    error_log("[SIMULATE] Payload enviado para webhook: " . json_encode($payload));
 
     // Usar localhost para evitar hairpin NAT
     $localWebhook = 'http://localhost/api/chat_webhook.php';
@@ -332,6 +335,52 @@ label { display:block; color:#8b949e; font-size:11px; margin-bottom:3px; }
 <!-- ÚLTIMOS WEBHOOKS RECEBIDOS -->
 <div class="card">
     <h3>📊 Últimos Webhooks Recebidos (últimas 2h)</h3>
+    <?php
+    try {
+        $wStmt = $pdo->query("SELECT id, event_type, instance_name, phone, processed, error_message, LEFT(payload,800) as pay, created_at FROM chat_webhook_logs WHERE created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR) ORDER BY id DESC LIMIT 10");
+        $wRows = $wStmt->fetchAll(PDO::FETCH_ASSOC);
+        if (empty($wRows)) {
+            echo "<div class='a-warn'>⚠️ Nenhum webhook recebido nas últimas 2 horas</div>";
+        } else {
+            echo "<table style='width:100%;border-collapse:collapse;font-size:12px'><tr style='color:#8b949e'><th style='text-align:left;padding:5px'>ID</th><th>Evento</th><th>Instância</th><th>Phone</th><th>Processado</th><th>Erro</th><th>Hora</th></tr>";
+            foreach ($wRows as $wr) {
+                $pClass = $wr['processed'] ? 'ok' : 'err';
+                $pIcon  = $wr['processed'] ? '✅' : '❌';
+                echo "<tr>
+                    <td style='padding:5px'>{$wr['id']}</td>
+                    <td style='padding:5px'>{$wr['event_type']}</td>
+                    <td style='padding:5px'><strong>{$wr['instance_name']}</strong></td>
+                    <td style='padding:5px'>{$wr['phone']}</td>
+                    <td style='padding:5px;text-align:center'><span class='{$pClass}'>{$pIcon}</span></td>
+                    <td style='padding:5px;color:#f85149;font-size:11px'>" . htmlspecialchars($wr['error_message'] ?? '') . "</td>
+                    <td style='padding:5px;font-size:11px'>{$wr['created_at']}</td>
+                </tr>";
+                if ($wr['pay']) {
+                    $pay = json_decode($wr['pay'], true);
+                    echo "<tr><td colspan='7' style='padding:4px 8px;'><details><summary style='cursor:pointer;color:#79c0ff;font-size:11px'>Ver payload</summary><pre style='font-size:10px;margin:4px 0'>" . htmlspecialchars(json_encode($pay, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE)) . "</pre></details></td></tr>";
+                }
+            }
+            echo "</table>";
+        }
+
+        // Verificar se o problema é getUserByInstance
+        echo "<br><div style='font-size:12px;color:#8b949e;border-top:1px solid #21262d;padding-top:10px;margin-top:10px'>";
+        echo "<strong style='color:#79c0ff'>🔍 Diagnóstico: getUserByInstance</strong><br>";
+        $u = $pdo->query("SELECT id, name, evolution_instance FROM users WHERE evolution_instance IS NOT NULL AND evolution_instance != '' LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($u as $row) {
+            echo "Usuário <strong>{$row['name']}</strong> → instância: <code>{$row['evolution_instance']}</code><br>";
+        }
+        echo "</div>";
+
+    } catch (Exception $e) {
+        echo "<div class='a-err'>Erro: " . htmlspecialchars($e->getMessage()) . "</div>";
+    }
+    ?>
+</div>
+
+<p style="color:#6b7280;font-size:11px;margin-top:20px">⚠️ Remova este arquivo após usar: <code>enable_webhook.php</code></p>
+</div></body></html>
+
     <?php
     try {
         $wStmt = $pdo->query("SELECT event_type, COUNT(*) as n, SUM(processed) as proc, MAX(created_at) as last FROM chat_webhook_logs WHERE created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR) GROUP BY event_type ORDER BY last DESC");
