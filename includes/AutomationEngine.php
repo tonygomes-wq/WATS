@@ -131,6 +131,88 @@ class AutomationEngine
     }
     
     /**
+     * Verifica triggers e executa flows automaticamente
+     * @param string $phone Telefone do contato
+     * @param string $message Texto da mensagem
+     * @param int $conversationId ID da conversa
+     * @param array $context Contexto adicional
+     * @return array Resultado com flows_executed, success, errors
+     */
+    public function checkAndExecute(
+        string $phone,
+        string $message,
+        int $conversationId,
+        array $context = []
+    ): array
+    {
+        $result = [
+            'success' => true,
+            'flows_executed' => 0,
+            'errors' => []
+        ];
+
+        try {
+            // Carregar flows ativos
+            $flows = $this->loadActiveFlows();
+            if (empty($flows)) {
+                return $result;
+            }
+
+            // Verificar se há sessão ativa de bot (não executar automação se sim)
+            if ($this->hasActiveBotSession($phone)) {
+                return $result;
+            }
+
+            // Verificar se está em atendimento humano
+            if ($this->isInHumanAttendance($conversationId)) {
+                return $result;
+            }
+
+            // Preparar contexto para avaliação de triggers
+            $triggerContext = array_merge([
+                'phone' => $phone,
+                'message' => $message,
+                'conversation_id' => $conversationId,
+                'timestamp' => time(),
+            ], $context);
+
+            // Avaliar triggers usando TriggerEvaluator
+            require_once __DIR__ . '/TriggerEvaluator.php';
+            $evaluator = new \TriggerEvaluator($this->pdo);
+
+            foreach ($flows as $flow) {
+                $triggerType = $flow['trigger_type'] ?? 'manual';
+                $triggerConfig = $flow['trigger_config'] ?? [];
+
+                // Avaliar se o trigger deve ser acionado
+                if ($evaluator->evaluate($triggerType, $triggerConfig, $triggerContext)) {
+                    try {
+                        $flowResult = $this->executeFlowInternal($flow, array_merge($triggerContext, [
+                            'is_manual_execution' => false,
+                            'contact_name' => $context['user_data']['name'] ?? '',
+                        ]));
+
+                        if ($flowResult['status'] === 'success') {
+                            $result['flows_executed']++;
+                        } else {
+                            $result['errors'][] = "Flow {$flow['id']}: " . ($flowResult['error'] ?? 'Unknown error');
+                        }
+                    } catch (\Throwable $e) {
+                        $result['errors'][] = "Flow {$flow['id']}: " . $e->getMessage();
+                        error_log("AutomationEngine: Error executing flow {$flow['id']}: " . $e->getMessage());
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            $result['success'] = false;
+            $result['errors'][] = $e->getMessage();
+            error_log("AutomationEngine: Error in checkAndExecute: " . $e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
      * Executa um flow específico manualmente
      * @param int $flowId ID do flow
      * @param int $conversationId ID da conversa

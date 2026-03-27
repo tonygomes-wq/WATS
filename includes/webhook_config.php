@@ -13,19 +13,20 @@
  */
 function configureWebhookForInstance($instance, $token, $evolutionUrl) {
     try {
-        // Configuração correta do webhook
-        // /webhook/set/ espera payload FLAT (sem wrapper "webhook")
+        // POST /webhook/set/ com wrapper "webhook" (formato correto para esta Evolution API)
         $webhookConfig = [
-            'enabled' => true,
-            'url' => 'https://wats.macip.com.br/api/webhook_simple.php',
-            'webhookByEvents' => true,  // ← IMPORTANTE: eventos separados
-            'webhookBase64' => false,
-            'events' => [
-                'MESSAGES_UPSERT',      // Mensagens recebidas
-                'MESSAGES_UPDATE',      // Atualização de status
-                'SEND_MESSAGE',         // Mensagens enviadas
-                'CONNECTION_UPDATE',    // Status da conexão
-                'QRCODE_UPDATED'        // QR Code atualizado
+            'webhook' => [
+                'enabled' => true,
+                'url' => 'https://wats.macip.com.br/api/webhook_simple.php',
+                'webhookByEvents' => true,  // ← IMPORTANTE: eventos separados
+                'webhookBase64' => false,
+                'events' => [
+                    'MESSAGES_UPSERT',      // Mensagens recebidas
+                    'MESSAGES_UPDATE',      // Atualização de status
+                    'SEND_MESSAGE',         // Mensagens enviadas
+                    'CONNECTION_UPDATE',    // Status da conexão
+                    'QRCODE_UPDATED'        // QR Code atualizado
+                ]
             ]
         ];
         

@@ -420,12 +420,12 @@ function handleNewMessage(array $payload, int $userId, int $webhookLogId, array 
                             if (!$automationResult['success'] && !empty($automationResult['errors'])) {
                                 error_log("$logPrefix Automation errors: " . json_encode($automationResult['errors']));
                             }
-                        } catch (Exception $automationException) {
+                        } catch (\Throwable $automationException) {
                             error_log("$logPrefix Erro ao executar automation flows: " . $automationException->getMessage());
                         }
                     }
                 }
-            } catch (Exception $automationException) {
+            } catch (\Throwable $automationException) {
                 error_log("$logPrefix Erro automação: " . $automationException->getMessage());
             }
         }
