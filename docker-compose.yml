@@ -50,6 +50,9 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-error}
       CACHE_DRIVER: ${CACHE_DRIVER:-file}
       
+      # Timezone
+      TZ: ${TZ:-America/Sao_Paulo}
+      
       # Google AI
       GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY}
       GOOGLE_AI_MODEL: ${GOOGLE_AI_MODEL:-gemini-2.5-flash}
@@ -92,6 +95,7 @@ services:
       MYSQL_DATABASE: ${DB_NAME:-watsdb}
       MYSQL_USER: ${DB_USER:-watsuser}
       MYSQL_PASSWORD: ${DB_PASS:-watspass}
+      TZ: ${TZ:-America/Sao_Paulo}
     ports:
       - "3306:3306"
     volumes:
