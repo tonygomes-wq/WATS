@@ -5,9 +5,73 @@
  */
 require_once 'config/database.php';
 
-$evolutionUrl = EVOLUTION_API_URL;
 $globalApiKey = EVOLUTION_API_KEY;
 $correctWebhookUrl = 'https://wats.macip.com.br/api/chat_webhook.php';
+
+// ============================================================
+// DETECTAR URL CORRETA DA EVOLUTION API DINAMICAMENTE
+// Testa múltiplas possibilidades em ordem
+// ============================================================
+function detectEvolutionUrl(string $globalApiKey): array {
+    $candidates = [];
+
+    // 1. Tentar URL configurada no .env primeiro
+    if (defined('EVOLUTION_API_URL') && !empty(EVOLUTION_API_URL)) {
+        $candidates[] = EVOLUTION_API_URL;
+    }
+
+    // 2. Tentar gateway padrão Docker em portas comuns (porta 8080 = Evolution API)
+    $gatewayIps = [];
+
+    // Tentar ler a rota padrão via /proc/net/route (Linux)
+    if (file_exists('/proc/net/route')) {
+        $routes = file('/proc/net/route');
+        foreach ($routes as $line) {
+            $fields = preg_split('/\s+/', trim($line));
+            if (isset($fields[1]) && $fields[1] === '00000000' && isset($fields[2])) {
+                // Gateway em hex little-endian
+                $hex = $fields[2];
+                if ($hex !== '00000000') {
+                    $ip = implode('.', array_reverse(array_map('hexdec', str_split($hex, 2))));
+                    $gatewayIps[] = $ip;
+                }
+            }
+        }
+    }
+
+    // IPs comuns de gateway Docker
+    $gatewayIps = array_unique(array_merge($gatewayIps, ['172.18.0.1','172.17.0.1','172.19.0.1','172.20.0.1','172.21.0.1','10.0.0.1']));
+
+    foreach ($gatewayIps as $ip) {
+        $candidates[] = "http://{$ip}:8080";
+    }
+    // URL externa como último recurso
+    $candidates[] = 'https://evolution.macip.com.br';
+
+    foreach ($candidates as $url) {
+        $ch = curl_init(rtrim($url, '/') . '/instance/fetchInstances');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 5,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'apikey: ' . $globalApiKey],
+        ]);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if (!$err && $code === 200) {
+            return ['url' => $url, 'tested' => $candidates];
+        }
+    }
+
+    return ['url' => EVOLUTION_API_URL, 'tested' => $candidates, 'failed' => true];
+}
+
+$detected    = detectEvolutionUrl($globalApiKey);
+$evolutionUrl = $detected['url'];
 
 $action  = $_POST['action'] ?? '';
 $result  = null;
@@ -64,19 +128,21 @@ if ($action === 'enable') {
     ];
 
 } elseif ($action === 'test_wh') {
-    // Testa se o endpoint do webhook está respondendo (chamada server-side)
-    $ch = curl_init($correctWebhookUrl);
+    // Testa via localhost (evita hairpin NAT — o PHP chama a si mesmo)
+    $localUrl = 'http://localhost/api/chat_webhook.php';
+    $ch = curl_init($localUrl);
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 10,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_HTTPHEADER     => ['Host: wats.macip.com.br'],
     ]);
     $resp = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $err  = curl_error($ch);
     curl_close($ch);
-    $result = ['type'=>'test_wh','code'=>$code,'error'=>$err,'body'=>$resp,'success'=>!$err && $code>0];
+    $result = ['type'=>'test_wh','code'=>$code,'error'=>$err,'body'=>$resp,'url_tested'=>$localUrl,'success'=>!$err && $code>0];
 
 } elseif ($action === 'simulate') {
     // Simula uma mensagem de recebimento diretamente no webhook
@@ -100,7 +166,9 @@ if ($action === 'enable') {
         ]
     ];
 
-    $ch = curl_init($correctWebhookUrl);
+    // Usar localhost para evitar hairpin NAT
+    $localWebhook = 'http://localhost/api/chat_webhook.php';
+    $ch = curl_init($localWebhook);
     curl_setopt_array($ch, [
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => json_encode($payload),
@@ -108,13 +176,13 @@ if ($action === 'enable') {
         CURLOPT_TIMEOUT        => 15,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Host: wats.macip.com.br'],
     ]);
     $resp = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $err  = curl_error($ch);
     curl_close($ch);
-    $result = ['type'=>'simulate','code'=>$code,'error'=>$err,'body'=>json_decode($resp,true)??$resp,'success'=>!$err&&$code===200,'phone'=>$phone,'instance'=>$instance];
+    $result = ['type'=>'simulate','code'=>$code,'error'=>$err,'body'=>json_decode($resp,true)??$resp,'success'=>!$err&&$code===200,'phone'=>$phone,'instance'=>$instance,'local_url'=>$localWebhook];
 }
 
 // ============================================================
@@ -151,10 +219,15 @@ label { display:block; color:#8b949e; font-size:11px; margin-bottom:3px; }
 </head>
 <body><div class="c">
 <h1>🔗 Habilitar Webhook da Evolution API</h1>
-<p style="color:#8b949e;font-size:13px">
-    URL do Evolution API (interna): <code><?= htmlspecialchars($evolutionUrl) ?></code><br>
-    URL do Webhook (WATS): <code><?= htmlspecialchars($correctWebhookUrl) ?></code>
-</p>
+<div style="background:#161b22;border:1px solid #21262d;border-radius:6px;padding:12px;margin-bottom:10px;font-size:13px">
+    <?php if (!empty($detected['failed'])): ?>
+        <span style="color:#f85149">❌ Não foi possível conectar à Evolution API em nenhuma URL testada!</span>
+    <?php else: ?>
+        <span style="color:#3fb950">✅ Evolution API encontrada em:</span> <code><?= htmlspecialchars($evolutionUrl) ?></code>
+    <?php endif; ?>
+    <br>URLs testadas: <code><?= htmlspecialchars(implode(', ', $detected['tested'] ?? [])) ?></code>
+    <br>Webhook WATS: <code><?= htmlspecialchars($correctWebhookUrl) ?></code> (simulação via localhost)
+</div>
 
 <?php if ($result): ?>
 <div class="card">
