@@ -84,8 +84,8 @@ if ($action === 'enable') {
     $apiKey   = $_POST['apikey']   ?? $globalApiKey;
     $wUrl     = $_POST['wurl']     ?? $correctWebhookUrl;
 
-    // Evolution API: /webhook/set/ espera payload FLAT (sem wrapper "webhook")
-    $payload = [
+    // Payload flat (sem wrapper)
+    $payloadFlat = [
         'url'              => $wUrl,
         'enabled'          => true,
         'webhookByEvents'  => false,
@@ -100,32 +100,72 @@ if ($action === 'enable') {
         ]
     ];
 
-    $ch = curl_init($evolutionUrl . '/webhook/set/' . $instance);
-    curl_setopt_array($ch, [
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => json_encode($payload),
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 15,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_HTTPHEADER     => [
-            'Content-Type: application/json',
-            'apikey: ' . $apiKey
-        ],
-    ]);
-    $resp = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $err  = curl_error($ch);
-    curl_close($ch);
+    // Payload com wrapper "webhook"
+    $payloadWrapped = ['webhook' => $payloadFlat];
+
+    // Tentar múltiplas abordagens em ordem
+    $attempts = [
+        ['method' => 'PUT',  'url' => $evolutionUrl . '/webhook/set/' . $instance, 'payload' => $payloadFlat,    'desc' => 'PUT /webhook/set/ (flat)'],
+        ['method' => 'POST', 'url' => $evolutionUrl . '/webhook/set/' . $instance, 'payload' => $payloadFlat,    'desc' => 'POST /webhook/set/ (flat)'],
+        ['method' => 'PUT',  'url' => $evolutionUrl . '/webhook/set/' . $instance, 'payload' => $payloadWrapped, 'desc' => 'PUT /webhook/set/ (wrapper)'],
+        ['method' => 'POST', 'url' => $evolutionUrl . '/webhook/set/' . $instance, 'payload' => $payloadWrapped, 'desc' => 'POST /webhook/set/ (wrapper)'],
+    ];
+
+    $allAttempts = [];
+    $finalResult = null;
+
+    foreach ($attempts as $attempt) {
+        $ch = curl_init($attempt['url']);
+        $opts = [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'apikey: ' . $apiKey
+            ],
+            CURLOPT_POSTFIELDS     => json_encode($attempt['payload']),
+        ];
+        if ($attempt['method'] === 'PUT') {
+            $opts[CURLOPT_CUSTOMREQUEST] = 'PUT';
+        } else {
+            $opts[CURLOPT_POST] = true;
+        }
+        curl_setopt_array($ch, $opts);
+        $resp = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        $ok = !$err && $code >= 200 && $code < 300;
+        $allAttempts[] = [
+            'desc'    => $attempt['desc'],
+            'code'    => $code,
+            'error'   => $err,
+            'body'    => json_decode($resp, true) ?? $resp,
+            'success' => $ok,
+        ];
+
+        if ($ok) {
+            $finalResult = end($allAttempts);
+            break;
+        }
+    }
+
+    if (!$finalResult) {
+        $finalResult = end($allAttempts); // último tentativa como resultado
+    }
 
     $result = [
         'type'     => 'enable',
-        'code'     => $code,
-        'error'    => $err,
-        'body'     => json_decode($resp, true) ?? $resp,
+        'code'     => $finalResult['code'],
+        'error'    => $finalResult['error'],
+        'body'     => $finalResult['body'],
         'instance' => $instance,
         'wurl'     => $wUrl,
-        'success'  => !$err && $code >= 200 && $code < 300,
+        'success'  => $finalResult['success'],
+        'attempts' => $allAttempts,
     ];
 
 } elseif ($action === 'test_wh') {
@@ -263,6 +303,23 @@ label { display:block; color:#8b949e; font-size:11px; margin-bottom:3px; }
     <details style="margin-top:10px"><summary style="cursor:pointer;color:#58a6ff;font-size:12px">Ver resposta completa da API</summary>
         <pre><?= htmlspecialchars(json_encode($result['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) ?></pre>
     </details>
+
+    <?php if (!empty($result['attempts'])): ?>
+    <details style="margin-top:10px" open><summary style="cursor:pointer;color:#d29922;font-size:12px;font-weight:bold">🔍 Debug: Todas as tentativas realizadas (<?= count($result['attempts']) ?>)</summary>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:8px">
+            <tr style="color:#8b949e"><th style="text-align:left;padding:5px">#</th><th style="text-align:left;padding:5px">Método/Endpoint</th><th style="text-align:center;padding:5px">HTTP</th><th style="text-align:center;padding:5px">Status</th><th style="text-align:left;padding:5px">Resposta</th></tr>
+            <?php foreach ($result['attempts'] as $i => $att): ?>
+            <tr style="border-top:1px solid #21262d">
+                <td style="padding:5px"><?= $i+1 ?></td>
+                <td style="padding:5px"><code><?= htmlspecialchars($att['desc']) ?></code></td>
+                <td style="padding:5px;text-align:center"><?= $att['code'] ?></td>
+                <td style="padding:5px;text-align:center"><?= $att['success'] ? '<span class="ok">✅</span>' : '<span class="err">❌</span>' ?></td>
+                <td style="padding:5px;font-size:11px"><?= htmlspecialchars(is_array($att['body']) ? json_encode($att['body'], JSON_UNESCAPED_UNICODE) : ($att['error'] ?: $att['body'])) ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </table>
+    </details>
+    <?php endif; ?>
 </div>
 <?php endif; ?>
 
