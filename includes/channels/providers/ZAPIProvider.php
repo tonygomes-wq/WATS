@@ -9,6 +9,7 @@ require_once __DIR__ . '/../../IdentifierResolver.php';
 class ZAPIProvider implements ProviderInterface {
     private $instance;
     private $baseUrl;
+    private $clientToken;
     private $resolver;
     private $pdo;
     
@@ -19,6 +20,7 @@ class ZAPIProvider implements ProviderInterface {
         // Z-API usa instance_id e token na URL
         $instanceId = $instance['instance_id'] ?? $instance['name'];
         $token = $instance['token'] ?? $instance['api_key'];
+        $this->clientToken = $instance['zapi_client_token'] ?? $instance['client_token'] ?? '';
         
         $this->baseUrl = "https://api.z-api.io/instances/{$instanceId}/token/{$token}";
         $this->resolver = new IdentifierResolver($pdo);
@@ -181,9 +183,12 @@ class ZAPIProvider implements ProviderInterface {
         }
         
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
-        ]);
+        
+        $headers = ['Content-Type: application/json'];
+        if (!empty($this->clientToken)) {
+            $headers[] = 'Client-Token: ' . $this->clientToken;
+        }
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         

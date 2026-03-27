@@ -7,7 +7,7 @@ require_once 'includes/webhook_config.php';
 $user_id = $_SESSION['user_id'];
 
 // Buscar dados atuais do usuário
-$stmt = $pdo->prepare("SELECT evolution_instance, evolution_token, whatsapp_provider, zapi_instance_id, zapi_token, meta_phone_number_id, meta_business_account_id, meta_app_id, meta_app_secret, meta_permanent_token, meta_webhook_verify_token, meta_api_version FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT evolution_instance, evolution_token, whatsapp_provider, zapi_instance_id, zapi_token, zapi_client_token, meta_phone_number_id, meta_business_account_id, meta_app_id, meta_app_secret, meta_permanent_token, meta_webhook_verify_token, meta_api_version FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user_data = $stmt->fetch();
 $selected_provider = $user_data['whatsapp_provider'] ?? 'evolution';
@@ -75,16 +75,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Processar Z-API — usar trim() para não corromper tokens com htmlspecialchars
         $zapi_instance_id = trim($_POST['zapi_instance_id'] ?? '');
         $zapi_token = trim($_POST['zapi_token'] ?? '');
+        $zapi_client_token = trim($_POST['zapi_client_token'] ?? '');
         
         $user_data['zapi_instance_id'] = $zapi_instance_id;
         $user_data['zapi_token'] = $zapi_token;
+        $user_data['zapi_client_token'] = $zapi_client_token;
         
         if (empty($zapi_instance_id) || empty($zapi_token)) {
             setError('Por favor, preencha o Instance ID e Token da Z-API.');
         } else {
             try {
-                $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'zapi', zapi_instance_id = ?, zapi_token = ? WHERE id = ?");
-                if ($stmt->execute([$zapi_instance_id, $zapi_token, $user_id])) {
+                $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'zapi', zapi_instance_id = ?, zapi_token = ?, zapi_client_token = ? WHERE id = ?");
+                if ($stmt->execute([$zapi_instance_id, $zapi_token, $zapi_client_token, $user_id])) {
                     setSuccess('Configurações da Z-API salvas com sucesso! ✅');
                     header('Location: /my_instance.php');
                     exit;
@@ -224,6 +226,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="text" name="zapi_token" value="<?php echo htmlspecialchars($user_data['zapi_token'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Token da Z-API">
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Token de autenticação da sua instância</p>
                     </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Client-Token (Segurança)</label>
+                    <input type="text" name="zapi_client_token" value="<?php echo htmlspecialchars($user_data['zapi_client_token'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Token de segurança do painel Z-API">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Disponível em: Painel Z-API → Sua instância → Segurança → Token de segurança. Obrigatório para envio de mensagens.</p>
                 </div>
                 
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4">

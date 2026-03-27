@@ -14,7 +14,7 @@ $results = [];
 $allGood = true;
 
 // 1. Verificar colunas na tabela users
-$requiredColumns = ['whatsapp_provider', 'zapi_instance_id', 'zapi_token'];
+$requiredColumns = ['whatsapp_provider', 'zapi_instance_id', 'zapi_token', 'zapi_client_token'];
 $missingColumns = [];
 
 foreach ($requiredColumns as $col) {
@@ -31,7 +31,7 @@ foreach ($requiredColumns as $col) {
 
 // 2. Verificar dados do usuário atual
 try {
-    $stmt = $pdo->prepare("SELECT whatsapp_provider, zapi_instance_id, zapi_token, evolution_instance, evolution_token FROM users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT whatsapp_provider, zapi_instance_id, zapi_token, zapi_client_token, evolution_instance, evolution_token FROM users WHERE id = ?");
     $stmt->execute([$user_id]);
     $userData = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -50,6 +50,11 @@ try {
             'check' => 'Z-API Token',
             'status' => !empty($userData['zapi_token']) ? 'ok' : 'warning',
             'detail' => !empty($userData['zapi_token']) ? '****' . substr($userData['zapi_token'], -6) : '(vazio)'
+        ];
+        $results[] = [
+            'check' => 'Z-API Client-Token',
+            'status' => !empty($userData['zapi_client_token']) ? 'ok' : 'warning',
+            'detail' => !empty($userData['zapi_client_token']) ? '****' . substr($userData['zapi_client_token'], -6) : '(vazio — obrigatório para envio!)'
         ];
         $results[] = [
             'check' => 'Evolution Instance',

@@ -182,7 +182,7 @@ function sendWhatsAppMessage(string $phone, string $message, int $userId): array
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
-            zapi_instance_id, zapi_token,
+            zapi_instance_id, zapi_token, zapi_client_token,
             meta_phone_number_id, meta_permanent_token, meta_api_version
         FROM users 
         WHERE id = ?
@@ -251,6 +251,7 @@ function sendWhatsAppViaZAPI(string $phone, string $message, array $user): array
 {
     $instanceId = $user['zapi_instance_id'];
     $token = $user['zapi_token'];
+    $clientToken = $user['zapi_client_token'] ?? '';
     $phone = preg_replace('/[^0-9]/', '', $phone);
     
     $url = "https://api.z-api.io/instances/{$instanceId}/token/{$token}/send-text";
@@ -260,10 +261,15 @@ function sendWhatsAppViaZAPI(string $phone, string $message, array $user): array
         'message' => $message
     ];
     
+    $headers = ['Content-Type: application/json'];
+    if (!empty($clientToken)) {
+        $headers[] = 'Client-Token: ' . $clientToken;
+    }
+    
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);

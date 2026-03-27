@@ -58,6 +58,7 @@ class WhatsAppChannel {
                 whatsapp_provider as provider,
                 zapi_instance_id,
                 zapi_token,
+                zapi_client_token,
                 meta_phone_number_id,
                 meta_business_account_id
             FROM users 

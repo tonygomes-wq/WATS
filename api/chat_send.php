@@ -205,7 +205,7 @@ function handleSendMessage(int $userId): void
     $stmt = $pdo->prepare("
         SELECT 
             evolution_instance, evolution_token, whatsapp_provider,
-            zapi_instance_id, zapi_token,
+            zapi_instance_id, zapi_token, zapi_client_token,
             meta_phone_number_id, meta_business_account_id, meta_app_id,
             meta_app_secret, meta_permanent_token, meta_api_version
         FROM users 
@@ -235,6 +235,7 @@ function handleSendMessage(int $userId): void
     $hasEvolution = !empty($user['evolution_instance']) && !empty($user['evolution_token']);
     $hasMeta = !empty($user['meta_phone_number_id']) && !empty($user['meta_permanent_token']);
     $hasZapi = !empty($user['zapi_instance_id']) && !empty($user['zapi_token']);
+    $zapiClientToken = $user['zapi_client_token'] ?? '';
     
     // Verificar se tem alguma API configurada (apenas para WhatsApp)
     if ($channelType !== 'teams' && !$hasEvolution && !$hasMeta && !$hasZapi) {
@@ -461,7 +462,7 @@ function handleSendMessage(int $userId): void
         if ($provider === 'zapi' && $hasZapi) {
             // Enviar via Z-API
             error_log("[CHAT_SEND] Enviando via Z-API");
-            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token']);
+            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token'], $zapiClientToken);
             
             // Fallback para Evolution se Z-API falhar
             if (!$result['success'] && $hasEvolution) {
@@ -500,7 +501,7 @@ function handleSendMessage(int $userId): void
         } elseif ($hasZapi) {
             // Fallback Z-API
             error_log("[CHAT_SEND] Enviando via Z-API (fallback)");
-            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token']);
+            $result = sendMessageViaZAPI($phone, $messageText, $user['zapi_instance_id'], $user['zapi_token'], $zapiClientToken);
         } else {
             http_response_code(400);
             echo json_encode([
@@ -702,7 +703,7 @@ function handleSendMessage(int $userId): void
 /**
  * Enviar mensagem via Z-API
  */
-function sendMessageViaZAPI(string $phone, string $message, string $instanceId, string $token): array
+function sendMessageViaZAPI(string $phone, string $message, string $instanceId, string $token, string $clientToken = ''): array
 {
     $phoneFormatted = preg_replace('/[^0-9]/', '', $phone);
     
@@ -718,7 +719,11 @@ function sendMessageViaZAPI(string $phone, string $message, string $instanceId, 
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $headers = ['Content-Type: application/json'];
+    if (!empty($clientToken)) {
+        $headers[] = 'Client-Token: ' . $clientToken;
+    }
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
