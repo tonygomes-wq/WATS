@@ -502,6 +502,94 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <li>Ative os eventos de mensagens</li>
                 </ul>
             </div>
+            
+            <?php if (!empty($user_data['zapi_instance_id'])): ?>
+            <!-- Gerenciar Z-API -->
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 mt-6">
+                <h3 class="font-bold text-red-800 dark:text-red-300 mb-3">
+                    <i class="fas fa-trash mr-2"></i>Gerenciar Configuração Z-API
+                </h3>
+                <p class="text-sm text-red-700 dark:text-red-400 mb-4">
+                    Se você deseja trocar de provider ou reconfigurar a Z-API, você pode limpar as configurações atuais.
+                </p>
+                <button 
+                    onclick="disconnectZAPI()" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+                    id="disconnectZAPIBtn"
+                >
+                    <i class="fas fa-unlink mr-2"></i>Desconectar Z-API
+                </button>
+            </div>
+            <?php endif; ?>
+        </div>
+
+        <div id="evolutionGoSection" class="<?php echo $selected_provider === 'evolution-go' ? '' : 'hidden'; ?>">
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+                <h3 class="font-bold text-blue-800 dark:text-blue-300 mb-3">
+                    <i class="fas fa-rocket mr-2"></i>Evolution Go Configurada
+                </h3>
+                <p class="text-sm text-blue-700 dark:text-blue-400 mb-4">
+                    Sua instância Evolution Go está configurada e pronta para enviar mensagens com alta performance.
+                </p>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div class="bg-white dark:bg-gray-700 border border-blue-100 dark:border-gray-600 rounded-lg p-4">
+                        <p class="text-gray-500 dark:text-gray-400 uppercase text-xs mb-1">Instance ID</p>
+                        <p class="font-semibold text-gray-800 dark:text-gray-100"><?php echo !empty($user_data['evolution_go_instance']) ? htmlspecialchars($user_data['evolution_go_instance']) : '—'; ?></p>
+                    </div>
+                    <div class="bg-white dark:bg-gray-700 border border-blue-100 dark:border-gray-600 rounded-lg p-4">
+                        <p class="text-gray-500 dark:text-gray-400 uppercase text-xs mb-1">Status</p>
+                        <p class="font-semibold text-green-600 dark:text-green-400">
+                            <i class="fas fa-check-circle mr-1"></i>Configurado
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-lg p-6 mb-6">
+                <h4 class="font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>Sobre Evolution Go
+                </h4>
+                <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Evolution Go é uma versão reescrita em Go da Evolution API, oferecendo melhor performance e menor consumo de recursos.
+                </p>
+                <div class="grid md:grid-cols-3 gap-3 text-sm">
+                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                        <p class="font-semibold text-green-800 dark:text-green-300">⚡ 3x Mais Rápido</p>
+                        <p class="text-xs text-green-700 dark:text-green-400 mt-1">Processamento otimizado</p>
+                    </div>
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <p class="font-semibold text-blue-800 dark:text-blue-300">💾 50% Menos Memória</p>
+                        <p class="text-xs text-blue-700 dark:text-blue-400 mt-1">Uso eficiente de recursos</p>
+                    </div>
+                    <div class="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3">
+                        <p class="font-semibold text-purple-800 dark:text-purple-300">🔄 100% Compatível</p>
+                        <p class="text-xs text-purple-700 dark:text-purple-400 mt-1">API Evolution original</p>
+                    </div>
+                </div>
+            </div>
+            
+            <?php if (!empty($user_data['evolution_go_instance'])): ?>
+            <!-- Gerenciar Evolution Go -->
+            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 mt-6">
+                <h3 class="font-bold text-red-800 dark:text-red-300 mb-3">
+                    <i class="fas fa-trash mr-2"></i>Gerenciar Configuração Evolution Go
+                </h3>
+                <p class="text-sm text-red-700 dark:text-red-400 mb-4">
+                    Se você deseja trocar de provider ou reconfigurar a Evolution Go, você pode limpar as configurações atuais.
+                </p>
+                <button 
+                    onclick="disconnectEvolutionGo()" 
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200"
+                    id="disconnectEvolutionGoBtn"
+                >
+                    <i class="fas fa-unlink mr-2"></i>Desconectar Evolution Go
+                </button>
+            </div>
+            <?php endif; ?>
+                    <li>Cole a URL acima no campo de webhook</li>
+                    <li>Ative os eventos de mensagens</li>
+                </ul>
+            </div>
         </div>
 
 <script>
@@ -1143,6 +1231,82 @@ function deleteInstance() {
         });
 }
 
+function disconnectZAPI() {
+    if (!confirm('Tem certeza que deseja desconectar a Z-API? Você poderá reconfigurar ou trocar de provider depois.')) {
+        return;
+    }
+    
+    const btn = document.getElementById('disconnectZAPIBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Desconectando...';
+    btn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('action', 'disconnect_zapi');
+    
+    fetch('/api/provider_manager.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('success', 'Z-API desconectada com sucesso! Você pode configurar outro provider agora.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showMessage('error', 'Erro ao desconectar Z-API: ' + (data.message || 'Erro desconhecido'));
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showMessage('error', 'Erro de conexão: ' + error.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+}
+
+function disconnectEvolutionGo() {
+    if (!confirm('Tem certeza que deseja desconectar a Evolution Go? Você poderá reconfigurar ou trocar de provider depois.')) {
+        return;
+    }
+    
+    const btn = document.getElementById('disconnectEvolutionGoBtn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Desconectando...';
+    btn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('action', 'disconnect_evolution_go');
+    
+    fetch('/api/provider_manager.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('success', 'Evolution Go desconectada com sucesso! Você pode configurar outro provider agora.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                showMessage('error', 'Erro ao desconectar Evolution Go: ' + (data.message || 'Erro desconhecido'));
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showMessage('error', 'Erro de conexão: ' + error.message);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+}
+        });
+}
+
 function testConnection() {
     if (!ensureEvolutionProvider()) {
         return;
@@ -1234,6 +1398,7 @@ function initProviderToggle() {
     const evolutionSection = document.getElementById('evolutionSection');
     const metaSection = document.getElementById('metaSection');
     const zapiSection = document.getElementById('zapiSection');
+    const evolutionGoSection = document.getElementById('evolutionGoSection');
 
     const toggle = () => {
         const provider = select.value;
@@ -1243,6 +1408,7 @@ function initProviderToggle() {
         if (evolutionSection) evolutionSection.classList.toggle('hidden', provider === 'meta' || provider === 'zapi' || provider === 'evolution-go');
         if (metaSection) metaSection.classList.toggle('hidden', provider !== 'meta');
         if (zapiSection) zapiSection.classList.toggle('hidden', provider !== 'zapi');
+        if (evolutionGoSection) evolutionGoSection.classList.toggle('hidden', provider !== 'evolution-go');
     };
 
     select.addEventListener('change', toggle);

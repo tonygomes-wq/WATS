@@ -10,9 +10,26 @@ A Evolution Go API foi integrada com sucesso ao sistema.
   PASSO 1: EXECUTAR MIGRATION DO BANCO DE DADOS
 ═══════════════════════════════════════════════════════════════
 
-Execute este comando no terminal:
+OPÇÃO 1 - Via Navegador (RECOMENDADO):
+Acesse no navegador:
+http://seu-dominio.com/migrations/run_evolution_go_migration.php
 
+Este script irá:
+- Executar cada comando SQL individualmente
+- Ignorar erros de duplicação automaticamente
+- Mostrar o resultado de cada passo
+- Verificar se tudo foi criado corretamente
+
+OPÇÃO 2 - Via Terminal (se tiver acesso SSH):
 mysql -u root -p whatsapp_sender < migrations/add_evolution_go_support.sql
+
+OPÇÃO 3 - Via phpMyAdmin:
+1. Acesse phpMyAdmin
+2. Selecione o banco "whatsapp_sender"
+3. Vá na aba "SQL"
+4. Copie e cole o conteúdo de: migrations/add_evolution_go_support.sql
+5. Clique em "Executar"
+6. Ignore erros de "Duplicate column" ou "Duplicate key"
 
 Isso irá:
 - Adicionar 'evolution-go' ao ENUM whatsapp_provider
