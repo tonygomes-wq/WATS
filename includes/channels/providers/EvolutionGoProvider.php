@@ -130,30 +130,6 @@ class EvolutionGoProvider implements ProviderInterface {
         return $this->makeRequest($endpoint, $payload);
     }
     
-    public function getStatus() {
-        $endpoint = $this->baseUrl . '/instance/connectionState/' . $this->instance['instance_id'];
-        
-        try {
-            $result = $this->makeRequest($endpoint, null, 'GET');
-            
-            $state = $result['state'] ?? $result['instance']['state'] ?? '';
-            $connected = in_array($state, ['open', 'connected']);
-            
-            return [
-                'connected' => $connected,
-                'phone' => $result['instance']['owner'] ?? $result['number'] ?? null,
-                'state' => $state
-            ];
-        } catch (Exception $e) {
-            error_log("[EVOLUTION_GO] Erro ao obter status: " . $e->getMessage());
-            return [
-                'connected' => false,
-                'phone' => null,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-    
     public function checkIdentifier($identifier) {
         $number = $this->prepareNumber($identifier);
         
@@ -226,6 +202,106 @@ class EvolutionGoProvider implements ProviderInterface {
     }
     
     /**
+     * Gerar QR Code para conectar WhatsApp
+     */
+    public function generateQRCode() {
+        $endpoint = $this->baseUrl . '/instance/connect/' . $this->instance['instance_id'];
+        
+        try {
+            error_log("[EVOLUTION_GO] Gerando QR Code...");
+            $result = $this->makeRequest($endpoint, null, 'GET');
+            
+            return [
+                'success' => true,
+                'qrcode' => $result,
+                'base64' => $result['base64'] ?? $result['qrcode']['base64'] ?? null
+            ];
+        } catch (Exception $e) {
+            error_log("[EVOLUTION_GO] Erro ao gerar QR Code: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Conectar instância
+     */
+    public function connect() {
+        $endpoint = $this->baseUrl . '/instance/connect/' . $this->instance['instance_id'];
+        
+        try {
+            error_log("[EVOLUTION_GO] Conectando instância...");
+            $result = $this->makeRequest($endpoint, null, 'GET');
+            
+            return [
+                'success' => true,
+                'data' => $result
+            ];
+        } catch (Exception $e) {
+            error_log("[EVOLUTION_GO] Erro ao conectar: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Desconectar instância
+     */
+    public function disconnect() {
+        $endpoint = $this->baseUrl . '/instance/logout/' . $this->instance['instance_id'];
+        
+        try {
+            error_log("[EVOLUTION_GO] Desconectando instância...");
+            $result = $this->makeRequest($endpoint, null, 'DELETE');
+            
+            return [
+                'success' => true,
+                'data' => $result
+            ];
+        } catch (Exception $e) {
+            error_log("[EVOLUTION_GO] Erro ao desconectar: " . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Obter status com formato padronizado
+     */
+    public function getStatus() {
+        $endpoint = $this->baseUrl . '/instance/connectionState/' . $this->instance['instance_id'];
+        
+        try {
+            $result = $this->makeRequest($endpoint, null, 'GET');
+            
+            $state = $result['state'] ?? $result['instance']['state'] ?? '';
+            $connected = in_array($state, ['open', 'connected']);
+            
+            return [
+                'success' => true,
+                'connected' => $connected,
+                'status' => $state,
+                'phone' => $result['instance']['owner'] ?? $result['number'] ?? null,
+                'state' => $state
+            ];
+        } catch (Exception $e) {
+            error_log("[EVOLUTION_GO] Erro ao obter status: " . $e->getMessage());
+            return [
+                'success' => false,
+                'connected' => false,
+                'phone' => null,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
      * Prepara número para formato aceito pela Evolution Go
      * Remove caracteres especiais e garante formato correto
      */
@@ -256,6 +332,8 @@ class EvolutionGoProvider implements ProviderInterface {
             }
         } elseif ($method === 'GET') {
             curl_setopt($ch, CURLOPT_HTTPGET, true);
+        } elseif ($method === 'DELETE') {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         }
         
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

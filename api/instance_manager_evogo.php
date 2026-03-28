@@ -55,11 +55,16 @@ try {
         throw new Exception('Instância Evolution Go não configurada');
     }
     
-    $instance = $user['evolution_go_instance'];
-    $token = $user['evolution_go_token'];
+    // Preparar dados da instância no formato esperado pelo provider
+    $instanceData = [
+        'instance_id' => $user['evolution_go_instance'],
+        'api_key' => $user['evolution_go_token'],
+        'token' => $user['evolution_go_token'],
+        'api_url' => EVOLUTION_GO_API_URL
+    ];
     
     // Criar provider
-    $provider = new EvolutionGoProvider($instance, $token);
+    $provider = new EvolutionGoProvider($instanceData, $pdo);
     
     switch ($action) {
         case 'qrcode':
