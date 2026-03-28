@@ -4,6 +4,9 @@
  * Gerencia criação, QR Code e status de instâncias Evolution Go
  */
 
+// Capturar qualquer saída indesejada
+ob_start();
+
 session_start();
 
 // ✅ GARANTIR TIMEZONE CORRETO
@@ -13,7 +16,25 @@ require_once '../config/database.php';
 require_once '../includes/functions.php';
 require_once '../includes/channels/providers/EvolutionGoProvider.php';
 
+// Limpar buffer e definir header
+ob_end_clean();
 header('Content-Type: application/json');
+
+// Tratamento de erros global
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    error_log("[EVOGO_MANAGER] PHP Error: $errstr in $errfile:$errline");
+    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+});
+
+set_exception_handler(function($e) {
+    error_log("[EVOGO_MANAGER] Uncaught Exception: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erro interno: ' . $e->getMessage()
+    ]);
+    exit;
+});
 
 if (!isLoggedIn()) {
     http_response_code(401);

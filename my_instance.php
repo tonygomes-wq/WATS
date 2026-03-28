@@ -1503,7 +1503,19 @@ function generateQRCodeEvolutionGo() {
     
     // Chamar API para gerar QR Code
     fetch('/api/instance_manager_evogo.php?action=qrcode')
-        .then(response => response.json())
+        .then(response => {
+            console.log('[Evolution Go] HTTP Status:', response.status);
+            
+            // Se não for JSON, mostrar erro
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('[Evolution Go] Resposta não-JSON:', text);
+                    throw new Error(`HTTP ${response.status}: ${text.substring(0, 100)}`);
+                });
+            }
+            
+            return response.json();
+        })
         .then(data => {
             console.log('[Evolution Go] Resposta QR Code:', data);
             
