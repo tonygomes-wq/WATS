@@ -103,18 +103,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($provider === 'evolution-go') {
         // Processar Evolution Go
         $evolution_go_instance = trim($_POST['evolution_go_instance'] ?? '');
-        $evolution_go_token = trim($_POST['evolution_go_token'] ?? '');
+        // ✅ USAR API KEY GLOBAL AUTOMATICAMENTE (não precisa digitar)
+        $evolution_go_token = EVOLUTION_GO_API_KEY;
         
         $user_data['evolution_go_instance'] = $evolution_go_instance;
         $user_data['evolution_go_token'] = $evolution_go_token;
         
-        if (empty($evolution_go_instance) || empty($evolution_go_token)) {
-            setError('Por favor, preencha o Instance ID e Token da Evolution Go.');
+        if (empty($evolution_go_instance)) {
+            setError('Por favor, preencha o Instance ID da Evolution Go.');
         } else {
             try {
                 $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'evolution-go', evolution_go_instance = ?, evolution_go_token = ? WHERE id = ?");
                 if ($stmt->execute([$evolution_go_instance, $evolution_go_token, $user_id])) {
                     setSuccess('Configurações da Evolution Go salvas com sucesso! ✅');
+                    
+                    // ✅ REDIRECIONAR PARA GERAR QR CODE AUTOMATICAMENTE
+                    $_SESSION['auto_generate_qr_evogo'] = true;
                     header('Location: /my_instance.php');
                     exit;
                 } else {
@@ -246,13 +250,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="grid md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Instance ID *</label>
-                        <input type="text" name="evolution_go_instance" value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: minha-instancia">
+                        <input type="text" name="evolution_go_instance" value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: CELULAR-MACIP" required>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nome único para sua instância</p>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">API Key *</label>
-                        <input type="text" name="evolution_go_token" value="<?php echo htmlspecialchars($user_data['evolution_go_token'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="API Key da Evolution Go">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chave de autenticação global</p>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                            API Key (Global) 
+                            <span class="text-green-600 dark:text-green-400">
+                                <i class="fas fa-check-circle"></i> Configurada
+                            </span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="evolution_go_token" 
+                            value="<?php echo EVOLUTION_GO_API_KEY; ?>" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 dark:text-gray-300 rounded-lg cursor-not-allowed" 
+                            readonly
+                            title="API Key global configurada no sistema">
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                            <i class="fas fa-lock mr-1"></i>Usando API Key global do sistema
+                        </p>
                     </div>
                 </div>
                 
@@ -262,8 +279,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </h4>
                     <ul class="text-sm text-yellow-700 dark:text-yellow-400 list-disc list-inside space-y-1">
                         <li>Evolution Go deve estar rodando em: <?php echo EVOLUTION_GO_API_URL; ?></li>
-                        <li>Use a mesma API Key configurada no servidor (GLOBAL_API_KEY)</li>
-                        <li>Após salvar, você poderá gerar QR Code para conectar o WhatsApp</li>
+                        <li>Usando API Key global configurada no servidor</li>
+                        <li>Após salvar, o QR Code será gerado automaticamente</li>
                         <li>Compatível com todas as funcionalidades da Evolution API</li>
                     </ul>
                 </div>
@@ -599,6 +616,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (getSelectedProvider() === 'evolution') {
         loadInstanceStatus();
     }
+    
+    // ✅ AUTO-GERAR QR CODE PARA EVOLUTION GO APÓS SALVAR
+    <?php if (isset($_SESSION['auto_generate_qr_evogo']) && $_SESSION['auto_generate_qr_evogo'] === true): ?>
+        <?php unset($_SESSION['auto_generate_qr_evogo']); ?>
+        console.log('Auto-gerando QR Code para Evolution Go...');
+        setTimeout(function() {
+            generateQRCodeEvolutionGo();
+        }, 1000);
+    <?php endif; ?>
 });
 
 function loadInstanceStatus() {
@@ -1450,6 +1476,146 @@ function ensureEvolutionProvider() {
         return false;
     }
     return true;
+}
+
+/**
+ * Gerar QR Code para Evolution Go (auto-chamado após salvar)
+ */
+function generateQRCodeEvolutionGo() {
+    console.log('[Evolution Go] Iniciando geração de QR Code...');
+    
+    // Criar modal/container para mostrar QR Code
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                    Gerando QR Code...
+                </h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Conectando com Evolution Go API
+                </p>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    // Chamar API para gerar QR Code
+    fetch('/api/instance_manager_evogo.php?action=qrcode')
+        .then(response => response.json())
+        .then(data => {
+            console.log('[Evolution Go] Resposta QR Code:', data);
+            
+            if (data.success && data.base64) {
+                // Mostrar QR Code
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                                <i class="fas fa-qrcode mr-2 text-green-600"></i>
+                                Conectar WhatsApp
+                            </h3>
+                            <button onclick="this.closest('.fixed').remove()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                            <img src="data:image/png;base64,${data.base64}" 
+                                 alt="QR Code WhatsApp" 
+                                 class="mx-auto"
+                                 style="max-width: 250px;">
+                        </div>
+                        
+                        <div class="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                            <p class="font-semibold mb-2">Como conectar:</p>
+                            <ol class="list-decimal list-inside space-y-1 text-left">
+                                <li>Abra o WhatsApp no seu celular</li>
+                                <li>Toque no menu (⋮) > "Dispositivos conectados"</li>
+                                <li>Toque em "Conectar dispositivo"</li>
+                                <li>Escaneie este QR Code</li>
+                            </ol>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-3">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                O QR Code expira em alguns minutos
+                            </p>
+                        </div>
+                        
+                        <div class="mt-6 flex gap-3">
+                            <button onclick="this.closest('.fixed').remove(); location.reload();" 
+                                    class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+                                <i class="fas fa-check mr-2"></i>Fechar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Auto-verificar conexão a cada 3 segundos
+                const checkInterval = setInterval(() => {
+                    fetch('/api/instance_manager_evogo.php?action=status')
+                        .then(response => response.json())
+                        .then(statusData => {
+                            console.log('[Evolution Go] Status:', statusData);
+                            if (statusData.success && statusData.status === 'open') {
+                                clearInterval(checkInterval);
+                                modal.remove();
+                                showMessage('success', 'WhatsApp conectado com sucesso! Recarregando...');
+                                setTimeout(() => location.reload(), 2000);
+                            }
+                        })
+                        .catch(err => console.error('[Evolution Go] Erro ao verificar status:', err));
+                }, 3000);
+                
+                // Parar verificação após 5 minutos
+                setTimeout(() => clearInterval(checkInterval), 300000);
+                
+            } else {
+                // Erro ao gerar QR Code
+                modal.innerHTML = `
+                    <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+                        <div class="text-center">
+                            <div class="bg-red-100 dark:bg-red-900/20 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-exclamation-triangle text-3xl text-red-600 dark:text-red-400"></i>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                                Erro ao Gerar QR Code
+                            </h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                ${data.message || 'Não foi possível conectar com a Evolution Go API'}
+                            </p>
+                            <button onclick="this.closest('.fixed').remove()" 
+                                    class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('[Evolution Go] Erro:', error);
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full mx-4">
+                    <div class="text-center">
+                        <div class="bg-red-100 dark:bg-red-900/20 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-times-circle text-3xl text-red-600 dark:text-red-400"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-2">
+                            Erro de Conexão
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            ${error.message}
+                        </p>
+                        <button onclick="this.closest('.fixed').remove()" 
+                                class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
 }
 </script>
 

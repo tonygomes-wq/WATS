@@ -4,6 +4,9 @@
  * Verifica se a correção de timezone foi aplicada nos arquivos
  */
 
+// ✅ FORÇAR TIMEZONE PARA ESTE SCRIPT
+date_default_timezone_set('America/Sao_Paulo');
+
 header('Content-Type: text/html; charset=utf-8');
 
 ?>

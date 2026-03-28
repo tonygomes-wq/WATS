@@ -8,12 +8,15 @@
  * MACIP Tecnologia LTDA
  */
 
+// ✅ FORÇAR TIMEZONE ANTES DE TUDO (CRÍTICO)
+// DEVE ser a primeira linha executada para garantir que todas as funções de data/hora usem o timezone correto
+date_default_timezone_set('America/Sao_Paulo');
+
 // Carregar variáveis de ambiente
 require_once __DIR__ . '/env.php';
 
-// ✅ CONFIGURAR TIMEZONE DO PHP
-// Usa variável de ambiente TZ ou padrão America/Sao_Paulo
-date_default_timezone_set(getenv('TZ') ?: env('TZ', 'America/Sao_Paulo'));
+// ✅ REFORÇAR TIMEZONE (garantir que env.php não sobrescreva)
+date_default_timezone_set('America/Sao_Paulo');
 
 // Configurações do banco de dados
 // Prioriza .env, mas mantém fallback para compatibilidade
