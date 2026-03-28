@@ -103,14 +103,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($provider === 'evolution-go') {
         // Processar Evolution Go
         $evolution_go_instance = trim($_POST['evolution_go_instance'] ?? '');
-        // ✅ USAR API KEY GLOBAL AUTOMATICAMENTE (não precisa digitar)
-        $evolution_go_token = EVOLUTION_GO_API_KEY;
+        
+        // ✅ USAR API KEY GLOBAL AUTOMATICAMENTE
+        // Verificar se a constante existe, senão usar do .env
+        if (defined('EVOLUTION_GO_API_KEY')) {
+            $evolution_go_token = EVOLUTION_GO_API_KEY;
+        } else {
+            $evolution_go_token = env('EVOLUTION_GO_API_KEY', 'a9F3kLm8Qz2XvP7rT1bYcN6dE4uHsJ5W');
+        }
+        
+        // Log para debug
+        error_log("EVOLUTION_GO SAVE - Instance: $evolution_go_instance | Token: " . substr($evolution_go_token, 0, 10) . "...");
         
         $user_data['evolution_go_instance'] = $evolution_go_instance;
         $user_data['evolution_go_token'] = $evolution_go_token;
         
         if (empty($evolution_go_instance)) {
             setError('Por favor, preencha o Instance ID da Evolution Go.');
+        } elseif (empty($evolution_go_token)) {
+            setError('API Key global não configurada. Contate o administrador.');
         } else {
             try {
                 $stmt = $pdo->prepare("UPDATE users SET whatsapp_provider = 'evolution-go', evolution_go_instance = ?, evolution_go_token = ? WHERE id = ?");
@@ -250,12 +261,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="grid md:grid-cols-1 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Instance ID *</label>
-                        <input type="text" name="evolution_go_instance" value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: CELULAR-MACIP" required>
+                        <input 
+                            type="text" 
+                            name="evolution_go_instance" 
+                            value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" 
+                            placeholder="Ex: CELULAR-MACIP" 
+                            required>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nome único para sua instância</p>
                     </div>
-                    
-                    <!-- API Key oculta - usa global automaticamente -->
-                    <input type="hidden" name="evolution_go_token" value="<?php echo EVOLUTION_GO_API_KEY; ?>">
                 </div>
                 
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4">
