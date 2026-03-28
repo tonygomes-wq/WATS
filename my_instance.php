@@ -247,30 +247,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </p>
                 </div>
                 
-                <div class="grid md:grid-cols-2 gap-4">
+                <div class="grid md:grid-cols-1 gap-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Instance ID *</label>
                         <input type="text" name="evolution_go_instance" value="<?php echo htmlspecialchars($user_data['evolution_go_instance'] ?? ''); ?>" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ex: CELULAR-MACIP" required>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Nome único para sua instância</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">
-                            API Key (Global) 
-                            <span class="text-green-600 dark:text-green-400">
-                                <i class="fas fa-check-circle"></i> Configurada
-                            </span>
-                        </label>
-                        <input 
-                            type="text" 
-                            name="evolution_go_token" 
-                            value="<?php echo EVOLUTION_GO_API_KEY; ?>" 
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 dark:text-gray-300 rounded-lg cursor-not-allowed" 
-                            readonly
-                            title="API Key global configurada no sistema">
-                        <p class="text-xs text-green-600 dark:text-green-400 mt-1">
-                            <i class="fas fa-lock mr-1"></i>Usando API Key global do sistema
-                        </p>
-                    </div>
+                    
+                    <!-- API Key oculta - usa global automaticamente -->
+                    <input type="hidden" name="evolution_go_token" value="<?php echo EVOLUTION_GO_API_KEY; ?>">
                 </div>
                 
                 <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mt-4">
