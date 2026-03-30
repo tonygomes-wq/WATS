@@ -265,6 +265,13 @@ function handleNewMessage(array $payload, int $userId, int $webhookLogId, array 
         $messageId = $key['id'] ?? null;
         $fromMe = (bool) ($key['fromMe'] ?? false);
         $timestamp = $data['messageTimestamp'] ?? time();
+        
+        // CORREÇÃO: Evolution API pode enviar timestamp em milissegundos
+        // Se timestamp for maior que 10 dígitos, está em milissegundos
+        if ($timestamp > 9999999999) {
+            $timestamp = (int)($timestamp / 1000);
+        }
+        
         $instance = $payload['instance'] ?? $userData['evolution_instance'] ?? '';
         $pushName = $data['pushName'] ?? null;
 
