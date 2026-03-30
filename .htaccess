@@ -172,6 +172,9 @@ LimitRequestBody 10485760
 # ============================================
 
 <IfModule mod_php7.c>
+    # ✅ TIMEZONE - FORÇAR HORÁRIO DE BRASÍLIA
+    php_value date.timezone "America/Sao_Paulo"
+    
     # Desabilitar funções perigosas
     php_flag display_errors Off
     php_flag log_errors On
