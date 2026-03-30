@@ -152,11 +152,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare("UPDATE users SET evolution_instance = ?, evolution_token = ?, whatsapp_provider = 'evolution' WHERE id = ?");
             if ($stmt->execute([$evolution_instance, $evolution_token, $user_id])) {
                 
+                // Buscar URL da Evolution API do banco de dados (prioriza URL do usuário)
+                $stmt = $pdo->prepare("SELECT evolution_api_url FROM users WHERE id = ?");
+                $stmt->execute([$user_id]);
+                $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+                $evolutionApiUrl = !empty($userData['evolution_api_url']) ? $userData['evolution_api_url'] : EVOLUTION_API_URL;
+                
                 // Configurar webhook automaticamente
                 $webhookResult = configureWebhookForInstance(
                     $evolution_instance, 
                     $evolution_token, 
-                    EVOLUTION_API_URL
+                    $evolutionApiUrl
                 );
                 
                 if ($webhookResult['success']) {

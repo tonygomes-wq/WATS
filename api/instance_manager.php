@@ -50,6 +50,14 @@ switch ($action) {
 function createInstance() {
     global $pdo, $user_id;
     
+    // Buscar URL da Evolution API do banco de dados
+    $stmt = $pdo->prepare("SELECT evolution_api_url FROM users WHERE id = ?");
+    $stmt->execute([$user_id]);
+    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+    $evolutionApiUrl = !empty($userData['evolution_api_url']) ? $userData['evolution_api_url'] : EVOLUTION_API_URL;
+    
+    error_log("DEBUG CREATE - Using Evolution API URL: $evolutionApiUrl");
+    
     try {
         // Buscar dados do usuário
         $stmt = $pdo->prepare("SELECT name, email, evolution_instance FROM users WHERE id = ?");
@@ -105,14 +113,14 @@ function createInstance() {
         ];
         
         // Criar instância via Evolution API
-        $response = callEvolutionAPI('/instance/create', 'POST', $instanceData);
+        $response = callEvolutionAPI('/instance/create', 'POST', $instanceData, $evolutionApiUrl);
         
         if ($response['success']) {
             // Salvar no banco de dados (incluindo URL da Evolution API)
-            error_log("DEBUG SAVE - Tentando salvar no banco: instance='$instanceName', user_id=$user_id, url=" . EVOLUTION_API_URL);
+            error_log("DEBUG SAVE - Tentando salvar no banco: instance='$instanceName', user_id=$user_id, url=$evolutionApiUrl");
             
             $stmt = $pdo->prepare("UPDATE users SET evolution_instance = ?, evolution_token = ?, evolution_api_url = ? WHERE id = ?");
-            $success = $stmt->execute([$instanceName, $instanceData['token'], EVOLUTION_API_URL, $user_id]);
+            $success = $stmt->execute([$instanceName, $instanceData['token'], $evolutionApiUrl, $user_id]);
             
             // Verificar se realmente salvou
             $rowsAffected = $stmt->rowCount();
@@ -131,7 +139,7 @@ function createInstance() {
                     'message' => 'Instância criada com sucesso!',
                     'instance_name' => $instanceName,
                     'token' => $instanceData['token'],
-                    'evolution_api_url' => EVOLUTION_API_URL,
+                    'evolution_api_url' => $evolutionApiUrl,
                     'debug' => [
                         'rows_affected' => $rowsAffected,
                         'saved_instance' => $savedData['evolution_instance'],
@@ -477,8 +485,20 @@ function checkInstanceExists() {
 /**
  * Função auxiliar para chamar Evolution API
  */
-function callEvolutionAPI($endpoint, $method = 'GET', $data = null) {
-    $url = EVOLUTION_API_URL . $endpoint;
+function callEvolutionAPI($endpoint, $method = 'GET', $data = null, $customUrl = null) {
+    global $user_id, $pdo;
+    
+    // Se não foi passada URL customizada, buscar do banco de dados
+    if ($customUrl === null) {
+        $stmt = $pdo->prepare("SELECT evolution_api_url FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $customUrl = !empty($userData['evolution_api_url']) ? $userData['evolution_api_url'] : EVOLUTION_API_URL;
+    }
+    
+    $url = rtrim($customUrl, '/') . $endpoint;
+    
+    error_log("DEBUG API CALL - URL: $url, Method: $method");
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
