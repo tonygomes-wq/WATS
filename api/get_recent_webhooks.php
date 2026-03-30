@@ -16,6 +16,8 @@ if (!isset($_SESSION['user_id'])) {
 
 $user_id = $_SESSION['user_id'];
 $last_id = (int)($_GET['last_id'] ?? 0);
+$limit = (int)($_GET['limit'] ?? 20);
+$limit = min($limit, 50); // Máximo 50 logs
 
 try {
     // Buscar instância do usuário
@@ -44,9 +46,9 @@ try {
         WHERE instance_name = ?
         AND id > ?
         ORDER BY id DESC
-        LIMIT 20
+        LIMIT ?
     ");
-    $stmt->execute([$instance, $last_id]);
+    $stmt->execute([$instance, $last_id, $limit]);
     $webhooks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo json_encode([

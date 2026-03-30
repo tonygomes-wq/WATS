@@ -642,11 +642,15 @@ $apiUrl = ($provider === 'evolution-go') ? EVOLUTION_GO_API_URL : EVOLUTION_API_
                 const response = await fetch('/api/get_recent_webhooks.php?limit=10');
                 const data = await response.json();
                 
-                if (data.success && data.logs && data.logs.length > 0) {
-                    logsDiv.innerHTML = data.logs.map(log => `
-                        <div class="message-item">
+                if (data.success && data.webhooks && data.webhooks.length > 0) {
+                    logsDiv.innerHTML = data.webhooks.map(log => `
+                        <div class="message-item" style="border-left-color: ${log.processed ? '#27ae60' : '#e74c3c'};">
                             <strong>${log.event_type}</strong> - ${log.created_at}<br>
-                            <pre style="margin-top: 5px;">${JSON.stringify(JSON.parse(log.payload), null, 2).substring(0, 200)}...</pre>
+                            <small style="color: #7f8c8d;">Instância: ${log.instance_name || 'N/A'} | Telefone: ${log.phone || 'N/A'}</small><br>
+                            <span class="status-badge ${log.processed ? 'status-success' : 'status-error'}">
+                                ${log.processed ? '✅ Processado' : '❌ Erro'}
+                            </span>
+                            ${log.error_message ? `<br><small style="color: #e74c3c;">Erro: ${log.error_message}</small>` : ''}
                         </div>
                     `).join('');
                 } else {
