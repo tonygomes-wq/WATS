@@ -17,15 +17,16 @@ function configureWebhookForInstance($instance, $token, $evolutionUrl) {
         $webhookConfig = [
             'webhook' => [
                 'enabled' => true,
-                'url' => 'https://wats.macip.com.br/api/webhook_simple.php',
-                'webhookByEvents' => true,  // ← IMPORTANTE: eventos separados
+                'url' => 'https://wats.macip.com.br/api/chat_webhook.php',
+                'webhookByEvents' => false,  // Usar false para receber todos os eventos em um único endpoint
                 'webhookBase64' => false,
                 'events' => [
+                    'QRCODE_UPDATED',       // QR Code atualizado
                     'MESSAGES_UPSERT',      // Mensagens recebidas
-                    'MESSAGES_UPDATE',      // Atualização de status
+                    'MESSAGES_UPDATE',      // Atualização de status (lido, entregue)
+                    'MESSAGES_DELETE',      // Mensagens deletadas
                     'SEND_MESSAGE',         // Mensagens enviadas
-                    'CONNECTION_UPDATE',    // Status da conexão
-                    'QRCODE_UPDATED'        // QR Code atualizado
+                    'CONNECTION_UPDATE'     // Status da conexão
                 ]
             ]
         ];
