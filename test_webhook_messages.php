@@ -38,9 +38,15 @@ if ($provider === 'evolution-go') {
     $apiUrl = !empty($user['evolution_api_url']) ? $user['evolution_api_url'] : EVOLUTION_API_URL;
 }
 
-// Se a URL for um IP interno do Docker, substituir pela URL pública
-if (strpos($apiUrl, '172.18.') !== false || strpos($apiUrl, '192.168.') !== false || strpos($apiUrl, '10.') !== false) {
-    // Substituir por URL pública padrão
+// Se a URL for interna do Docker (com prefixo do projeto ou IP interno), substituir pela URL pública
+// URLs internas do Docker não funcionam do navegador
+if (strpos($apiUrl, 'wats_') !== false || 
+    strpos($apiUrl, '172.18.') !== false || 
+    strpos($apiUrl, '192.168.') !== false || 
+    strpos($apiUrl, '10.') !== false ||
+    strpos($apiUrl, 'localhost') !== false ||
+    strpos($apiUrl, '127.0.0.1') !== false) {
+    // Substituir por URL pública
     $apiUrl = 'https://evolution.macip.com.br';
 }
 
