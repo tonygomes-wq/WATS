@@ -613,14 +613,15 @@ $apiUrl = ($provider === 'evolution-go') ? EVOLUTION_GO_API_URL : EVOLUTION_API_
             listDiv.innerHTML = '<p style="text-align: center;"><span class="loading"></span> Carregando...</p>';
             
             try {
-                const response = await fetch('/api/chat_messages.php?recent=10');
+                const response = await fetch('/api/get_recent_messages.php?limit=10');
                 const data = await response.json();
                 
                 if (data.success && data.messages && data.messages.length > 0) {
                     listDiv.innerHTML = data.messages.map(msg => `
                         <div class="message-item ${msg.from_me ? 'sent' : 'received'}">
                             <strong>${msg.from_me ? '📤 Enviada' : '📥 Recebida'}</strong> - ${msg.time_formatted || msg.created_at_formatted}<br>
-                            ${msg.message_text}
+                            <small style="color: #7f8c8d;">${msg.contact_name || msg.phone}</small><br>
+                            ${msg.message_text || '[Sem texto]'}
                         </div>
                     `).join('');
                 } else {
