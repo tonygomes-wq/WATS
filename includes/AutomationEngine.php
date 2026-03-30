@@ -11,9 +11,9 @@
 
 class AutomationEngine
 {
-    private PDO $pdo;
-    private int $userId;
-    private array $instanceConfig;
+    private $pdo;
+    private $userId;
+    private $instanceConfig;
     
     /**
      * Construtor
