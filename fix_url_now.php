@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
-$internalUrl = 'http://evolution-api:8080';
+$internalUrl = 'http://wats_evolution-api:8080'; // ✅ URL correta com prefixo do projeto
 
 // Se foi clicado o botão, atualizar
 $updated = false;

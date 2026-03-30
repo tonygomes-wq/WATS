@@ -15,9 +15,11 @@ FROM users
 WHERE id = 1;
 
 -- 2. Atualizar para URL interna
--- IMPORTANTE: O nome do serviço é 'evolution-api' (porta 8080)
+-- IMPORTANTE: O Easypanel adiciona o prefixo do projeto ao nome do serviço
+-- Formato: http://PROJETO_SERVICO:PORTA
+-- No seu caso: http://wats_evolution-api:8080
 UPDATE users 
-SET evolution_api_url = 'http://evolution-api:8080' 
+SET evolution_api_url = 'http://wats_evolution-api:8080' 
 WHERE id = 1;
 
 -- 3. Verificar se foi atualizado
@@ -32,13 +34,15 @@ WHERE id = 1;
 
 -- 4. (OPCIONAL) Atualizar para todos os usuários
 -- Descomente a linha abaixo se quiser atualizar todos os usuários
--- UPDATE users SET evolution_api_url = 'http://evolution-api:8080' WHERE evolution_api_url IS NOT NULL;
+-- UPDATE users SET evolution_api_url = 'http://wats_evolution-api:8080' WHERE evolution_api_url IS NOT NULL;
 
 -- ============================================
 -- RESULTADO ESPERADO:
 -- ============================================
--- evolution_api_url deve estar: http://evolution-api:8080
+-- evolution_api_url deve estar: http://wats_evolution-api:8080
 -- 
 -- ANTES: https://evolution.macip.com.br (externa - lenta)
--- DEPOIS: http://evolution-api:8080 (interna - super rápida)
+-- DEPOIS: http://wats_evolution-api:8080 (interna - super rápida)
+-- 
+-- IMPORTANTE: O Easypanel adiciona o prefixo do projeto (wats_) ao nome do serviço
 -- ============================================
