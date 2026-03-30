@@ -37,22 +37,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['configure'])) {
     // Configurar webhook
     $webhookUrl = 'https://wats.macip.com.br/api/chat_webhook.php';
     
-    // Evolution API v2 formato correto conforme documentação oficial
-    // Ref: https://doc.evolution-api.com/v2/en/configuration/webhooks
+    // Evolution API formato com wrapper "webhook" (baseado no erro retornado)
+    // A API está pedindo: instance requires property "webhook"
     $webhookData = [
-        'enabled' => true,
-        'url' => $webhookUrl,
-        'webhook_by_events' => false,
-        'webhook_base64' => false,
-        'events' => [
-            'QRCODE_UPDATED',
-            'MESSAGES_UPSERT',
-            'MESSAGES_UPDATE',
-            'MESSAGES_DELETE',
-            'SEND_MESSAGE',
-            'CONNECTION_UPDATE',
-            'CONTACTS_UPDATE',
-            'CONTACTS_UPSERT'
+        'webhook' => [
+            'enabled' => true,
+            'url' => $webhookUrl,
+            'webhook_by_events' => false,
+            'webhook_base64' => false,
+            'events' => [
+                'QRCODE_UPDATED',
+                'MESSAGES_UPSERT',
+                'MESSAGES_UPDATE',
+                'MESSAGES_DELETE',
+                'SEND_MESSAGE',
+                'CONNECTION_UPDATE',
+                'CONTACTS_UPDATE',
+                'CONTACTS_UPSERT'
+            ]
         ]
     ];
     

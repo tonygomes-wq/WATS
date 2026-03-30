@@ -13,23 +13,25 @@
  */
 function configureWebhookForInstance($instance, $token, $evolutionUrl) {
     try {
-        // Evolution API v2 formato correto conforme documentação oficial
-        // Ref: https://doc.evolution-api.com/v2/en/configuration/webhooks
-        // IMPORTANTE: enabled, url, webhook_by_events devem estar no nível raiz (não dentro de "webhook")
+        // Evolution API formato com wrapper "webhook" (baseado no erro da API)
+        // A API retorna: "instance requires property \"webhook\""
+        // Isso significa que precisa do wrapper "webhook" no payload
         $webhookConfig = [
-            'enabled' => true,
-            'url' => 'https://wats.macip.com.br/api/chat_webhook.php',
-            'webhook_by_events' => false,  // Usar false para receber todos os eventos em um único endpoint
-            'webhook_base64' => false,
-            'events' => [
-                'QRCODE_UPDATED',       // QR Code atualizado
-                'MESSAGES_UPSERT',      // Mensagens recebidas
-                'MESSAGES_UPDATE',      // Atualização de status (lido, entregue)
-                'MESSAGES_DELETE',      // Mensagens deletadas
-                'SEND_MESSAGE',         // Mensagens enviadas
-                'CONNECTION_UPDATE',    // Status da conexão
-                'CONTACTS_UPDATE',      // Atualização de contatos
-                'CONTACTS_UPSERT'       // Novos contatos
+            'webhook' => [
+                'enabled' => true,
+                'url' => 'https://wats.macip.com.br/api/chat_webhook.php',
+                'webhook_by_events' => false,  // Usar false para receber todos os eventos em um único endpoint
+                'webhook_base64' => false,
+                'events' => [
+                    'QRCODE_UPDATED',       // QR Code atualizado
+                    'MESSAGES_UPSERT',      // Mensagens recebidas
+                    'MESSAGES_UPDATE',      // Atualização de status (lido, entregue)
+                    'MESSAGES_DELETE',      // Mensagens deletadas
+                    'SEND_MESSAGE',         // Mensagens enviadas
+                    'CONNECTION_UPDATE',    // Status da conexão
+                    'CONTACTS_UPDATE',      // Atualização de contatos
+                    'CONTACTS_UPSERT'       // Novos contatos
+                ]
             ]
         ];
         
