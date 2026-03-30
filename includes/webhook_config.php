@@ -13,21 +13,23 @@
  */
 function configureWebhookForInstance($instance, $token, $evolutionUrl) {
     try {
-        // POST /webhook/set/ com wrapper "webhook" (formato correto para esta Evolution API)
+        // Evolution API v2 formato correto conforme documentação oficial
+        // Ref: https://doc.evolution-api.com/v2/en/configuration/webhooks
+        // IMPORTANTE: enabled, url, webhook_by_events devem estar no nível raiz (não dentro de "webhook")
         $webhookConfig = [
-            'webhook' => [
-                'enabled' => true,
-                'url' => 'https://wats.macip.com.br/api/chat_webhook.php',
-                'webhookByEvents' => false,  // Usar false para receber todos os eventos em um único endpoint
-                'webhookBase64' => false,
-                'events' => [
-                    'QRCODE_UPDATED',       // QR Code atualizado
-                    'MESSAGES_UPSERT',      // Mensagens recebidas
-                    'MESSAGES_UPDATE',      // Atualização de status (lido, entregue)
-                    'MESSAGES_DELETE',      // Mensagens deletadas
-                    'SEND_MESSAGE',         // Mensagens enviadas
-                    'CONNECTION_UPDATE'     // Status da conexão
-                ]
+            'enabled' => true,
+            'url' => 'https://wats.macip.com.br/api/chat_webhook.php',
+            'webhook_by_events' => false,  // Usar false para receber todos os eventos em um único endpoint
+            'webhook_base64' => false,
+            'events' => [
+                'QRCODE_UPDATED',       // QR Code atualizado
+                'MESSAGES_UPSERT',      // Mensagens recebidas
+                'MESSAGES_UPDATE',      // Atualização de status (lido, entregue)
+                'MESSAGES_DELETE',      // Mensagens deletadas
+                'SEND_MESSAGE',         // Mensagens enviadas
+                'CONNECTION_UPDATE',    // Status da conexão
+                'CONTACTS_UPDATE',      // Atualização de contatos
+                'CONTACTS_UPSERT'       // Novos contatos
             ]
         ];
         
@@ -105,7 +107,6 @@ function checkWebhookConfiguration($instance, $token, $evolutionUrl) {
             // Verificar se está configurado corretamente
             $isCorrect = (
                 isset($config['enabled']) && $config['enabled'] === true &&
-                isset($config['webhookByEvents']) && $config['webhookByEvents'] === true &&
                 isset($config['url']) && !empty($config['url'])
             );
             
