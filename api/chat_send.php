@@ -883,8 +883,18 @@ function sendMessageViaEvolutionGo(string $phone, string $message, string $insta
 /**
  * Enviar mensagem via Evolution API
  */
-function sendMessageViaEvolution(string $phone, string $message, string $instance, string $token): array
+function sendMessageViaEvolution(string $phone, string $message, string $instance, string $token, string $apiUrl = null): array
 {
+    global $pdo, $userId;
+    
+    // Se não foi passada URL, buscar do banco de dados
+    if ($apiUrl === null) {
+        $stmt = $pdo->prepare("SELECT evolution_api_url FROM users WHERE id = ?");
+        $stmt->execute([$userId]);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $apiUrl = !empty($userData['evolution_api_url']) ? $userData['evolution_api_url'] : EVOLUTION_API_URL;
+    }
+    
     // Formatar número para padrão internacional
     $phoneFormatted = preg_replace('/[^0-9]/', '', $phone);
     
@@ -904,11 +914,11 @@ function sendMessageViaEvolution(string $phone, string $message, string $instanc
     
     // Log para debug
     error_log("[CHAT_SEND] Enviando para: $phoneFormatted | Instância: $instance | API Key: " . substr($apiKey, 0, 10) . "...");
-    error_log("[CHAT_SEND] URL: " . EVOLUTION_API_URL . '/message/sendText/' . $instance);
+    error_log("[CHAT_SEND] URL: $apiUrl/message/sendText/$instance");
     error_log("[CHAT_SEND] Payload: " . json_encode($data));
     
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, EVOLUTION_API_URL . '/message/sendText/' . $instance);
+    curl_setopt($ch, CURLOPT_URL, rtrim($apiUrl, '/') . '/message/sendText/' . $instance);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
