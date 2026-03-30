@@ -54,7 +54,7 @@ if (!defined('EVOLUTION_INSTANCE')) {
 
 // Configurações da Evolution Go API
 if (!defined('EVOLUTION_GO_API_URL')) {
-    define('EVOLUTION_GO_API_URL', env('EVOLUTION_GO_API_URL', 'http://evogo:4000'));
+    define('EVOLUTION_GO_API_URL', env('EVOLUTION_GO_API_URL', 'http://evogo.macip.com.br:4000'));
 }
 if (!defined('EVOLUTION_GO_API_KEY')) {
     define('EVOLUTION_GO_API_KEY', env('EVOLUTION_GO_API_KEY', 'a9F3kLm8Qz2XvP7rT1bYcN6dE4uHsJ5W'));
