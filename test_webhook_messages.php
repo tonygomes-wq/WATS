@@ -439,6 +439,33 @@ if (strpos($apiUrl, 'wats_') !== false ||
             
             <div id="webhookLogs"></div>
         </div>
+        
+        <!-- Ferramentas Adicionais -->
+        <div class="card">
+            <h2>🔧 Ferramentas de Correção</h2>
+            
+            <div class="alert alert-warning">
+                <strong>⚠️ Problemas Conhecidos:</strong><br>
+                • Mensagens antigas com horário errado (timestamp em milissegundos)<br>
+                • Fotos de perfil não carregando para contatos antigos
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <button onclick="fixTimestamps()" class="btn" style="background: #e67e22;">
+                    🕐 Corrigir Timestamps
+                </button>
+                
+                <button onclick="downloadProfilePics()" class="btn" style="background: #9b59b6;">
+                    📸 Baixar Fotos de Perfil
+                </button>
+            </div>
+            
+            <div class="alert alert-info" style="margin-top: 20px;">
+                <strong>ℹ️ O que cada ferramenta faz:</strong><br><br>
+                <strong>Corrigir Timestamps:</strong> Converte timestamps de milissegundos para segundos, corrigindo o horário das mensagens antigas.<br><br>
+                <strong>Baixar Fotos:</strong> Baixa fotos de perfil dos 50 contatos mais recentes da Evolution API e salva localmente.
+            </div>
+        </div>
     </div>
     
     <script>
@@ -691,6 +718,66 @@ if (strpos($apiUrl, 'wats_') !== false ||
             checkConnection();
             loadRecentMessages();
         });
+        
+        // Corrigir timestamps
+        async function fixTimestamps() {
+            if (!confirm('Deseja corrigir os timestamps das mensagens? Isso pode levar alguns segundos.')) {
+                return;
+            }
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳ Corrigindo...';
+            
+            try {
+                const response = await fetch('/api/fix_timestamps.php', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Sucesso! ${data.fixed || 0} mensagens corrigidas.`);
+                    location.reload();
+                } else {
+                    alert(`❌ Erro: ${data.error || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                alert(`❌ Erro: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🕐 Corrigir Timestamps';
+            }
+        }
+        
+        // Baixar fotos de perfil
+        async function downloadProfilePics() {
+            if (!confirm('Deseja baixar as fotos de perfil dos 50 contatos mais recentes? Isso pode levar alguns minutos.')) {
+                return;
+            }
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '⏳ Baixando...';
+            
+            try {
+                const response = await fetch('/api/download_profile_pics.php', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Sucesso! ${data.success_count || 0} fotos baixadas, ${data.failed_count || 0} falhas.`);
+                    location.reload();
+                } else {
+                    alert(`❌ Erro: ${data.error || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                alert(`❌ Erro: ${error.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📸 Baixar Fotos';
+            }
+        }
     </script>
 </body>
 </html>
