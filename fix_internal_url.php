@@ -14,11 +14,12 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 
 // URLs internas possíveis (baseado nos nomes dos serviços no Easypanel)
+// O nome correto do serviço é: evolution-api (porta 8080)
 $possibleInternalUrls = [
-    'http://evolution-api:8080',
+    'http://evolution-api:8080',  // ✅ Nome correto do serviço
+    'http://wats_evolution-api:8080',  // Alternativa com prefixo do projeto
     'http://evolution-api-app:8080',
     'http://evolution:8080',
-    'http://evogo:8080',
 ];
 
 $workingUrl = null;
