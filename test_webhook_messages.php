@@ -20,7 +20,7 @@ $userId = $_SESSION['user_id'];
 $stmt = $pdo->prepare("
     SELECT 
         evolution_instance, evolution_token, whatsapp_provider,
-        evolution_go_instance, evolution_go_token
+        evolution_go_instance, evolution_go_token, evolution_api_url
     FROM users 
     WHERE id = ?
 ");
@@ -30,7 +30,19 @@ $user = $stmt->fetch(PDO::FETCH_ASSOC);
 $provider = $user['whatsapp_provider'] ?? 'evolution';
 $instance = ($provider === 'evolution-go') ? $user['evolution_go_instance'] : $user['evolution_instance'];
 $token = ($provider === 'evolution-go') ? $user['evolution_go_token'] : $user['evolution_token'];
-$apiUrl = ($provider === 'evolution-go') ? EVOLUTION_GO_API_URL : EVOLUTION_API_URL;
+
+// Usar URL do usuário se disponível, senão usar constante
+if ($provider === 'evolution-go') {
+    $apiUrl = EVOLUTION_GO_API_URL;
+} else {
+    $apiUrl = !empty($user['evolution_api_url']) ? $user['evolution_api_url'] : EVOLUTION_API_URL;
+}
+
+// Se a URL for um IP interno do Docker, substituir pela URL pública
+if (strpos($apiUrl, '172.18.') !== false || strpos($apiUrl, '192.168.') !== false || strpos($apiUrl, '10.') !== false) {
+    // Substituir por URL pública padrão
+    $apiUrl = 'https://evolution.macip.com.br';
+}
 
 ?>
 <!DOCTYPE html>
@@ -318,6 +330,12 @@ $apiUrl = ($provider === 'evolution-go') ? EVOLUTION_GO_API_URL : EVOLUTION_API_
                     <span class="info-label">API URL:</span>
                     <span class="info-value"><?php echo htmlspecialchars($apiUrl); ?></span>
                 </div>
+                <?php if (strpos($apiUrl, '172.18.') !== false || strpos($apiUrl, '192.168.') !== false): ?>
+                <div class="alert alert-warning" style="margin-top: 10px;">
+                    <strong>⚠️ Atenção:</strong> A URL da API está usando um IP interno do Docker. 
+                    Isso não funcionará do navegador. Configure uma URL pública na sua instância.
+                </div>
+                <?php endif; ?>
                 <div class="info-item">
                     <span class="info-label">Token:</span>
                     <span class="info-value"><?php echo $token ? substr($token, 0, 10) . '...' : 'Não configurado'; ?></span>
